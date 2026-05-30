@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biblioteca</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container">
+      <div class="header-inner">
+        <h1 class="site-title">Biblioteca</h1>
+        <p class="site-subtitle">Catálogo personal</p>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+
+      <div class="controls">
+        <div class="search-wrapper">
+          <input
+            type="text"
+            id="search"
+            class="search-input"
+            placeholder="Buscar por título, autor o editorial..."
+            autocomplete="off"
+          >
+        </div>
+        <div class="filter-group">
+          <select id="filter-genero" class="filter-select">
+            <option value="">Todos los géneros</option>
+          </select>
+          <select id="filter-estado" class="filter-select">
+            <option value="">Todos los estados</option>
+            <option value="leido">Leído</option>
+            <option value="leyendo">Leyendo</option>
+            <option value="pendiente">Pendiente</option>
+          </select>
+          <select id="filter-idioma" class="filter-select">
+            <option value="">Todos los idiomas</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="results-bar">
+        <span id="book-count" class="results-count"></span>
+        <button id="clear-filters" class="btn-clear" style="display:none">Limpiar filtros</button>
+      </div>
+
+      <div id="book-grid" class="book-grid"></div>
+
+      <div id="empty-state" class="empty-state" style="display:none">
+        <p>No se encontraron libros con los filtros aplicados.</p>
+      </div>
+
+    </div>
+  </main>
+
+  <div id="modal" class="modal" aria-hidden="true" role="dialog" aria-labelledby="modal-title">
+    <div class="modal-backdrop" id="modal-backdrop"></div>
+    <div class="modal-panel">
+      <button class="modal-close" id="modal-close" aria-label="Cerrar">&times;</button>
+      <div id="modal-content" class="modal-content"></div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>Catálogo en JSON &mdash; GitHub Pages</p>
+    </div>
+  </footer>
+
+  <script src="data/index.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

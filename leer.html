@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leer &mdash; Biblioteca</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/leer.css">
+</head>
+<body class="reader-body">
+
+  <div class="reader-layout">
+
+    <aside class="reader-sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <a href="index.html" class="btn-back">Biblioteca</a>
+        <button class="sidebar-toggle" id="sidebar-close" aria-label="Cerrar índice">&times;</button>
+      </div>
+      <div class="book-info" id="book-info"></div>
+      <nav class="chapter-nav" id="chapter-nav" aria-label="Capítulos"></nav>
+    </aside>
+
+    <div class="reader-main">
+      <header class="reader-topbar">
+        <button class="sidebar-toggle" id="sidebar-open" aria-label="Abrir índice">
+          <span></span><span></span><span></span>
+        </button>
+        <span class="reader-breadcrumb" id="reader-breadcrumb"></span>
+        <span class="reader-progress" id="reader-progress"></span>
+      </header>
+
+      <article class="reader-content" id="reader-content">
+        <p class="reader-loading">Cargando...</p>
+      </article>
+
+      <nav class="reader-pagination" id="reader-pagination"></nav>
+    </div>
+
+  </div>
+
+  <script src="data/index.js"></script>
+  <script src="js/leer.js"></script>
+</body>
+</html>
