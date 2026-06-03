@@ -37,6 +37,7 @@ export default function Chapter() {
   // Verificar si ya compró este capítulo al cargar
   useEffect(() => {
     async function syncPurchases() {
+      if (!bookId) return;
       const purchasedBooks = JSON.parse(localStorage.getItem('purchasedBooks') || '[]');
       if (purchasedBooks.includes(bookId)) {
         setIsPurchased(true);
