@@ -56,83 +56,58 @@ export class WebhookController {
     const data = event?.data;
 
     if (eventType === 'checkout.updated' && data?.status === 'succeeded') {
-      const metadata = data?.metadata || {};
-      const userId = metadata.userId;
-      const bookId = metadata.bookId;
-
-      if (!userId || !bookId) {
-        this.logger.warn(`checkout.updated missing userId or bookId in metadata`);
-        return { received: true };
-      }
-
-      const checkoutId = data?.id;
-      if (!checkoutId) return { received: true };
-
-      const existing = await this.purchaseModel.findOne({
-        providerOrderId: checkoutId,
-        provider: PaymentProvider.POLAR,
-      }).exec();
-      if (existing) {
-        this.logger.log(`Duplicate checkout.updated skipped`);
-        return { received: true };
-      }
-
-      await this.purchaseModel.create({
-        userRef: new Types.ObjectId(userId),
-        bookRef: new Types.ObjectId(bookId),
-        purchaseToken: checkoutId,
-        provider: PaymentProvider.POLAR,
-        status: PurchaseStatus.PAID,
-        providerOrderId: checkoutId,
-        amountCents: data?.amount || 0,
-        currency: data?.currency || 'USD',
-        paidAt: new Date(),
-        metadata,
-      });
-
-      await this.bookModel.findByIdAndUpdate(bookId, { $inc: { sales: 1 } });
-      this.logger.log(`Purchase recorded via checkout.updated: user=${userId}, book=${bookId}`);
+      await this.recordPurchase('checkout', data);
     } else if (eventType === 'order.paid') {
-      const metadata = data?.metadata || {};
-      const userId = metadata.userId;
-      const bookId = metadata.bookId;
-
-      if (!userId || !bookId) {
-        this.logger.warn(`order.paid missing userId or bookId in metadata`);
-        return { received: true };
-      }
-
-      const orderId = data?.id;
-      if (!orderId) return { received: true };
-
-      const existing = await this.purchaseModel.findOne({
-        providerOrderId: orderId,
-        provider: PaymentProvider.POLAR,
-      }).exec();
-      if (existing) {
-        this.logger.log(`Duplicate order.paid skipped`);
-        return { received: true };
-      }
-
-      await this.purchaseModel.create({
-        userRef: new Types.ObjectId(userId),
-        bookRef: new Types.ObjectId(bookId),
-        purchaseToken: orderId,
-        provider: PaymentProvider.POLAR,
-        status: PurchaseStatus.PAID,
-        providerOrderId: orderId,
-        amountCents: data?.amount || 0,
-        currency: data?.currency || 'USD',
-        paidAt: new Date(),
-        metadata,
-      });
-
-      await this.bookModel.findByIdAndUpdate(bookId, { $inc: { sales: 1 } });
-      this.logger.log(`Purchase recorded via order.paid: user=${userId}, book=${bookId}`);
+      await this.recordPurchase('order', data);
     } else {
       this.logger.log(`Unhandled webhook event: ${eventType}`);
     }
 
     return { received: true };
+  }
+
+  private async recordPurchase(source: string, data: any) {
+    const metadata = data?.metadata || {};
+    const userId = metadata.userId;
+    const bookId = metadata.bookId;
+
+    if (!userId || !bookId) {
+      this.logger.warn(`${source} webhook missing userId or bookId`);
+      return;
+    }
+
+    const id = data?.id;
+    if (!id) return;
+
+    // Check by providerOrderId AND by userRef+bookRef to prevent duplicates
+    const [byOrderId, byUserBook] = await Promise.all([
+      this.purchaseModel.findOne({ providerOrderId: id, provider: PaymentProvider.POLAR }).exec(),
+      this.purchaseModel.findOne({ userRef: new Types.ObjectId(userId), bookRef: new Types.ObjectId(bookId) }).exec(),
+    ]);
+
+    if (byOrderId) {
+      this.logger.log(`Duplicate ${source} skipped (same providerOrderId)`);
+      return;
+    }
+    if (byUserBook) {
+      this.logger.log(`Duplicate ${source} skipped (already purchased)`);
+      return;
+    }
+
+    await this.purchaseModel.create({
+      userRef: new Types.ObjectId(userId),
+      bookRef: new Types.ObjectId(bookId),
+      purchaseToken: id,
+      provider: PaymentProvider.POLAR,
+      status: PurchaseStatus.PAID,
+      providerOrderId: id,
+      amountCents: data?.amount || 0,
+      currency: data?.currency || 'USD',
+      paidAt: new Date(),
+      metadata,
+    });
+
+    await this.bookModel.findByIdAndUpdate(bookId, { $inc: { sales: 1 } });
+    this.logger.log(`Purchase recorded via ${source}: user=${userId}, book=${bookId}`);
   }
 }

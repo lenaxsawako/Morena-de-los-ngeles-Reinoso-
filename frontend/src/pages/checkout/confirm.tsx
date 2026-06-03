@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { paymentsService } from '../../services/payments';
 
@@ -8,16 +8,28 @@ export default function ConfirmPurchase() {
   const [searchParams] = useSearchParams();
   const checkoutId = searchParams.get('checkout_id');
   const [syncing, setSyncing] = useState(true);
+  const attempts = useRef(0);
 
   useEffect(() => {
     async function syncPurchase() {
       try {
         const purchases = await paymentsService.getPurchases();
-        const purchasedBookIds = purchases
+        const purchasedIds = purchases
           .filter((p) => p.status === 'paid' || p.status === 'completed')
-          .map((p) => p.bookRef);
-        const existing = JSON.parse(localStorage.getItem('purchasedBooks') || '[]');
-        const merged = [...new Set([...existing, ...purchasedBookIds])];
+          .map((p) => {
+            if (typeof p.bookRef === 'string') return p.bookRef;
+            return p.bookRef?._id || p.bookRef;
+          })
+          .filter(Boolean);
+
+        if (purchasedIds.length === 0 && attempts.current < 5) {
+          attempts.current++;
+          await new Promise((r) => setTimeout(r, 2000));
+          return syncPurchase();
+        }
+
+        const existing = JSON.parse(localStorage.getItem('purchasedBooks') || '[]') as string[];
+        const merged = [...new Set([...existing, ...purchasedIds, bookId].filter(Boolean))];
         localStorage.setItem('purchasedBooks', JSON.stringify(merged));
       } catch {
         // Silently fail — user can still navigate manually
