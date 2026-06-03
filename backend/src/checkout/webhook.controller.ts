@@ -1,7 +1,9 @@
-import { Controller, Post, Body, Headers, UnauthorizedException, Logger } from '@nestjs/common';
+import { Controller, Post, Body, Headers, Req, Logger } from '@nestjs/common';
 import { Public } from '../decorators/public.decorator';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { Request } from 'express';
+import { validateEvent, WebhookVerificationError } from '@polar-sh/sdk/webhooks';
 import { Purchase, PurchaseDocument, PurchaseStatus, PaymentProvider } from '../models/purchase.schema';
 import { Book, BookDocument } from '../models/book.schema';
 import { SiteConfig, SiteConfigDocument } from '../models/site-config.schema';
@@ -18,111 +20,87 @@ export class WebhookController {
 
   @Post('polar')
   @Public()
-  async handlePolarWebhook(
-    @Body() body: any,
-    @Headers('polar-webhook-secret') webhookSecret: string,
-  ) {
+  async handlePolarWebhook(@Req() req: Request) {
     try {
       const config = await this.siteConfigModel.findOne().lean().exec();
-      const expectedSecret = config?.polar?.webhookSecret;
-      if (expectedSecret && webhookSecret) {
-        if (webhookSecret !== expectedSecret) {
-          this.logger.warn(`Invalid polar webhook secret (got first 8: ${webhookSecret?.slice(0, 8)}..., expected first 8: ${expectedSecret.slice(0, 8)}...)`);
-          return { received: true };
+      const expectedSecret = config?.polar?.webhookSecret?.trim();
+
+      if (expectedSecret) {
+        try {
+          const event = validateEvent(
+            req.rawBody as Buffer,
+            req.headers as Record<string, string>,
+            expectedSecret,
+          );
+          return await this.processEvent(event);
+        } catch (err) {
+          if (err instanceof WebhookVerificationError) {
+            this.logger.warn('Webhook verification failed');
+            return { received: true };
+          }
+          throw err;
         }
-      } else if (!webhookSecret) {
-        this.logger.debug('No polar-webhook-secret header (Polar uses HMAC signing), skipping validation');
-      }
-
-      const eventType = body?.type;
-      this.logger.log(`Received Polar webhook: ${eventType}`);
-
-      if (eventType === 'checkout.completed') {
-        const checkout = body.data;
-        const metadata = checkout.metadata || {};
-
-        const userId = metadata.userId;
-        const bookId = metadata.bookId;
-
-        if (!userId || !bookId) {
-          this.logger.warn('Webhook missing userId or bookId in metadata');
-          return { received: true };
-        }
-
-        // Idempotency check — skip if purchase already recorded
-        const existing = await this.purchaseModel.findOne({
-          providerOrderId: checkout.id,
-          provider: PaymentProvider.POLAR,
-        }).exec();
-        if (existing) {
-          this.logger.log(`Duplicate webhook skipped for checkout ${checkout.id}`);
-          return { received: true };
-        }
-
-        // Create purchase record
-        await this.purchaseModel.create({
-          userRef: new Types.ObjectId(userId),
-          bookRef: new Types.ObjectId(bookId),
-          purchaseToken: checkout.id,
-          provider: PaymentProvider.POLAR,
-          status: PurchaseStatus.PAID,
-          providerOrderId: checkout.id,
-          amountCents: checkout.amount || 0,
-          currency: checkout.currency || 'USD',
-          paidAt: new Date(),
-          metadata: { ...metadata, checkoutId: checkout.id },
-        });
-
-        // Increment book sales
-        await this.bookModel.findByIdAndUpdate(bookId, { $inc: { sales: 1 } });
-
-        this.logger.log(`Purchase recorded: user=${userId}, book=${bookId}`);
-      } else if (eventType === 'checkout.created') {
-        this.logger.log(`Checkout created: ${body.data?.id}`);
-      } else if (eventType === 'order.created' || eventType === 'order.paid') {
-        const order = body.data;
-        const metadata = order.metadata || {};
-        const userId = metadata.userId;
-        const bookId = metadata.bookId;
-
-        if (!userId || !bookId) {
-          this.logger.warn('Order webhook missing userId or bookId in metadata');
-          return { received: true };
-        }
-
-        const existing = await this.purchaseModel.findOne({
-          providerOrderId: order.id,
-          provider: PaymentProvider.POLAR,
-        }).exec();
-        if (existing) {
-          this.logger.log(`Duplicate order webhook skipped for order ${order.id}`);
-          return { received: true };
-        }
-
-        await this.purchaseModel.create({
-          userRef: new Types.ObjectId(userId),
-          bookRef: new Types.ObjectId(bookId),
-          purchaseToken: order.id,
-          provider: PaymentProvider.POLAR,
-          status: PurchaseStatus.PAID,
-          providerOrderId: order.id,
-          amountCents: order.amount || 0,
-          currency: order.currency || 'USD',
-          paidAt: new Date(),
-          metadata: { ...metadata, orderId: order.id },
-        });
-
-        await this.bookModel.findByIdAndUpdate(bookId, { $inc: { sales: 1 } });
-        this.logger.log(`Purchase recorded via order: user=${userId}, book=${bookId}`);
       } else {
-        this.logger.log(`Unhandled webhook event: ${eventType}`);
+        this.logger.debug('No webhook secret configured, skipping validation');
+        const body = req.body as any;
+        return await this.processEvent(body);
       }
-
-      return { received: true };
     } catch (err) {
-      if (err instanceof UnauthorizedException) throw err;
       this.logger.error(`Webhook error: ${err.message}`);
       return { received: true };
     }
+  }
+
+  private async processEvent(event: any) {
+    const eventType = event?.type;
+    this.logger.log(`Received Polar webhook: ${eventType}`);
+
+    const data = event?.data;
+
+    if (eventType === 'checkout.completed' || eventType === 'order.created' || eventType === 'order.paid') {
+      const metadata = data?.metadata || {};
+      const userId = metadata.userId;
+      const bookId = metadata.bookId;
+
+      if (!userId || !bookId) {
+        this.logger.warn(`Webhook ${eventType} missing userId or bookId in metadata`);
+        return { received: true };
+      }
+
+      const orderId = data?.id;
+      if (!orderId) {
+        this.logger.warn(`Webhook ${eventType} missing id`);
+        return { received: true };
+      }
+
+      const existing = await this.purchaseModel.findOne({
+        providerOrderId: orderId,
+        provider: PaymentProvider.POLAR,
+      }).exec();
+      if (existing) {
+        this.logger.log(`Duplicate webhook skipped for ${orderId}`);
+        return { received: true };
+      }
+
+      await this.purchaseModel.create({
+        userRef: new Types.ObjectId(userId),
+        bookRef: new Types.ObjectId(bookId),
+        purchaseToken: orderId,
+        provider: PaymentProvider.POLAR,
+        status: PurchaseStatus.PAID,
+        providerOrderId: orderId,
+        amountCents: data?.amount || 0,
+        currency: data?.currency || 'USD',
+        paidAt: new Date(),
+        metadata: { ...metadata, [`${eventType.split('.')[0]}Id`]: orderId },
+      });
+
+      await this.bookModel.findByIdAndUpdate(bookId, { $inc: { sales: 1 } });
+      this.logger.log(`Purchase recorded via ${eventType}: user=${userId}, book=${bookId}`);
+    } else {
+      this.logger.log(`Unhandled webhook event: ${eventType}`);
+    }
+
+    return { received: true };
   }
 }
