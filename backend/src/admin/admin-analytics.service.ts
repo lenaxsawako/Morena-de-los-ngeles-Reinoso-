@@ -186,7 +186,7 @@ export class AdminAnalyticsService {
       this.bookModel.findById(bookId).lean(),
       this.purchaseModel
         .find({ bookRef: bookId })
-        .select('priceCents')
+        .select('amountCents')
         .lean(),
       this.readingProgressModel
         .find({ bookRef: bookId, lastReadAt: { $gte: thirtyDaysAgo } })
@@ -199,7 +199,7 @@ export class AdminAnalyticsService {
     }
 
     const sales = purchaseData.length;
-    const revenue = purchaseData.reduce((sum, p: any) => sum + (p.priceCents || 0), 0) / 100;
+    const revenue = purchaseData.reduce((sum, p: any) => sum + (p.amountCents || 0), 0) / 100;
     const readers = readingData.length;
     const views = book.views || 0;
 
