@@ -54,14 +54,18 @@ export class LibraryService {
       const book = purchase.bookRef as any;
       const progress = progressMap.get(book._id.toString());
 
+      const totalPages = book.totalPages || 300;
+      const currentPage = progress?.currentPage || 0;
+      const calculatedPercentage = currentPage > 0 ? Math.round((currentPage / totalPages) * 100) : 0;
+
       return {
         bookId: book._id,
         title: book.title,
         slug: book.slug,
         description: book.description,
         coverUrl: book.coverUrl,
-        currentPage: progress?.currentPage || 1,
-        progressPercentage: progress?.progressPercentage || 0,
+        currentPage: currentPage || 1,
+        progressPercentage: calculatedPercentage,
         lastReadAt: progress?.lastReadAt || null,
         purchasedAt: (purchase as any).createdAt,
       };
@@ -165,10 +169,9 @@ export class LibraryService {
   async getCollection(userId: string) {
     const purchases = await this.purchaseModel
       .find({ userRef: new Types.ObjectId(userId) })
-      .populate('bookRef', 'title coverUrl slug')
+      .populate('bookRef', 'title coverUrl slug totalPages')
       .sort({ createdAt: -1 });
 
-    // Deduplicate by bookRef._id (keep the latest purchase)
     const seen = new Set<string>();
     const unique = purchases.filter((p) => {
       const id = p.bookRef._id.toString();
@@ -179,7 +182,6 @@ export class LibraryService {
 
     const bookIds = [...seen];
 
-    // Get reading progress for all books
     const progressMap = new Map();
     const progressList = await this.readingProgressModel.find({
       userRef: new Types.ObjectId(userId),
@@ -199,7 +201,9 @@ export class LibraryService {
     return unique.map((purchase) => {
       const book = purchase.bookRef as any;
       const progress = progressMap.get(book._id.toString());
-      const percentage = progress?.progressPercentage || 0;
+      const totalPages = book.totalPages || 300;
+      const currentPage = progress?.currentPage || 0;
+      const percentage = currentPage > 0 ? Math.round((currentPage / totalPages) * 100) : 0;
 
       return {
         bookId: book._id,
