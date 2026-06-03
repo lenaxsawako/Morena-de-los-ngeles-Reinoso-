@@ -94,17 +94,23 @@ export default function Chapter() {
   // Guardar progreso en localStorage + API
   const saveProgress = useCallback((page: number) => {
     if (!bookId || totalPages === 0) return;
-    const progressPct = Math.round(((page + 1) / totalPages) * 100);
-    guestReadingService.saveProgress(bookId, page, progressPct);
+    const safePage = Math.min(page, totalPages - 1);
+    const progressPct = Math.round(((safePage + 1) / totalPages) * 100);
+    guestReadingService.saveProgress(bookId, safePage, progressPct);
     if (authService.isAuthenticated()) {
-      readingService.updateProgress(bookId, page + 1).catch(() => {});
+      readingService.updateProgress(bookId, safePage + 1).catch(() => {});
     }
   }, [bookId, totalPages]);
 
-  // Al cargar el PDF, guardar progreso inicial si venía de localStorage
+  // Al cargar el PDF, corregir currentPage si excede totalPages y guardar
   useEffect(() => {
-    if (totalPages > 0 && currentPage > 0) {
-      saveProgress(currentPage);
+    if (totalPages > 0) {
+      if (currentPage >= totalPages) {
+        setCurrentPage(totalPages - 1);
+      }
+      if (currentPage > 0) {
+        saveProgress(currentPage);
+      }
     }
   }, [totalPages]);
 
