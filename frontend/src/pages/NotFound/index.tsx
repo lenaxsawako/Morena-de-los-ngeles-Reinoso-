@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import './notfound.css';
 
 export default function NotFound() {
@@ -54,12 +55,12 @@ export default function NotFound() {
             </p>
 
             <div className="notfound-actions">
-              <a href="/" className="notfound-button primary">
+              <Link to="/" className="notfound-button primary">
                 Volver al Inicio
-              </a>
-              <a href="/catalog" className="notfound-button secondary">
+              </Link>
+              <Link to="/catalog" className="notfound-button secondary">
                 Explorar el Catálogo
-              </a>
+              </Link>
             </div>
           </div>
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { landingService, type LandingData } from '../../services/landing';
 import { subscriptionService } from '../../services/subscription';
 import { paymentsService } from '../../services/payments';
@@ -193,12 +193,12 @@ export default function HomePage() {
             <h2 className="font-headline-lg text-headline-lg text-primary">Historias Destacadas</h2>
           </div>
           <div className="hidden md:block">
-            <a 
-              href="/catalog"
+            <Link 
+              to="/catalog"
               className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant hover:text-primary transition-colors"
             >
               Ver Todas las Obras →
-            </a>
+            </Link>
           </div>
         </div>
 
