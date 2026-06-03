@@ -28,7 +28,15 @@ export class LibraryService {
       .populate('bookRef')
       .sort({ createdAt: -1 });
 
-    const bookIds = purchases.map((p) => p.bookRef._id);
+    const seen = new Set<string>();
+    const unique = purchases.filter((p) => {
+      const id = p.bookRef._id.toString();
+      if (seen.has(id)) return false;
+      seen.add(id);
+      return true;
+    });
+
+    const bookIds = [...seen];
 
     // Get reading progress for all books
     const progressMap = new Map();
@@ -42,7 +50,7 @@ export class LibraryService {
     });
 
     // Combine data
-    return purchases.map((purchase) => {
+    return unique.map((purchase) => {
       const book = purchase.bookRef as any;
       const progress = progressMap.get(book._id.toString());
 
@@ -160,7 +168,16 @@ export class LibraryService {
       .populate('bookRef', 'title coverUrl slug')
       .sort({ createdAt: -1 });
 
-    const bookIds = purchases.map((p) => p.bookRef._id);
+    // Deduplicate by bookRef._id (keep the latest purchase)
+    const seen = new Set<string>();
+    const unique = purchases.filter((p) => {
+      const id = p.bookRef._id.toString();
+      if (seen.has(id)) return false;
+      seen.add(id);
+      return true;
+    });
+
+    const bookIds = [...seen];
 
     // Get reading progress for all books
     const progressMap = new Map();
@@ -173,14 +190,13 @@ export class LibraryService {
       progressMap.set(p.bookRef.toString(), p);
     });
 
-    // Map status based on percentage
     const getStatus = (percentage: number): string => {
       if (percentage === 0) return 'unread';
       if (percentage < 100) return 'reading';
       return 'completed';
     };
 
-    return purchases.map((purchase) => {
+    return unique.map((purchase) => {
       const book = purchase.bookRef as any;
       const progress = progressMap.get(book._id.toString());
       const percentage = progress?.progressPercentage || 0;

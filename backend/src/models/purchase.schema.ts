@@ -94,7 +94,7 @@ export const PurchaseSchema =
   SchemaFactory.createForClass(Purchase);
 
 // Indexes for analytics and filtering
-PurchaseSchema.index({ userRef: 1, bookRef: 1 });
+PurchaseSchema.index({ userRef: 1, bookRef: 1 }, { unique: true });
 PurchaseSchema.index({ provider: 1 });
 PurchaseSchema.index({ createdAt: -1 });
 
