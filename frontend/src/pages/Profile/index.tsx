@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../../services/auth';
 import { paymentsService } from '../../services/payments';
 import './profile.css';
@@ -224,9 +224,9 @@ export default function Profile() {
               <div className="profile-empty-state">
                 <span className="material-symbols-outlined notranslate" translate="no">shopping_bag</span>
                 <p>Aún no has comprado libros</p>
-                <a href="/catalog" className="profile-browse-button">
+                <Link to="/catalog" className="profile-browse-button">
                   Explorar Catálogo
-                </a>
+                </Link>
               </div>
             )}
           </div>
