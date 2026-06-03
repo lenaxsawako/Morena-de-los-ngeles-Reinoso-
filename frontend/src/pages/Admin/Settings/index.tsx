@@ -1536,11 +1536,12 @@ export default function Settings() {
                 <div className="settings-field-group">
                   <label className="settings-label">API Key</label>
                   <input
-                    type="password"
+                    type="text"
                     value={payments.apiKey}
                     onChange={(e) => setPayments({ ...payments, apiKey: e.target.value })}
                     className="settings-input"
                     placeholder="Enter Polar API key"
+                    autoComplete="off"
                   />
                 </div>
 
@@ -1548,11 +1549,12 @@ export default function Settings() {
                 <div className="settings-field-group">
                   <label className="settings-label">Webhook Secret</label>
                   <input
-                    type="password"
+                    type="text"
                     value={payments.webhookSecret}
                     onChange={(e) => setPayments({ ...payments, webhookSecret: e.target.value })}
                     className="settings-input"
                     placeholder="Enter Polar webhook secret"
+                    autoComplete="off"
                   />
                   <p className="settings-help" style={{ fontSize: '0.75rem', color: '#9ca3af', marginTop: '0.25rem' }}>
                     Cópialo de Polar Dashboard → Settings → Webhooks
