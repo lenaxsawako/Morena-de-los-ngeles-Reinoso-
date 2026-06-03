@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/auth';
 import { guestReadingService, type ReadingProgress } from '../../services/guestReading';
-import { readingService, type ContinueReading, type LibraryBook, type ReadingProgressItem } from '../../services/reading';
+import { readingService, type ContinueReading, type LibraryBook } from '../../services/reading';
 import { booksService } from '../../services/books';
 import { landingService } from '../../services/landing';
 import './library.css';
@@ -24,7 +24,7 @@ export default function Library() {
   }, []);
   const [activeTab, setActiveTab] = useState('all');
   const [guestLibrary, setGuestLibrary] = useState<ReadingProgress[]>([]);
-  const [continueReading, setContinueReading] = useState<ReadingProgress | ContinueReading | null>(null);
+  const [continueReading, setContinueReading] = useState<ContinueReading | null>(null);
   const [library, setLibrary] = useState<LibraryBook[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -204,26 +204,26 @@ export default function Library() {
           Continuar Leyendo
         </h2>
         
-        {continueReading ? (
-          <div className="glass-card group flex flex-col md:flex-row items-center gap-10 p-8 md:p-12 transition-all duration-500 hover:border-white/10 cursor-pointer"
-               onClick={() => navigate(`/book/${continueReading.bookId}`)}>
-            {/* Book Cover */}
-            <div className="w-full md:w-1/3 aspect-[2/3] overflow-hidden shadow-2xl relative bg-gradient-to-br from-white/10 to-white/5">
-              {continueReading.coverUrl ? (
-                <img src={continueReading.coverUrl} alt={continueReading.title} className="w-full h-full object-cover" />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <span className="material-symbols-outlined text-6xl text-white/30">book</span>
-                </div>
-              )}
-            </div>
+          {continueReading ? (
+            <div className="glass-card group flex flex-col md:flex-row items-center gap-10 p-8 md:p-12 transition-all duration-500 hover:border-white/10 cursor-pointer"
+                 onClick={() => navigate(`/book/${continueReading.bookId}`)}>
+              {/* Book Cover */}
+              <div className="w-full md:w-1/3 aspect-[2/3] overflow-hidden shadow-2xl relative bg-gradient-to-br from-white/10 to-white/5">
+                {continueReading.coverUrl ? (
+                  <img src={continueReading.coverUrl} alt={continueReading.title} className="w-full h-full object-cover" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <span className="material-symbols-outlined text-6xl text-white/30">book</span>
+                  </div>
+                )}
+              </div>
 
-            {/* Book Info */}
-            <div className="w-full md:w-2/3 flex flex-col justify-center">
-              <span className="font-label-md text-label-md uppercase tracking-widest text-primary-container mb-4">
-                Lectura Actual
-              </span>
-              <h1 className="font-headline-lg text-headline-lg mb-4">{continueReading.title}</h1>
+              {/* Book Info */}
+              <div className="w-full md:w-2/3 flex flex-col justify-center">
+                <span className="font-label-md text-label-md uppercase tracking-widest text-primary-container mb-4">
+                  Lectura Actual
+                </span>
+                <h1 className="font-headline-lg text-headline-lg mb-4">{continueReading.title}</h1>
               <p className="font-body-lg text-body-lg text-on-surface-variant mb-8 max-w-[500px]">
                 Retoma tu lectura desde la página {continueReading.currentPage}
               </p>

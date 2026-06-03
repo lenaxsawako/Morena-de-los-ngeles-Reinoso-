@@ -5,7 +5,6 @@ import { authService } from '../../services/auth';
 export default function Checkout() {
   const navigate = useNavigate();
   const { bookId } = useParams();
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -45,7 +44,6 @@ export default function Checkout() {
           return;
         }
         setError(err.message || 'Error al crear checkout');
-        setLoading(false);
       });
   }, [bookId, navigate]);
 

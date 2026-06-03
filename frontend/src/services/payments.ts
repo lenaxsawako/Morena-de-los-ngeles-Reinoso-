@@ -2,9 +2,11 @@ import { authService } from './auth';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+export type BookRef = string | { _id: string; title?: string; coverUrl?: string; slug?: string };
+
 export interface Purchase {
   _id: string;
-  bookRef: string;
+  bookRef: BookRef;
   userRef: string;
   provider: string;
   status: string;

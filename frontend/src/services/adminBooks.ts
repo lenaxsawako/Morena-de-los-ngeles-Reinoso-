@@ -154,6 +154,7 @@ export interface CommunityStats {
   totalReaders: number;
   newsletterSubscribers: number;
   totalReviews: number;
+  reviewsCount?: number;
   averageRating: number;
 }
 
