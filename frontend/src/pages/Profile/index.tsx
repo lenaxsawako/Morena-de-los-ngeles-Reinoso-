@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../../services/auth';
+import { paymentsService } from '../../services/payments';
 import './profile.css';
 
 interface UserProfile {
@@ -27,6 +28,7 @@ interface UserProfile {
   };
   createdAt: string;
   updatedAt: string;
+  purchases?: any[];
 }
 
 export default function Profile() {
@@ -65,6 +67,18 @@ export default function Profile() {
         }
 
         const userData = await response.json();
+
+        const purchases = await paymentsService.getPurchases().catch(() => []);
+        const purchasedIds = purchases
+          .filter((p) => p.status === 'paid' || p.status === 'completed')
+          .map((p) => {
+            if (typeof p.bookRef === 'string') return p.bookRef;
+            return (p.bookRef as any)?._id || p.bookRef;
+          })
+          .filter(Boolean);
+
+        userData.purchasedBooks = purchasedIds;
+        userData.purchases = purchases.filter((p) => p.status === 'paid' || p.status === 'completed');
         setUser(userData);
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
@@ -192,12 +206,16 @@ export default function Profile() {
                 <p className="profile-books-count">
                   Has comprado {user.purchasedBooks.length} libro{user.purchasedBooks.length !== 1 ? 's' : ''}
                 </p>
-                <div className="profile-book-ids">
-                  {user.purchasedBooks.map((bookId, idx) => (
-                    <div key={idx} className="profile-book-id-item">
-                      {bookId}
-                    </div>
-                  ))}
+                <div className="profile-book-grid">
+                  {(user as any).purchases?.map((p: any, idx: number) => {
+                    const book = typeof p.bookRef === 'string' ? null : p.bookRef;
+                    return (
+                      <div key={idx} className="profile-book-item" onClick={() => navigate(`/chapter/${book?._id || p.bookRef}`)}>
+                        {book?.coverUrl && <img src={book.coverUrl} alt={book.title} className="profile-book-cover" />}
+                        <span className="profile-book-title">{book?.title || book?._id || p.bookRef}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             ) : (
