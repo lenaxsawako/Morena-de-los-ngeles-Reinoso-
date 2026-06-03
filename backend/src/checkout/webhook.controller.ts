@@ -55,28 +55,62 @@ export class WebhookController {
 
     const data = event?.data;
 
-    if (eventType === 'checkout.completed' || eventType === 'order.created' || eventType === 'order.paid') {
+    if (eventType === 'checkout.updated' && data?.status === 'succeeded') {
       const metadata = data?.metadata || {};
       const userId = metadata.userId;
       const bookId = metadata.bookId;
 
       if (!userId || !bookId) {
-        this.logger.warn(`Webhook ${eventType} missing userId or bookId in metadata`);
+        this.logger.warn(`checkout.updated missing userId or bookId in metadata`);
+        return { received: true };
+      }
+
+      const checkoutId = data?.id;
+      if (!checkoutId) return { received: true };
+
+      const existing = await this.purchaseModel.findOne({
+        providerOrderId: checkoutId,
+        provider: PaymentProvider.POLAR,
+      }).exec();
+      if (existing) {
+        this.logger.log(`Duplicate checkout.updated skipped`);
+        return { received: true };
+      }
+
+      await this.purchaseModel.create({
+        userRef: new Types.ObjectId(userId),
+        bookRef: new Types.ObjectId(bookId),
+        purchaseToken: checkoutId,
+        provider: PaymentProvider.POLAR,
+        status: PurchaseStatus.PAID,
+        providerOrderId: checkoutId,
+        amountCents: data?.amount || 0,
+        currency: data?.currency || 'USD',
+        paidAt: new Date(),
+        metadata,
+      });
+
+      await this.bookModel.findByIdAndUpdate(bookId, { $inc: { sales: 1 } });
+      this.logger.log(`Purchase recorded via checkout.updated: user=${userId}, book=${bookId}`);
+    } else if (eventType === 'order.paid') {
+      const metadata = data?.metadata || {};
+      const userId = metadata.userId;
+      const bookId = metadata.bookId;
+
+      if (!userId || !bookId) {
+        this.logger.warn(`order.paid missing userId or bookId in metadata`);
         return { received: true };
       }
 
       const orderId = data?.id;
-      if (!orderId) {
-        this.logger.warn(`Webhook ${eventType} missing id`);
-        return { received: true };
-      }
+      if (!orderId) return { received: true };
 
       const existing = await this.purchaseModel.findOne({
         providerOrderId: orderId,
         provider: PaymentProvider.POLAR,
       }).exec();
       if (existing) {
-        this.logger.log(`Duplicate webhook skipped for ${orderId}`);
+        this.logger.log(`Duplicate order.paid skipped`);
         return { received: true };
       }
 
@@ -90,11 +124,11 @@ export class WebhookController {
         amountCents: data?.amount || 0,
         currency: data?.currency || 'USD',
         paidAt: new Date(),
-        metadata: { ...metadata, [`${eventType.split('.')[0]}Id`]: orderId },
+        metadata,
       });
 
       await this.bookModel.findByIdAndUpdate(bookId, { $inc: { sales: 1 } });
-      this.logger.log(`Purchase recorded via ${eventType}: user=${userId}, book=${bookId}`);
+      this.logger.log(`Purchase recorded via order.paid: user=${userId}, book=${bookId}`);
     } else {
       this.logger.log(`Unhandled webhook event: ${eventType}`);
     }
