@@ -447,7 +447,7 @@ class AdminBooksService {
    */
   async getBooks(status?: 'published' | 'draft' | 'preorder', page: number = 1, limit: number = 12): Promise<AdminBook[]> {
     try {
-      const url = new URL(`${API_URL}/admin/books`);
+      const url = new URL(`${API_URL}/admin/books`, window.location.origin);
       if (status) url.searchParams.append('status', status);
       url.searchParams.append('page', page.toString());
       url.searchParams.append('limit', limit.toString());
@@ -861,7 +861,7 @@ class AdminBooksService {
    */
   async getAnalytics(period: '7d' | '30d' | '90d' | '12m' = '30d'): Promise<AnalyticsMetrics> {
     try {
-      const url = new URL(`${API_URL}/admin/dashboard/analytics`);
+      const url = new URL(`${API_URL}/admin/dashboard/analytics`, window.location.origin);
       url.searchParams.append('period', period);
 
       const response = await handleAdminFetch(url.toString(), {
@@ -903,7 +903,7 @@ class AdminBooksService {
    */
   async getReaderActivity(period: '7d' | '30d' | '90d' = '7d'): Promise<ReaderActivityMetrics> {
     try {
-      const url = new URL(`${API_URL}/admin/analytics/activity`);
+      const url = new URL(`${API_URL}/admin/analytics/activity`, window.location.origin);
       url.searchParams.append('period', period);
 
       const response = await handleAdminFetch(url.toString(), {
@@ -975,7 +975,7 @@ class AdminBooksService {
    */
   async getTransactions(page: number = 1, limit: number = 20, status?: 'paid' | 'pending' | 'failed' | 'refunded'): Promise<TransactionsResponse> {
     try {
-      const url = new URL(`${API_URL}/admin/dashboard/transactions`);
+      const url = new URL(`${API_URL}/admin/dashboard/transactions`, window.location.origin);
       url.searchParams.append('page', page.toString());
       url.searchParams.append('limit', limit.toString());
       if (status) url.searchParams.append('status', status);
@@ -1011,7 +1011,7 @@ class AdminBooksService {
    */
   async exportTransactionsCSV(status?: 'paid' | 'pending' | 'failed' | 'refunded'): Promise<Blob | null> {
     try {
-      const url = new URL(`${API_URL}/admin/dashboard/reports/export`);
+      const url = new URL(`${API_URL}/admin/dashboard/reports/export`, window.location.origin);
       if (status) url.searchParams.append('status', status);
 
       const response = await handleAdminFetch(url.toString(), {
@@ -1068,7 +1068,7 @@ class AdminBooksService {
    */
   async getReviews(limit: number = 10, page: number = 1): Promise<CommunityReview[]> {
     try {
-      const url = new URL(`${API_URL}/admin/reviews`);
+      const url = new URL(`${API_URL}/admin/reviews`, window.location.origin);
       url.searchParams.append('limit', limit.toString());
       url.searchParams.append('page', page.toString());
 
@@ -1104,7 +1104,7 @@ class AdminBooksService {
    */
   async getTopReaders(limit: number = 3): Promise<CommunityReader[]> {
     try {
-      const url = new URL(`${API_URL}/admin/readers`);
+      const url = new URL(`${API_URL}/admin/readers`, window.location.origin);
       url.searchParams.append('limit', limit.toString());
       url.searchParams.append('sort', 'booksOwned');
 
@@ -1281,7 +1281,7 @@ class AdminBooksService {
    */
   async listGoogleDriveFiles(folderId?: string): Promise<DriveFile[]> {
     try {
-      const url = new URL(`${API_URL}/admin/settings/list-drive-files`);
+      const url = new URL(`${API_URL}/admin/settings/list-drive-files`, window.location.origin);
       if (folderId) url.searchParams.append('folderId', folderId);
 
       const response = await handleAdminFetch(url.toString(), {
