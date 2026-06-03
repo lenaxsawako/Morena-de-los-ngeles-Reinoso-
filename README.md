@@ -49,6 +49,24 @@ npm run dev
 |---|---|
 | `VITE_API_URL` | URL del backend (ej. `http://localhost:3109`) |
 
+## Docker
+
+El backend se puede levantar completo (API + MongoDB + Redis) con Docker:
+
+```bash
+cd backend
+cp .env.docker .env   # usar configuración para Docker
+docker compose up -d
+```
+
+Si solo querés MongoDB y Redis (y correr la API local):
+
+```bash
+cd backend
+docker compose up -d mongodb redis
+npm run start:dev
+```
+
 ## Comandos útiles
 
 ```bash
