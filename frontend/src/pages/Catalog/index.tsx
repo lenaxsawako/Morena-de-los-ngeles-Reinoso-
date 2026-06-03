@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { catalogService, type CatalogLanding, type BookItem } from '../../services/catalog';
 import { guestReadingService } from '../../services/guestReading';
+import { paymentsService } from '../../services/payments';
+import { authService } from '../../services/auth';
 import Modal from '../../components/Modal';
 import './catalog.css';
 
@@ -18,6 +20,9 @@ export default function Catalog() {
   const [catalogLanding, setCatalogLanding] = useState<CatalogLanding | null>(null);
   const [books, setBooks] = useState<BookItem[]>([]);
   const [pages, setPages] = useState(0);
+
+  // Purchased books (from API if authenticated)
+  const [purchasedIds, setPurchasedIds] = useState<Set<string>>(new Set());
 
   // Modal state for library add feedback
   const [modalMsg, setModalMsg] = useState('');
@@ -47,6 +52,17 @@ export default function Catalog() {
 
         const landingData = await catalogService.getCatalogLanding();
         setCatalogLanding(landingData);
+
+        if (authService.isAuthenticated()) {
+          const purchases = await paymentsService.getPurchases().catch(() => []);
+          const ids = new Set<string>(
+            purchases
+              .filter((p) => p.status === 'paid' || p.status === 'completed')
+              .map((p) => (typeof p.bookRef === 'string' ? p.bookRef : p.bookRef?._id))
+              .filter(Boolean),
+          );
+          setPurchasedIds(ids);
+        }
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Error cargando catálogo';
         setError(errorMessage);
@@ -88,6 +104,8 @@ export default function Catalog() {
 
     loadBooks();
   }, [searchQuery, activeCategory, currentPage]);
+
+  const isPurchased = (bookId: string) => purchasedIds.has(bookId);
 
   const handleCategoryChange = (category: string) => {
     setActiveCategory(category);
@@ -198,7 +216,7 @@ export default function Catalog() {
                   onClick={() => navigate(`/book/${catalogLanding.preorderBook?._id}`)}
                   className="catalog-featured-button"
                 >
-                  PRE-COMPRAR AHORA
+                  {isPurchased(catalogLanding.preorderBook?._id) ? 'YA COMPRADO' : 'PRE-COMPRAR AHORA'}
                 </button>
               </div>
             </div>
@@ -227,7 +245,9 @@ export default function Catalog() {
                 <p className="catalog-featured-quote">{catalogLanding.latestRelease.description}</p>
                 <button 
                   onClick={() => navigate(`/book/${catalogLanding.latestRelease?._id}`)}
-                  className="catalog-featured-button">COMPRAR AHORA</button>
+                  className="catalog-featured-button">
+                  {isPurchased(catalogLanding.latestRelease?._id) ? 'YA COMPRADO' : 'COMPRAR AHORA'}
+                </button>
               </div>
             </div>
 
@@ -266,19 +286,23 @@ export default function Catalog() {
                 <div className="catalog-book-overlay">
                   <p className="catalog-book-overlay-quote">{book.description}</p>
                   <button 
-                    onClick={() => navigate(`/book/${book._id}`)}
-                    className="catalog-book-overlay-button primary">VISTA RÁPIDA</button>
-                  <button 
-                    onClick={() => {
-                      const existing = guestReadingService.getProgress(book._id);
-                      if (existing) {
-                        setModalMsg('Este libro ya está en tu biblioteca');
-                      } else {
-                        guestReadingService.saveProgress(book._id, 0, 0);
-                        setModalMsg('Libro añadido a tu biblioteca');
-                      }
-                    }}
-                    className="catalog-book-overlay-button secondary">AÑADIR A BIBLIOTECA</button>
+                    onClick={() => navigate(isPurchased(book._id) ? `/chapter/${book._id}` : `/checkout/${book._id}`)}
+                    className="catalog-book-overlay-button primary">
+                    {isPurchased(book._id) ? 'LEER AHORA' : 'COMPRAR AHORA'}
+                  </button>
+                  {!isPurchased(book._id) && (
+                    <button 
+                      onClick={() => {
+                        const existing = guestReadingService.getProgress(book._id);
+                        if (existing) {
+                          setModalMsg('Este libro ya está en tu biblioteca');
+                        } else {
+                          guestReadingService.saveProgress(book._id, 0, 0);
+                          setModalMsg('Libro añadido a tu biblioteca');
+                        }
+                      }}
+                      className="catalog-book-overlay-button secondary">AÑADIR A BIBLIOTECA</button>
+                  )}
                 </div>
               </div>
               <div className="catalog-book-info">
@@ -288,19 +312,23 @@ export default function Catalog() {
                 {/* Mobile: show buttons below cover */}
                 <div className="catalog-book-actions-mobile">
                   <button 
-                    onClick={() => navigate(`/book/${book._id}`)}
-                    className="catalog-book-overlay-button primary">VISTA RÁPIDA</button>
-                  <button 
-                    onClick={() => {
-                      const existing = guestReadingService.getProgress(book._id);
-                      if (existing) {
-                        setModalMsg('Este libro ya está en tu biblioteca');
-                      } else {
-                        guestReadingService.saveProgress(book._id, 0, 0);
-                        setModalMsg('Libro añadido a tu biblioteca');
-                      }
-                    }}
-                    className="catalog-book-overlay-button secondary">AÑADIR A BIBLIOTECA</button>
+                    onClick={() => navigate(isPurchased(book._id) ? `/chapter/${book._id}` : `/checkout/${book._id}`)}
+                    className="catalog-book-overlay-button primary">
+                    {isPurchased(book._id) ? 'LEER AHORA' : 'COMPRAR AHORA'}
+                  </button>
+                  {!isPurchased(book._id) && (
+                    <button 
+                      onClick={() => {
+                        const existing = guestReadingService.getProgress(book._id);
+                        if (existing) {
+                          setModalMsg('Este libro ya está en tu biblioteca');
+                        } else {
+                          guestReadingService.saveProgress(book._id, 0, 0);
+                          setModalMsg('Libro añadido a tu biblioteca');
+                        }
+                      }}
+                      className="catalog-book-overlay-button secondary">AÑADIR A BIBLIOTECA</button>
+                  )}
                 </div>
               </div>
             </div>
