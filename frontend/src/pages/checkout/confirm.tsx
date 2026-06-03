@@ -20,7 +20,7 @@ export default function ConfirmPurchase() {
             if (typeof p.bookRef === 'string') return p.bookRef;
             return p.bookRef?._id || p.bookRef;
           })
-          .filter(Boolean);
+          .filter((id): id is string => !!id);
 
         if (purchasedIds.length === 0 && attempts.current < 5) {
           attempts.current++;
@@ -29,7 +29,7 @@ export default function ConfirmPurchase() {
         }
 
         const existing = JSON.parse(localStorage.getItem('purchasedBooks') || '[]') as string[];
-        const merged = [...new Set([...existing, ...purchasedIds, bookId].filter(Boolean))];
+        const merged = [...new Set([...existing, ...purchasedIds, bookId].filter((id): id is string => !!id))];
         localStorage.setItem('purchasedBooks', JSON.stringify(merged));
       } catch {
         // Silently fail — user can still navigate manually

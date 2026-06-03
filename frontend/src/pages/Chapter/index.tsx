@@ -51,7 +51,7 @@ export default function Chapter() {
             if (typeof p.bookRef === 'string') return p.bookRef;
             return p.bookRef?._id || p.bookRef;
           })
-          .filter(Boolean);
+          .filter((id): id is string => !!id);
         const merged = [...new Set([...purchasedBooks, ...purchasedIds])];
         localStorage.setItem('purchasedBooks', JSON.stringify(merged));
         if (purchasedIds.includes(bookId)) setIsPurchased(true);

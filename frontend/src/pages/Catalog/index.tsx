@@ -59,7 +59,7 @@ export default function Catalog() {
             purchases
               .filter((p) => p.status === 'paid' || p.status === 'completed')
               .map((p) => (typeof p.bookRef === 'string' ? p.bookRef : p.bookRef?._id))
-              .filter(Boolean),
+              .filter((id): id is string => !!id),
           );
           setPurchasedIds(ids);
         }
