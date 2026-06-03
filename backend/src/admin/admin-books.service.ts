@@ -37,13 +37,13 @@ export class AdminBooksService {
         .lean(),
     ]);
 
-    // Calculate revenue
-    const totalRevenue = purchaseData.reduce((sum, p: any) => sum + (p.priceCents || 0), 0);
+    // Calculate revenue (priceCents is in cents, convert to dollars)
+    const totalRevenue = purchaseData.reduce((sum, p: any) => sum + (p.priceCents || 0), 0) / 100;
     const monthAgo = new Date();
     monthAgo.setMonth(monthAgo.getMonth() - 1);
     
     const monthlyPurchases = purchaseData.filter((p: any) => p.createdAt > monthAgo);
-    const monthRevenue = monthlyPurchases.reduce((sum, p: any) => sum + (p.priceCents || 0), 0);
+    const monthRevenue = monthlyPurchases.reduce((sum, p: any) => sum + (p.priceCents || 0), 0) / 100;
 
     return {
       totalBooks,
@@ -52,8 +52,8 @@ export class AdminBooksService {
       preorders,
       totalPurchases,
       revenue: {
-        month: monthRevenue,
-        total: totalRevenue,
+        month: parseFloat(monthRevenue.toFixed(2)),
+        total: parseFloat(totalRevenue.toFixed(2)),
       },
     };
   }
@@ -385,7 +385,7 @@ export class AdminBooksService {
         .lean(),
     ]);
 
-    const revenue = bookRevenue.reduce((sum, p: any) => sum + (p.priceCents || 0), 0);
+    const revenue = bookRevenue.reduce((sum, p: any) => sum + (p.priceCents || 0), 0) / 100;
     const conversionRate = book.views > 0 ? ((purchases / book.views) * 100).toFixed(2) : '0';
 
     return {

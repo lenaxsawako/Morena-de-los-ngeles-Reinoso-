@@ -258,7 +258,7 @@ export default function Manuscripts() {
           <div className="glass-card p-4">
             <div className="text-on-surface-variant font-body-sm mb-2">Ingresos Totales</div>
             <div className="text-3xl font-headline-lg text-accent-gold">
-              ${(dashboard?.revenue?.total ?? 0).toLocaleString()}
+              ${(dashboard?.revenue?.total ?? 0).toFixed(2)}
             </div>
           </div>
           <div className="glass-card p-4">
