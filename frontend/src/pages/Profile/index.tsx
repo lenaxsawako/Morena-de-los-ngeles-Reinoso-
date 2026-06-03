@@ -69,16 +69,18 @@ export default function Profile() {
         const userData = await response.json();
 
         const purchases = await paymentsService.getPurchases().catch(() => []);
-        const purchasedIds = purchases
-          .filter((p) => p.status === 'paid' || p.status === 'completed')
-          .map((p) => {
-            if (typeof p.bookRef === 'string') return p.bookRef;
-            return (p.bookRef as any)?._id || p.bookRef;
-          })
-          .filter(Boolean);
+        const paidPurchases = purchases.filter((p) => p.status === 'paid' || p.status === 'completed');
 
-        userData.purchasedBooks = purchasedIds;
-        userData.purchases = purchases.filter((p) => p.status === 'paid' || p.status === 'completed');
+        const seen = new Set<string>();
+        const uniquePurchases = paidPurchases.filter((p) => {
+          const id = typeof p.bookRef === 'string' ? p.bookRef : (p.bookRef as any)?._id;
+          if (!id || seen.has(id)) return false;
+          seen.add(id);
+          return true;
+        });
+
+        userData.purchasedBooks = [...seen];
+        userData.purchases = uniquePurchases;
         setUser(userData);
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
