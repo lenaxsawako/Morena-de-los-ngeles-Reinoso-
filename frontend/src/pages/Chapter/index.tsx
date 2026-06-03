@@ -47,7 +47,11 @@ export default function Chapter() {
         const purchases = await paymentsService.getPurchases();
         const purchasedIds = purchases
           .filter((p) => p.status === 'paid' || p.status === 'completed')
-          .map((p) => p.bookRef);
+          .map((p) => {
+            if (typeof p.bookRef === 'string') return p.bookRef;
+            return p.bookRef?._id || p.bookRef;
+          })
+          .filter(Boolean);
         const merged = [...new Set([...purchasedBooks, ...purchasedIds])];
         localStorage.setItem('purchasedBooks', JSON.stringify(merged));
         if (purchasedIds.includes(bookId)) setIsPurchased(true);
