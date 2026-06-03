@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { landingService, type LandingData } from '../../services/landing';
 import { subscriptionService } from '../../services/subscription';
+import { paymentsService } from '../../services/payments';
+import { authService } from '../../services/auth';
 import './home.css';
 
 export default function HomePage() {
@@ -10,6 +12,7 @@ export default function HomePage() {
   const [landingData, setLandingData] = useState<LandingData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [purchasedIds, setPurchasedIds] = useState<Set<string>>(new Set());
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterStatus, setNewsletterStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [newsletterMessage, setNewsletterMessage] = useState('');
@@ -31,6 +34,17 @@ export default function HomePage() {
       try {
         const data = await landingService.getLandingData();
         setLandingData(data);
+
+        if (authService.isAuthenticated()) {
+          const purchases = await paymentsService.getPurchases().catch(() => []);
+          const ids = new Set<string>(
+            purchases
+              .filter((p) => p.status === 'paid' || p.status === 'completed')
+              .map((p) => (typeof p.bookRef === 'string' ? p.bookRef : p.bookRef?._id))
+              .filter(Boolean),
+          );
+          setPurchasedIds(ids);
+        }
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
         setError(errorMessage);
@@ -109,17 +123,26 @@ export default function HomePage() {
               </p>
               <div className="pt-8 flex flex-wrap gap-6">
                 <button 
-                  onClick={() => navigate(`/chapter/${latestRelease._id}`)}
+                  onClick={() => navigate(purchasedIds.has(latestRelease._id) ? `/chapter/${latestRelease._id}` : `/chapter/${latestRelease._id}`)}
                   className="bg-[#F3EAD3] text-[#0A0A0A] font-label-md px-8 py-4 transition-all duration-300 hover:opacity-90 tracking-widest uppercase"
                 >
-                  LEE EL PRIMER CAPÍTULO
+                  {purchasedIds.has(latestRelease._id) ? 'LEER AHORA' : 'LEE EL PRIMER CAPÍTULO'}
                 </button>
-                <button 
-                  onClick={() => navigate(`/checkout/${latestRelease._id}`)}
-                  className="border border-white/20 text-primary font-label-md px-8 py-4 transition-all duration-300 hover:border-[#F3EAD3] hover:shadow-[0_0_15px_rgba(243,234,211,0.2)] uppercase tracking-widest"
-                >
-                  COMPRAR: ${(latestRelease.priceCents / 100).toFixed(2)}
-                </button>
+                {purchasedIds.has(latestRelease._id) ? (
+                  <button 
+                    onClick={() => navigate(`/chapter/${latestRelease._id}`)}
+                    className="border border-green-500/50 text-green-400 font-label-md px-8 py-4 transition-all duration-300 hover:border-green-400 tracking-widest uppercase"
+                  >
+                    ✓ YA COMPRADO
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => navigate(`/checkout/${latestRelease._id}`)}
+                    className="border border-white/20 text-primary font-label-md px-8 py-4 transition-all duration-300 hover:border-[#F3EAD3] hover:shadow-[0_0_15px_rgba(243,234,211,0.2)] uppercase tracking-widest"
+                  >
+                    COMPRAR: ${(latestRelease.priceCents / 100).toFixed(2)}
+                  </button>
+                )}
               </div>
             </div>
           </div>
