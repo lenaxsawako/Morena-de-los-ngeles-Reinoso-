@@ -11,9 +11,10 @@ export default defineConfig(({ mode }) => {
       port: 5173,
       strictPort: false,
       proxy: {
-        '/api/book': {
+        '/book': {
           target: proxyTarget,
           changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/book/, '/api/book'),
         },
       },
     },
