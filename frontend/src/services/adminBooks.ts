@@ -913,19 +913,41 @@ class AdminBooksService {
         throw new Error(`Get reader activity failed: ${response.statusText}`);
       }
 
-      return await safeParseJSON(response, {
-        period: period,
+      const data = await safeParseJSON<any>(response, null);
+      if (!data) {
+        return {
+          period,
+          summary: { totalSessions: 0, totalPagesRead: 0, totalReadingTime: 0, averageSessionTime: 0, booksInProgress: 0, booksFinished: 0 },
+          chart: [],
+          topBooks: [],
+        };
+      }
+
+      return {
+        period: data.period || period,
         summary: {
-          totalSessions: 0,
-          totalPagesRead: 0,
-          totalReadingTime: 0,
-          averageSessionTime: 0,
-          booksInProgress: 0,
-          booksFinished: 0,
+          totalSessions: data.summary?.totalActiveSessions ?? 0,
+          totalPagesRead: data.summary?.totalPagesReadPlatform ?? 0,
+          totalReadingTime: data.summary?.totalReadingTimePlatform ?? 0,
+          averageSessionTime: data.summary?.averageSessionTime ?? 0,
+          booksInProgress: data.summary?.booksInProgress ?? 0,
+          booksFinished: data.summary?.booksFinished ?? 0,
         },
-        chart: [],
-        topBooks: [],
-      });
+        chart: (data.chart || []).map((c: any) => ({
+          label: c.label,
+          sessions: c.sessions || 0,
+          pagesRead: c.pagesRead || 0,
+          readingTime: c.readingTime || 0,
+        })),
+        topBooks: (data.topBooks || []).map((b: any) => ({
+          bookId: b.bookId || b._id,
+          title: b.title || '',
+          coverUrl: b.coverUrl || null,
+          pagesRead: b.pagesRead || 0,
+          progressPercentage: b.progressPercentage || 0,
+          lastReadAt: b.lastReadAt || new Date().toISOString(),
+        })),
+      };
     } catch (error) {
       console.error('Error fetching reader activity:', error);
       return {
@@ -1020,12 +1042,13 @@ class AdminBooksService {
         throw new Error(`Get community stats failed: ${response.statusText}`);
       }
 
-      return await safeParseJSON(response, {
-        totalReaders: 0,
-        newsletterSubscribers: 0,
-        totalReviews: 0,
-        averageRating: 0,
-      });
+      const data = await safeParseJSON<{ summary?: CommunityStats }>(response, { summary: undefined });
+      return {
+        totalReaders: data?.summary?.totalReaders ?? 0,
+        newsletterSubscribers: data?.summary?.newsletterSubscribers ?? 0,
+        totalReviews: data?.summary?.reviewsCount ?? 0,
+        averageRating: data?.summary?.averageRating ?? 0,
+      };
     } catch (error) {
       console.error('Error fetching community stats:', error);
       return {
@@ -1056,8 +1079,18 @@ class AdminBooksService {
         throw new Error(`Get reviews failed: ${response.statusText}`);
       }
 
-      const data = await safeParseJSON<{ items?: CommunityReview[] }>(response, { items: [] });
-      return data.items || [];
+      const data = await safeParseJSON<{ items?: any[] }>(response, { items: [] });
+      return (data.items || []).map((r: any) => ({
+        _id: r.reviewId || r._id,
+        userEmail: '',
+        userName: r.userName || 'Anonymous',
+        userAvatar: undefined,
+        bookTitle: r.bookTitle || 'Unknown',
+        rating: r.rating || 0,
+        content: r.content || '',
+        createdAt: r.createdAt || new Date().toISOString(),
+        isVerified: false,
+      }));
     } catch (error) {
       console.error('Error fetching reviews:', error);
       return [];
@@ -1082,8 +1115,16 @@ class AdminBooksService {
         throw new Error(`Get top readers failed: ${response.statusText}`);
       }
 
-      const data = await safeParseJSON<{ items?: CommunityReader[] }>(response, { items: [] });
-      return data.items || [];
+      const data = await safeParseJSON<{ items?: any[] }>(response, { items: [] });
+      return (data.items || []).map((r: any) => ({
+        _id: r.userId || r._id,
+        name: r.name || 'Unknown',
+        email: '',
+        avatar: undefined,
+        booksOwned: r.booksOwned || 0,
+        readingProgress: r.averageProgress || r.readingProgress || 0,
+        lastActivityAt: r.lastActivity || r.lastActivityAt || new Date().toISOString(),
+      }));
     } catch (error) {
       console.error('Error fetching top readers:', error);
       return [];
