@@ -1,8 +1,7 @@
-import { Controller, Post, Body, Headers, Req, Logger } from '@nestjs/common';
+import { Controller, Post, Req, Logger } from '@nestjs/common';
 import { Public } from '../decorators/public.decorator';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { Request } from 'express';
 import { validateEvent, WebhookVerificationError } from '@polar-sh/sdk/webhooks';
 import { Purchase, PurchaseDocument, PurchaseStatus, PaymentProvider } from '../models/purchase.schema';
 import { Book, BookDocument } from '../models/book.schema';
@@ -20,7 +19,7 @@ export class WebhookController {
 
   @Post('polar')
   @Public()
-  async handlePolarWebhook(@Req() req: Request) {
+  async handlePolarWebhook(@Req() req: any) {
     try {
       const config = await this.siteConfigModel.findOne().lean().exec();
       const expectedSecret = config?.polar?.webhookSecret?.trim();
@@ -28,8 +27,8 @@ export class WebhookController {
       if (expectedSecret) {
         try {
           const event = validateEvent(
-            req.rawBody as Buffer,
-            req.headers as Record<string, string>,
+            req.rawBody,
+            req.headers,
             expectedSecret,
           );
           return await this.processEvent(event);
@@ -42,8 +41,7 @@ export class WebhookController {
         }
       } else {
         this.logger.debug('No webhook secret configured, skipping validation');
-        const body = req.body as any;
-        return await this.processEvent(body);
+        return await this.processEvent(req.body);
       }
     } catch (err) {
       this.logger.error(`Webhook error: ${err.message}`);
