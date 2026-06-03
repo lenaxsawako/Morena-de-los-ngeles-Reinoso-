@@ -23,12 +23,15 @@ export class WebhookController {
     @Headers('polar-webhook-secret') webhookSecret: string,
   ) {
     try {
-      // Validate webhook secret
       const config = await this.siteConfigModel.findOne().lean().exec();
       const expectedSecret = config?.polar?.webhookSecret;
-      if (expectedSecret && webhookSecret !== expectedSecret) {
-        this.logger.warn('Invalid polar webhook secret');
-        throw new UnauthorizedException('Invalid webhook secret');
+      if (expectedSecret) {
+        if (webhookSecret !== expectedSecret) {
+          this.logger.warn(`Invalid polar webhook secret (got first 8: ${webhookSecret?.slice(0, 8)}..., expected first 8: ${expectedSecret.slice(0, 8)}...)`);
+          return { received: true };
+        }
+      } else {
+        this.logger.debug('No webhook secret configured, skipping validation');
       }
 
       const eventType = body?.type;
