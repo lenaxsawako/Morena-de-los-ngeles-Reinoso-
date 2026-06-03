@@ -7,5 +7,11 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 5173,
     strictPort: false,
+    proxy: {
+      '/api/book': {
+        target: 'https://greendg.craftassist.cloud',
+        changeOrigin: true,
+      },
+    },
   }
 })
