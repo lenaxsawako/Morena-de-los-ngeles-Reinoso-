@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { authService } from '../services/auth';
 import { landingService } from '../services/landing';
 import './Header.css';
@@ -34,7 +34,11 @@ export default function Header() {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
-  const isActive = (path: string) => location.pathname === path;
+  const isActive = (path: string) => {
+    const base = '/book';
+    const current = location.pathname.startsWith(base) ? location.pathname.slice(base.length) || '/' : location.pathname;
+    return current === path;
+  };
 
   const handleNavClick = () => {
     setIsMobileMenuOpen(false);
@@ -50,8 +54,8 @@ export default function Header() {
 
         {/* Navigation Links - Desktop */}
         <div className="hidden md:flex items-center gap-10">
-          <a
-            href="/"
+          <Link
+            to="/"
             className={`font-label-md text-label-md uppercase tracking-widest transition-colors duration-300 pb-1 ${
               isActive('/')
                 ? 'text-primary border-b border-primary'
@@ -59,9 +63,9 @@ export default function Header() {
             }`}
           >
             Inicio
-          </a>
-          <a
-            href="/library"
+          </Link>
+          <Link
+            to="/library"
             className={`font-label-md text-label-md uppercase tracking-widest transition-colors duration-300 pb-1 ${
               isActive('/library')
                 ? 'text-primary border-b border-primary'
@@ -69,9 +73,9 @@ export default function Header() {
             }`}
           >
             Biblioteca
-          </a>
-          <a
-            href="/catalog"
+          </Link>
+          <Link
+            to="/catalog"
             className={`font-label-md text-label-md uppercase tracking-widest transition-colors duration-300 pb-1 ${
               isActive('/catalog')
                 ? 'text-primary border-b border-primary'
@@ -79,7 +83,7 @@ export default function Header() {
             }`}
           >
             Catálogo
-          </a>
+          </Link>
         </div>
 
         {/* Action Icons */}
@@ -98,20 +102,20 @@ export default function Header() {
           </button> */}
 
           {isLoggedIn ? (
-            <a
-              href="/profile"
+            <Link
+              to="/profile"
               className="hover:opacity-80 transition-opacity"
               title="Profile"
             >
               <span className="material-symbols-outlined notranslate text-primary" translate="no">account_circle</span>
-            </a>
+            </Link>
           ) : (
-            <a
-              href="/login"
+            <Link
+              to="/login"
               className="hidden md:block font-label-md text-label-md uppercase tracking-widest text-primary hover:opacity-80 transition-opacity"
             >
               Sign In
-            </a>
+            </Link>
           )}
 
           {/* Hamburger Menu - Mobile */}
@@ -143,8 +147,8 @@ export default function Header() {
       {isMobileMenuOpen && (
         <div className="md:hidden absolute top-full left-0 right-0 bg-surface border-b border-white/5 animate-in fade-in slide-in-from-top-2">
           <div className="flex flex-col p-6 gap-4">
-            <a
-              href="/"
+            <Link
+              to="/"
               onClick={handleNavClick}
               className={`font-label-md text-label-md uppercase tracking-widest transition-colors duration-300 py-2 ${
                 isActive('/')
@@ -153,9 +157,9 @@ export default function Header() {
               }`}
             >
               Home
-            </a>
-            <a
-              href="/library"
+            </Link>
+            <Link
+              to="/library"
               onClick={handleNavClick}
               className={`font-label-md text-label-md uppercase tracking-widest transition-colors duration-300 py-2 ${
                 isActive('/library')
@@ -164,9 +168,9 @@ export default function Header() {
               }`}
             >
               Library
-            </a>
-            <a
-              href="/catalog"
+            </Link>
+            <Link
+              to="/catalog"
               onClick={handleNavClick}
               className={`font-label-md text-label-md uppercase tracking-widest transition-colors duration-300 py-2 ${
                 isActive('/catalog')
@@ -175,25 +179,25 @@ export default function Header() {
               }`}
             >
               Catalog
-            </a>
+            </Link>
 
             <div className="border-t border-white/10 pt-4 mt-2">
               {isLoggedIn ? (
-                <a
-                  href="/profile"
+                <Link
+                  to="/profile"
                   onClick={handleNavClick}
                   className="font-label-md text-label-md uppercase tracking-widest text-primary hover:opacity-80 transition-opacity block py-2"
                 >
                   Profile
-                </a>
+                </Link>
               ) : (
-                <a
-                  href="/login"
+                <Link
+                  to="/login"
                   onClick={handleNavClick}
                   className="font-label-md text-label-md uppercase tracking-widest text-primary hover:opacity-80 transition-opacity block py-2"
                 >
                   Sign In
-                </a>
+                </Link>
               )}
             </div>
           </div>
