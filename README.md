@@ -1,6 +1,6 @@
-# LuminaBooks (LBB)
+# Plataforma de Publicación de Libros
 
-Plataforma de lectura y venta de libros digitales (PDF) con pagos integrados vía Polar.
+Backend (NestJS + MongoDB) y frontend (React + Vite + Tailwind) para publicar, vender y leer libros digitales en PDF con pagos integrados vía Polar.
 
 ## Estructura
 

@@ -6,7 +6,7 @@ import { router } from "./routes";
 
 export default function App() {
   useEffect(() => {
-    // Activate dark mode by default for LuminaBooks
+    // Activate dark mode by default
     document.documentElement.classList.add('dark');
   }, []);
 
