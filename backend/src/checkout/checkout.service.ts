@@ -2,6 +2,7 @@ import { Injectable, BadRequestException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Book, BookDocument } from '../models/book.schema';
+import { Purchase, PurchaseDocument } from '../models/purchase.schema';
 import { PolarService } from '../utils/polar.service';
 
 @Injectable()
@@ -10,6 +11,7 @@ export class CheckoutService {
 
   constructor(
     @InjectModel(Book.name) private bookModel: Model<BookDocument>,
+    @InjectModel(Purchase.name) private purchaseModel: Model<PurchaseDocument>,
     private polarService: PolarService,
   ) {}
 
@@ -20,6 +22,15 @@ export class CheckoutService {
     }
     if (!book.polarProductId) {
       throw new BadRequestException('This book is not configured for Polar payments');
+    }
+
+    const existing = await this.purchaseModel.findOne({
+      userRef: new Types.ObjectId(userId),
+      bookRef: new Types.ObjectId(bookId),
+    }).exec();
+
+    if (existing) {
+      throw new BadRequestException('Ya has comprado este libro');
     }
 
     const baseUrl = process.env.FRONTEND_URL || 'http://localhost:5174';
