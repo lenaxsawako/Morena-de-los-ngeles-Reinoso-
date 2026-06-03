@@ -20,7 +20,8 @@ export class CheckoutController {
     if (!userId) {
       throw new BadRequestException('User not authenticated');
     }
-    return this.checkoutService.createCheckout(bookId, userId);
+    const origin = req.headers['origin'] || req.headers['host'] || '';
+    return this.checkoutService.createCheckout(bookId, userId, origin as string);
   }
 
   @Get('purchases')
