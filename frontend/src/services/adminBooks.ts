@@ -427,7 +427,7 @@ class AdminBooksService {
         totalPurchases: dashboardData.summary?.totalSales || 0,
         revenue: { 
           month: dashboardData.summary?.monthlyRevenue || 0, 
-          total: dashboardData.summary?.totalSales || 0 
+          total: dashboardData.summary?.totalRevenue || 0 
         },
       };
 

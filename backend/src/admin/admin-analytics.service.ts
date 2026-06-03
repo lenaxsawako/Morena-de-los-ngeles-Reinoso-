@@ -72,19 +72,23 @@ export class AdminAnalyticsService {
     const [
       totalSales,
       publishedBooks,
+      allPurchases,
       monthlyPurchases,
       activeReadersData,
     ] = await Promise.all([
       this.purchaseModel.countDocuments(),
       this.bookModel.countDocuments({ isPublished: true }),
-      this.purchaseModel.find({ createdAt: { $gte: currentMonthStart } }).select('priceCents').lean(),
+      this.purchaseModel.find().select('amountCents').lean(),
+      this.purchaseModel.find({ createdAt: { $gte: currentMonthStart } }).select('amountCents').lean(),
       this.readingProgressModel.find({ lastReadAt: { $gte: thirtyDaysAgo } }).distinct('userRef'),
     ]);
 
-    const monthlyRevenue = monthlyPurchases.reduce((sum, p: any) => sum + (p.priceCents || 0), 0);
+    const totalRevenue = allPurchases.reduce((sum, p: any) => sum + (p.amountCents || 0), 0);
+    const monthlyRevenue = monthlyPurchases.reduce((sum, p: any) => sum + (p.amountCents || 0), 0);
 
     return {
       totalSales,
+      totalRevenue: parseFloat((totalRevenue / 100).toFixed(2)),
       activeReaders: activeReadersData.length,
       publishedBooks,
       monthlyRevenue: parseFloat((monthlyRevenue / 100).toFixed(2)),
