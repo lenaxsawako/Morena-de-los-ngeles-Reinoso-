@@ -51,20 +51,13 @@ npm run dev
 
 ## Docker
 
-El backend se puede levantar completo (API + MongoDB + Redis) con Docker:
+El backend se puede levantar en Docker (la DB es Atlas, no local):
 
 ```bash
 cd backend
-cp .env.docker .env   # usar configuración para Docker
+cp .env.docker .env
+# editar .env con tus credenciales de Atlas
 docker compose up -d
-```
-
-Si solo querés MongoDB y Redis (y correr la API local):
-
-```bash
-cd backend
-docker compose up -d mongodb redis
-npm run start:dev
 ```
 
 ## Comandos útiles
