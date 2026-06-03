@@ -1,6 +1,11 @@
+require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
 const mongoose = require('mongoose');
 
-const uri = 'mongodb+srv://greendg2022_db_user:GaqnLGzEKoaEah9J@cluster0.54z2cww.mongodb.net/?appName=Cluster0';
+const uri = process.env.MONGODB_URI;
+if (!uri) {
+  console.error('MONGODB_URI not set in .env');
+  process.exit(1);
+}
 
 mongoose.connect(uri)
   .then(() => {
