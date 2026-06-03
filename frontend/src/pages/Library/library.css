@@ -1,0 +1,113 @@
+:root {
+  --background: #0a0a0a;
+  --surface: #131313;
+  --primary: #ffffff;
+  --accent-gold: #F3EAD3;
+}
+
+body {
+  background-color: var(--background);
+  color: #e5e2e1;
+  -webkit-font-smoothing: antialiased;
+}
+
+.glass-card {
+  background: rgba(18, 18, 18, 0.8);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glass-card:hover {
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(243, 234, 211, 0.1);
+}
+
+.reading-progress-top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  background: var(--accent-gold);
+  z-index: 100;
+  transition: width 0.1s ease-out;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-in {
+  animation: fadeIn 0.5s ease-out, slideInFromBottom 1s ease-out;
+}
+
+.fade-in {
+  animation: fadeIn 1s ease-out;
+}
+
+.slide-in-from-bottom-4 {
+  animation: slideInFromBottom 1s ease-out;
+}
+
+.duration-1000 {
+  animation-duration: 1s;
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: var(--surface);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #353534;
+  border-radius: 2px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-gold);
+}
+
+/* Tab Navigation */
+.filter-tab {
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.filter-tab.active {
+  color: var(--primary);
+  border-bottom: 2px solid var(--primary);
+}
+
+.filter-tab:not(.active) {
+  color: #ccc6bb;
+}
+
+.filter-tab:not(.active):hover {
+  color: var(--primary);
+}
+

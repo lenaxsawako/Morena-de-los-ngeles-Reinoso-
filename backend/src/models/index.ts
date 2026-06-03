@@ -1,0 +1,19 @@
+export * from './user.schema';
+export * from './book.schema';
+export * from './site-config.schema';
+export * from './purchase.schema';
+export * from './email.schema';
+export * from './reading-progress.schema';
+export * from './bookmark.schema';
+export * from './reading-session.schema';
+export * from './subscription.schema';
+
+export const USER_MODEL = 'User';
+export const BOOK_MODEL = 'Book';
+export const SITE_CONFIG_MODEL = 'SiteConfig';
+export const PURCHASE_MODEL = 'Purchase';
+export const EMAIL_MODEL = 'Email';
+export const READING_PROGRESS_MODEL = 'ReadingProgress';
+export const BOOKMARK_MODEL = 'Bookmark';
+export const READING_SESSION_MODEL = 'ReadingSession';
+export const SUBSCRIPTION_MODEL = 'Subscription';

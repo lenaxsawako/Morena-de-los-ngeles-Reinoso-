@@ -1,0 +1,86 @@
+import { Controller, Post, Body, Headers, UnauthorizedException, Logger } from '@nestjs/common';
+import { Public } from '../decorators/public.decorator';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model, Types } from 'mongoose';
+import { Purchase, PurchaseDocument, PurchaseStatus, PaymentProvider } from '../models/purchase.schema';
+import { Book, BookDocument } from '../models/book.schema';
+import { SiteConfig, SiteConfigDocument } from '../models/site-config.schema';
+
+@Controller('webhooks')
+export class WebhookController {
+  private readonly logger = new Logger(WebhookController.name);
+
+  constructor(
+    @InjectModel(SiteConfig.name) private siteConfigModel: Model<SiteConfigDocument>,
+    @InjectModel(Purchase.name) private purchaseModel: Model<PurchaseDocument>,
+    @InjectModel(Book.name) private bookModel: Model<BookDocument>,
+  ) {}
+
+  @Post('polar')
+  @Public()
+  async handlePolarWebhook(
+    @Body() body: any,
+    @Headers('polar-webhook-secret') webhookSecret: string,
+  ) {
+    try {
+      // Validate webhook secret
+      const config = await this.siteConfigModel.findOne().lean().exec();
+      const expectedSecret = config?.polar?.webhookSecret;
+      if (expectedSecret && webhookSecret !== expectedSecret) {
+        this.logger.warn('Invalid polar webhook secret');
+        throw new UnauthorizedException('Invalid webhook secret');
+      }
+
+      const eventType = body?.type;
+      this.logger.log(`Received Polar webhook: ${eventType}`);
+
+      if (eventType === 'checkout.completed') {
+        const checkout = body.data;
+        const metadata = checkout.metadata || {};
+
+        const userId = metadata.userId;
+        const bookId = metadata.bookId;
+
+        if (!userId || !bookId) {
+          this.logger.warn('Webhook missing userId or bookId in metadata');
+          return { received: true };
+        }
+
+        // Idempotency check — skip if purchase already recorded
+        const existing = await this.purchaseModel.findOne({
+          providerOrderId: checkout.id,
+          provider: PaymentProvider.POLAR,
+        }).exec();
+        if (existing) {
+          this.logger.log(`Duplicate webhook skipped for checkout ${checkout.id}`);
+          return { received: true };
+        }
+
+        // Create purchase record
+        await this.purchaseModel.create({
+          userRef: new Types.ObjectId(userId),
+          bookRef: new Types.ObjectId(bookId),
+          purchaseToken: checkout.id,
+          provider: PaymentProvider.POLAR,
+          status: PurchaseStatus.PAID,
+          providerOrderId: checkout.id,
+          amountCents: checkout.amount || 0,
+          currency: checkout.currency || 'USD',
+          paidAt: new Date(),
+          metadata: { ...metadata, checkoutId: checkout.id },
+        });
+
+        // Increment book sales
+        await this.bookModel.findByIdAndUpdate(bookId, { $inc: { sales: 1 } });
+
+        this.logger.log(`Purchase recorded: user=${userId}, book=${bookId}`);
+      }
+
+      return { received: true };
+    } catch (err) {
+      if (err instanceof UnauthorizedException) throw err;
+      this.logger.error(`Webhook error: ${err.message}`);
+      return { received: true };
+    }
+  }
+}

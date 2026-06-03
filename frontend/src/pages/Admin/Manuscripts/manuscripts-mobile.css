@@ -1,0 +1,173 @@
+/* Mobile optimization for EditManuscript and ManuscriptAnalytics */
+
+/* Extra Small Screens (360px - 300px) */
+@media (max-width: 300px) {
+  /* EditManuscript Layout */
+  .grid.grid-cols-1.lg\:grid-cols-3 {
+    gap: 0.75rem !important;
+  }
+
+  .lg\:col-span-2 {
+    gap: 0.75rem !important;
+  }
+
+  .space-y-6 > * + * {
+    margin-top: 0.75rem !important;
+  }
+
+  .space-y-4 > * + * {
+    margin-top: 0.5rem !important;
+  }
+
+  /* Card adjustments */
+  .glass-card {
+    padding: 0.75rem !important;
+    border-radius: 0.25rem !important;
+  }
+
+  /* Form inputs */
+  input, textarea, select {
+    font-size: 16px !important;
+    padding: 0.5rem !important;
+    border-radius: 0.2rem !important;
+  }
+
+  /* Typography adjustments */
+  h3 {
+    font-size: 0.9rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  .text-label-md {
+    font-size: 0.65rem !important;
+  }
+
+  /* Analytics metrics grid */
+  .grid.grid-cols-1.md\:grid-cols-2.lg\:grid-cols-4 {
+    gap: 0.75rem !important;
+  }
+
+  /* Device breakdown and regions */
+  .grid.grid-cols-6 {
+    gap: 0.5rem !important;
+  }
+
+  .h-24 {
+    height: 3rem !important;
+  }
+
+  /* Buttons */
+  button {
+    padding: 0.5rem 1rem !important;
+    font-size: 0.75rem !important;
+    border-radius: 0.2rem !important;
+  }
+
+  /* Tables and lists */
+  .admin-table-cell {
+    padding: 0.5rem !important;
+    font-size: 0.75rem !important;
+  }
+
+  /* Sidebar for edit page */
+  .lg\:col-span-1 {
+    gap: 0.75rem !important;
+  }
+
+  /* Chart containers */
+  .w-full {
+    max-width: 100% !important;
+  }
+
+  /* Scrollable containers */
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Fix tight text */
+  .text-body-sm {
+    font-size: 0.7rem !important;
+  }
+
+  .text-body-md {
+    font-size: 0.8rem !important;
+  }
+
+  .text-headline-sm {
+    font-size: 0.9rem !important;
+  }
+
+  .text-headline-md {
+    font-size: 1rem !important;
+  }
+
+  /* Flex adjustments */
+  .flex.flex-col.gap-8 {
+    gap: 0.75rem !important;
+  }
+
+  .flex.flex-col.gap-6 {
+    gap: 0.5rem !important;
+  }
+
+  .flex.gap-4 {
+    gap: 0.5rem !important;
+  }
+
+  /* Progress bars and ranges */
+  .h-2 {
+    height: 1px !important;
+  }
+
+  .h-16 {
+    height: 2rem !important;
+  }
+
+  /* Bottom action buttons */
+  .flex.gap-4.flex-col.md\:flex-row.justify-center {
+    gap: 0.5rem !important;
+    flex-direction: column !important;
+  }
+
+  .px-8.py-3 {
+    padding: 0.5rem 1rem !important;
+  }
+
+  /* List spacing */
+  li {
+    padding: 0.25rem !important;
+  }
+
+  /* Chart bars */
+  .chart-bar {
+    min-width: 1.5rem !important;
+  }
+}
+
+/* Small Screens (300px - 640px) */
+@media (min-width: 300px) and (max-width: 640px) {
+  .glass-card {
+    padding: 1rem !important;
+  }
+
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+
+  .grid.grid-cols-1.lg\:grid-cols-3 {
+    gap: 1rem !important;
+  }
+
+  .text-label-md {
+    font-size: 0.7rem !important;
+  }
+
+  button {
+    font-size: 0.8rem !important;
+  }
+
+  .admin-icon-btn {
+    font-size: 1.25rem !important;
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 40;
+  }
+}
