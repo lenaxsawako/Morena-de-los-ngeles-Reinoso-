@@ -15,6 +15,8 @@ async function bootstrap() {
     maxAge: 3600,
   });
 
+  app.setGlobalPrefix('api/book');
+
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
     forbidNonWhitelisted: true,
