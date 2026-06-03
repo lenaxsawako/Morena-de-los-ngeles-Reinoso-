@@ -5,6 +5,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   const proxyTarget = env.VITE_PROXY_TARGET || 'https://greendg.craftassist.cloud';
   return {
+    base: '/book/',
     plugins: [react()],
     server: {
       host: '0.0.0.0',
