@@ -16,6 +16,8 @@ export default function Book() {
   const [series, setSeries] = useState<SeriesInfo | null>(null);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [isFav, setIsFav] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (!id) {
@@ -69,9 +71,7 @@ export default function Book() {
 
   const price = book.priceCents > 0 ? `$${(book.priceCents / 100).toFixed(2)} ${book.currency}` : 'Gratis';
   const authorName = book.author?.name || 'Autor';
-  const pageUrl = `${SITE_URL}/book/${book._id}`;
-  const [shareOpen, setShareOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const pageUrl = `${SITE_URL}/book/book/${book._id}`;
 
   const handleCopyLink = async () => {
     try {
