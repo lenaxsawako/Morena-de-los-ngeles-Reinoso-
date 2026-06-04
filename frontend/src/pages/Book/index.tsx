@@ -29,6 +29,7 @@ export default function Book() {
   const [reviewComment, setReviewComment] = useState('');
   const [submittingReview, setSubmittingReview] = useState(false);
   const [reviewError, setReviewError] = useState('');
+  const [reviewFocused, setReviewFocused] = useState(false);
 
   useEffect(() => {
     if (!id) {
@@ -507,52 +508,68 @@ export default function Book() {
               ))}
             </div>
 
-            {/* Rating Form (only for purchased users) */}
-            <div className="border-t border-white/10 p-6">
+            {/* Rating Form (YouTube-style) */}
+            <div className="border-t border-white/10 p-4">
               {authService.isAuthenticated() && hasPurchased ? (
                 <div className="space-y-3">
-                  <div className="flex justify-center gap-1">
-                    {[1, 2, 3, 4, 5].map(n => (
-                      <button key={n} type="button" onClick={() => setReviewRating(n)}>
-                        <span className={`material-symbols-outlined text-3xl transition-colors ${n <= reviewRating ? 'text-accent-gold' : 'text-on-surface-variant/30'}`}>
-                          star
-                        </span>
-                      </button>
-                    ))}
+                  <div className="flex items-center gap-3">
+                    <div className="flex gap-0.5">
+                      {[1, 2, 3, 4, 5].map(n => (
+                        <button key={n} type="button" onClick={() => { setReviewRating(n); setReviewFocused(true); }}>
+                          <span className={`material-symbols-outlined text-2xl transition-colors ${n <= reviewRating ? 'text-accent-gold' : 'text-on-surface-variant/30'}`}>
+                            star
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex-1 relative">
+                      <input
+                        value={reviewComment}
+                        onChange={e => setReviewComment(e.target.value)}
+                        onFocus={() => setReviewFocused(true)}
+                        placeholder="Escribí un comentario..."
+                        className="w-full bg-transparent border-b border-white/20 pb-1 text-body-md text-on-background outline-none focus:border-primary transition-colors"
+                      />
+                      {(reviewFocused || reviewComment) && (
+                        <div className="flex items-center gap-2 mt-2">
+                          <button
+                            onClick={async () => {
+                              setSubmittingReview(true);
+                              setReviewError('');
+                              try {
+                                await reviewsService.upsert(id!, reviewRating, reviewComment || undefined);
+                                setReviewRating(5);
+                                setReviewComment('');
+                                setReviewFocused(false);
+                                const data = await reviewsService.getBookReviews(id!);
+                                setReviews(data.reviews);
+                                setAvgRating(data.avgRating);
+                                setReviewCount(data.count);
+                              } catch (err: any) {
+                                setReviewError(err.message);
+                              } finally {
+                                setSubmittingReview(false);
+                              }
+                            }}
+                            disabled={submittingReview}
+                            className="px-4 py-1.5 rounded-full bg-primary text-on-primary text-label-md font-medium disabled:opacity-40 transition-opacity"
+                          >
+                            {submittingReview ? 'Enviando...' : 'Enviar'}
+                          </button>
+                          <button
+                            onClick={() => { setReviewComment(''); setReviewRating(5); setReviewFocused(false); }}
+                            className="px-4 py-1.5 rounded-full text-on-surface-variant text-label-md hover:text-on-background transition-colors"
+                          >
+                            Cancelar
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <textarea
-                    value={reviewComment}
-                    onChange={e => setReviewComment(e.target.value)}
-                    placeholder="Escribí un comentario (opcional)"
-                    className="w-full p-3 rounded-xl bg-surface-high text-on-background text-body-md outline-none resize-none h-20"
-                  />
-                  {reviewError && <p className="text-body-sm text-red-400 text-center">{reviewError}</p>}
-                  <button
-                    onClick={async () => {
-                      setSubmittingReview(true);
-                      setReviewError('');
-                      try {
-                        await reviewsService.upsert(id!, reviewRating, reviewComment || undefined);
-                        setReviewRating(5);
-                        setReviewComment('');
-                        const data = await reviewsService.getBookReviews(id!);
-                        setReviews(data.reviews);
-                        setAvgRating(data.avgRating);
-                        setReviewCount(data.count);
-                      } catch (err: any) {
-                        setReviewError(err.message);
-                      } finally {
-                        setSubmittingReview(false);
-                      }
-                    }}
-                    disabled={submittingReview}
-                    className="w-full py-3 rounded-full bg-primary text-on-primary font-medium text-body-md disabled:opacity-40 transition-opacity"
-                  >
-                    {submittingReview ? 'Enviando...' : 'Valorar este libro'}
-                  </button>
-                  <p className="text-label-sm text-on-surface-variant text-center">
-                    Tu valoración será visible cuando un administrador la apruebe
-                  </p>
+                  {reviewError && <p className="text-body-sm text-red-400">{reviewError}</p>}
+                  {!reviewComment && (
+                    <p className="text-label-sm text-on-surface-variant">Tu valoración será visible cuando un administrador la apruebe</p>
+                  )}
                 </div>
               ) : authService.isAuthenticated() && !hasPurchased ? (
                 <p className="text-body-md text-on-surface-variant text-center">
