@@ -14,6 +14,7 @@ import { AdminModule } from './admin/admin.module';
 import { SharedModule } from './shared/shared.module';
 import { SubscriptionModule } from './subscriptions/subscription.module';
 import { CheckoutModule } from './checkout/checkout.module';
+import { FavoritesModule } from './favorites/favorites.module';
 import { RedisStoreService } from './services/redis-store.service';
 import { IpExtractorService } from './services/ip-extractor.service';
 @Module({
@@ -40,6 +41,7 @@ import { IpExtractorService } from './services/ip-extractor.service';
     AdminModule,
     SubscriptionModule,
     CheckoutModule,
+    FavoritesModule,
   ],
   controllers: [AppController],
   providers: [AppService, RedisStoreService, IpExtractorService],

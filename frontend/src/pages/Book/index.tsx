@@ -1,6 +1,8 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { booksService, type BookDetail, type SeriesInfo, type Recommendation } from '../../services/books';
+import { favoritesService } from '../../services/favorites';
+import { authService } from '../../services/auth';
 
 export default function Book() {
   const { id } = useParams<{ id: string }>();
@@ -10,6 +12,7 @@ export default function Book() {
   const [error, setError] = useState<string | null>(null);
   const [series, setSeries] = useState<SeriesInfo | null>(null);
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+  const [isFav, setIsFav] = useState(false);
 
   useEffect(() => {
     if (!id) {
@@ -32,6 +35,9 @@ export default function Book() {
 
     booksService.getSeries(id).then(s => setSeries(s)).catch(() => {});
     booksService.getRecommendations(id).then(r => setRecommendations(r)).catch(() => {});
+    if (authService.isAuthenticated()) {
+      favoritesService.checkFavorite(id).then(setIsFav).catch(() => {});
+    }
   }, [id]);
 
   if (loading) {
@@ -135,6 +141,19 @@ export default function Book() {
                   className="flex-1 border border-outline text-primary py-3 rounded-full font-medium text-body-md hover:bg-surface-container transition-colors"
                 >
                   Comprar ({price})
+                </button>
+              )}
+              {authService.isAuthenticated() && (
+                <button
+                  onClick={() => {
+                    favoritesService.toggleFavorite(book._id, isFav).then(() => setIsFav(!isFav));
+                  }}
+                  className="p-3 rounded-full border border-outline text-primary hover:bg-surface-container transition-colors"
+                  title={isFav ? 'Quitar de favoritos' : 'Añadir a favoritos'}
+                >
+                  <span className={`material-symbols-outlined ${isFav ? 'text-red-400' : ''}`}>
+                    {isFav ? 'favorite' : 'favorite_outline'}
+                  </span>
                 </button>
               )}
             </div>

@@ -105,6 +105,18 @@ export default function Header() {
           >
             Catálogo
           </Link>
+          {isLoggedIn && (
+            <Link
+              to="/favorites"
+              className={`font-label-md text-label-md uppercase tracking-widest transition-colors duration-300 pb-1 ${
+                isActive('/favorites')
+                  ? 'text-primary border-b border-primary'
+                  : 'text-on-surface-variant hover:text-primary'
+              }`}
+            >
+              Favoritos
+            </Link>
+          )}
         </div>
 
         {/* Action Icons */}
@@ -201,6 +213,19 @@ export default function Header() {
             >
               Catalog
             </Link>
+            {isLoggedIn && (
+              <Link
+                to="/favorites"
+                onClick={handleNavClick}
+                className={`font-label-md text-label-md uppercase tracking-widest transition-colors duration-300 py-2 ${
+                  isActive('/favorites')
+                    ? 'text-primary border-l-2 border-primary pl-2'
+                    : 'text-on-surface-variant hover:text-primary'
+                }`}
+              >
+                Favoritos
+              </Link>
+            )}
 
             <div className="border-t border-white/10 pt-4 mt-2">
               {isLoggedIn ? (

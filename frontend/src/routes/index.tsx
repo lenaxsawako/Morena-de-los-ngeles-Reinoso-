@@ -20,6 +20,7 @@ import ConfirmPurchase from "../pages/checkout/confirm";
 import TermsOfService from "../pages/ToS";
 import PrivacyPolicy from "../pages/PrivacyPolicy";
 import Profile from "../pages/Profile";
+import Favorites from "../pages/Favorites";
 
 import Dashboard from "../pages/Admin/Dashboard";
 import ActivityViewAll from "../pages/Admin/Dashboard/ActivityViewAll";
@@ -77,6 +78,10 @@ export const router = createBrowserRouter([
       {
         path: "/profile",
         element: <Profile />,
+      },
+      {
+        path: "/favorites",
+        element: <Favorites />,
       },
     ],
   },

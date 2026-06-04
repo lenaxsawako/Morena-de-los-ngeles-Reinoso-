@@ -4,6 +4,7 @@ import { catalogService, type CatalogLanding, type BookItem } from '../../servic
 import { guestReadingService } from '../../services/guestReading';
 import { paymentsService } from '../../services/payments';
 import { authService } from '../../services/auth';
+import { favoritesService } from '../../services/favorites';
 import Modal from '../../components/Modal';
 import './catalog.css';
 
@@ -25,6 +26,8 @@ export default function Catalog() {
   const [purchasedIds, setPurchasedIds] = useState<Set<string>>(new Set());
   // Guest library books (from localStorage)
   const [guestLibraryIds, setGuestLibraryIds] = useState<Set<string>>(new Set());
+  // Favorite books (from API if authenticated)
+  const [favoriteIds, setFavoriteIds] = useState<Set<string>>(new Set());
 
   // Modal state for library add feedback
   const [modalMsg, setModalMsg] = useState('');
@@ -64,6 +67,10 @@ export default function Catalog() {
               .filter((id): id is string => !!id),
           );
           setPurchasedIds(ids);
+
+          // Load favorite IDs
+          const favIds = await favoritesService.getFavoriteIds().catch(() => []);
+          setFavoriteIds(new Set(favIds));
         }
 
         // Load guest library
@@ -288,18 +295,39 @@ export default function Catalog() {
         <div className="catalog-books-grid">
           {books.map((book) => (
             <div key={book._id} className="catalog-book-card">
-              <div className="catalog-book-image">
+              <div className="catalog-book-image" onClick={() => navigate(`/book/${book._id}`)}>
                 <img src={book.coverUrl || 'https://via.placeholder.com/300x400?text=Book+Cover'} alt={book.title} />
+                {authService.isAuthenticated() && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const isFav = favoriteIds.has(book._id);
+                      favoritesService.toggleFavorite(book._id, isFav).then(() => {
+                        if (isFav) {
+                          setFavoriteIds(prev => { const next = new Set(prev); next.delete(book._id); return next; });
+                        } else {
+                          setFavoriteIds(prev => new Set(prev).add(book._id));
+                        }
+                      });
+                    }}
+                    className="absolute top-2 right-2 z-10 p-1.5 rounded-full bg-black/40 hover:bg-black/60 transition-colors"
+                  >
+                    <span className={`material-symbols-outlined text-lg ${favoriteIds.has(book._id) ? 'text-red-400' : 'text-white/70'}`}>
+                      {favoriteIds.has(book._id) ? 'favorite' : 'favorite_outline'}
+                    </span>
+                  </button>
+                )}
                 <div className="catalog-book-overlay">
                   <p className="catalog-book-overlay-quote">{book.description}</p>
                   <button 
-                    onClick={() => navigate(isInLibrary(book._id) ? `/chapter/${book._id}` : `/checkout/${book._id}`)}
+                    onClick={(e) => { e.stopPropagation(); navigate(isInLibrary(book._id) ? `/chapter/${book._id}` : `/checkout/${book._id}`); }}
                     className="catalog-book-overlay-button primary">
                     {isInLibrary(book._id) ? 'LEER AHORA' : 'COMPRAR AHORA'}
                   </button>
                   {!isInLibrary(book._id) && (
                     <button 
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         const existing = guestReadingService.getProgress(book._id);
                         if (existing) {
                           setModalMsg('Este libro ya está en tu biblioteca');
@@ -315,7 +343,7 @@ export default function Catalog() {
               </div>
               <div className="catalog-book-info">
                 <span className="catalog-book-category">{book.category}</span>
-                <h4 className="catalog-book-title">{book.title}</h4>
+                <h4 className="catalog-book-title" onClick={() => navigate(`/book/${book._id}`)}>{book.title}</h4>
                 <p className="catalog-book-price">{catalogService.formatPrice(book.priceCents)}</p>
                 {/* Mobile: show buttons below cover */}
                 <div className="catalog-book-actions-mobile">
