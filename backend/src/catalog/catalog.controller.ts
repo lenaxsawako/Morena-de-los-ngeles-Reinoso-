@@ -76,6 +76,15 @@ export class BooksController {
   }
 
   /**
+   * GET /books/id/:id/series
+   * Get prequel and sequels for a book
+   */
+  @Get('id/:id/series')
+  async getSeries(@Param('id') id: string) {
+    return this.catalogService.getSeries(id);
+  }
+
+  /**
    * GET /books/:slug
    * Get book details by slug (Quick View)
    */

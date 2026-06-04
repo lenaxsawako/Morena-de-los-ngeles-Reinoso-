@@ -37,4 +37,8 @@ export class CreateBookDto {
   @IsString()
   @IsOptional()
   polarProductId?: string;
+
+  @IsString()
+  @IsOptional()
+  prequelRef?: string;
 }

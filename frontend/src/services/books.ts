@@ -13,6 +13,21 @@ export interface BookDetail {
   category?: { _id: string; name: string; slug: string } | null;
 }
 
+export interface SeriesItem {
+  _id: string;
+  title: string;
+  subtitle?: string;
+  description?: string;
+  coverUrl?: string;
+  priceCents?: number;
+  currency?: string;
+}
+
+export interface SeriesInfo {
+  prequel: SeriesItem | null;
+  sequels: SeriesItem[];
+}
+
 export const booksService = {
   async getBookById(id: string): Promise<BookDetail | null> {
     try {
@@ -21,6 +36,16 @@ export const booksService = {
       return await response.json();
     } catch {
       return null;
+    }
+  },
+
+  async getSeries(bookId: string): Promise<SeriesInfo> {
+    try {
+      const response = await fetch(`${API_URL}/books/id/${bookId}/series`);
+      if (!response.ok) return { prequel: null, sequels: [] };
+      return await response.json();
+    } catch {
+      return { prequel: null, sequels: [] };
     }
   },
 

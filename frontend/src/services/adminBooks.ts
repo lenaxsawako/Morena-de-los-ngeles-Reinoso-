@@ -44,6 +44,7 @@ export interface AdminBook {
   isFeatured: boolean;
   isLatestRelease: boolean;
   polarProductId?: string;
+  prequelRef?: string;
   publishedAt?: string;
   views: number;
   createdAt: string;
@@ -234,6 +235,7 @@ export interface UpdateBookInput {
   categoryRef?: string;
   isFeatured?: boolean;
   polarProductId?: string;
+  prequelRef?: string | null;
 }
 
 // ============================================================================

@@ -1,6 +1,6 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { booksService, type BookDetail } from '../../services/books';
+import { booksService, type BookDetail, type SeriesInfo } from '../../services/books';
 
 export default function Book() {
   const { id } = useParams<{ id: string }>();
@@ -8,6 +8,7 @@ export default function Book() {
   const [book, setBook] = useState<BookDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [series, setSeries] = useState<SeriesInfo | null>(null);
 
   useEffect(() => {
     if (!id) {
@@ -27,6 +28,8 @@ export default function Book() {
     }).finally(() => {
       setLoading(false);
     });
+
+    booksService.getSeries(id).then(s => setSeries(s)).catch(() => {});
   }, [id]);
 
   if (loading) {
@@ -143,6 +146,62 @@ export default function Book() {
             <p className="text-body-lg text-on-surface-variant leading-relaxed">
               {book.description}
             </p>
+          </div>
+        )}
+
+        {/* Series / Sequel / Prequel */}
+        {series && (series.prequel || series.sequels.length > 0) && (
+          <div className="max-w-3xl mt-16 space-y-6">
+            <h2 className="text-headline-lg font-bold">Serie</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {series.prequel && (
+                <Link
+                  to={`/book/${series.prequel._id}`}
+                  className="flex gap-4 p-4 rounded-xl border border-white/10 hover:border-primary/40 transition-colors bg-surface-container group"
+                >
+                  <div className="w-16 h-24 flex-shrink-0 rounded overflow-hidden bg-surface-high">
+                    {series.prequel.coverUrl ? (
+                      <img src={series.prequel.coverUrl} alt={series.prequel.title} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <span className="material-symbols-outlined text-on-surface-variant/30">book</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-label-md text-accent-gold uppercase tracking-widest mb-1">Precuela</p>
+                    <p className="text-body-md text-primary font-medium truncate group-hover:text-accent-gold transition-colors">{series.prequel.title}</p>
+                    {series.prequel.subtitle && (
+                      <p className="text-body-sm text-on-surface-variant truncate">{series.prequel.subtitle}</p>
+                    )}
+                  </div>
+                </Link>
+              )}
+              {series.sequels.map(seq => (
+                <Link
+                  key={seq._id}
+                  to={`/book/${seq._id}`}
+                  className="flex gap-4 p-4 rounded-xl border border-white/10 hover:border-primary/40 transition-colors bg-surface-container group"
+                >
+                  <div className="w-16 h-24 flex-shrink-0 rounded overflow-hidden bg-surface-high">
+                    {seq.coverUrl ? (
+                      <img src={seq.coverUrl} alt={seq.title} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <span className="material-symbols-outlined text-on-surface-variant/30">book</span>
+                      </div>
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-label-md text-accent-gold uppercase tracking-widest mb-1">Secuela</p>
+                    <p className="text-body-md text-primary font-medium truncate group-hover:text-accent-gold transition-colors">{seq.title}</p>
+                    {seq.subtitle && (
+                      <p className="text-body-sm text-on-surface-variant truncate">{seq.subtitle}</p>
+                    )}
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
         )}
       </div>

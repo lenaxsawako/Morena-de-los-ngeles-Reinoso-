@@ -38,6 +38,10 @@ export class UpdateBookDto {
   @IsString()
   @IsOptional()
   polarProductId?: string;
+
+  @IsString()
+  @IsOptional()
+  prequelRef?: string;
 }
 
 export class AttachDriveFileDto {

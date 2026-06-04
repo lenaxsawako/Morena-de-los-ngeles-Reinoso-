@@ -156,7 +156,7 @@ export class CatalogService {
       .findById(id)
       .where('isPublished').equals(true)
       .select(
-        '_id title subtitle description coverUrl priceCents currency previewPages totalPages categoryRef',
+        '_id title subtitle description coverUrl priceCents currency previewPages totalPages categoryRef prequelRef',
       )
       .populate('categoryRef', 'name slug')
       .lean();
@@ -176,12 +176,71 @@ export class CatalogService {
       previewPages: book.previewPages,
       totalPages: book.totalPages,
       category: book.categoryRef,
+      prequelRef: book.prequelRef,
     };
   }
 
   /**
-   * Get PDF stream for reading
+   * Get series info: prequel (the book this one is a sequel of) and sequels (books that have this as prequelRef)
    */
+  async getSeries(bookId: string) {
+    const book = await this.bookModel
+      .findById(bookId)
+      .where('isPublished').equals(true)
+      .select('prequelRef')
+      .lean();
+
+    if (!book) {
+      return { prequel: null, sequels: [] };
+    }
+
+    let prequel: {
+      _id: Types.ObjectId;
+      title: string;
+      subtitle: string;
+      description: string;
+      coverUrl?: string;
+      priceCents: number;
+      currency: string;
+    } | null = null;
+    if (book.prequelRef) {
+      const p = await this.bookModel
+        .findById(book.prequelRef)
+        .where('isPublished').equals(true)
+        .select('_id title subtitle description coverUrl priceCents currency')
+        .lean();
+      if (p) {
+        prequel = {
+          _id: p._id,
+          title: p.title,
+          subtitle: p.subtitle || '',
+          description: p.description || '',
+          coverUrl: p.coverUrl,
+          priceCents: p.priceCents,
+          currency: p.currency,
+        };
+      }
+    }
+
+    const sequels = await this.bookModel
+      .find({ prequelRef: new Types.ObjectId(bookId), isPublished: true })
+      .select('_id title subtitle description coverUrl priceCents currency')
+      .sort({ publishedAt: -1 })
+      .lean();
+
+    return {
+      prequel,
+      sequels: sequels.map((s) => ({
+        _id: s._id,
+        title: s.title,
+        subtitle: s.subtitle,
+        description: s.description,
+        coverUrl: s.coverUrl,
+        priceCents: s.priceCents,
+        currency: s.currency,
+      })),
+    };
+  }
   async getBookPdfStream(id: string): Promise<{ stream: Readable; contentType: string; fileName: string }> {
     const book = await this.bookModel
       .findById(id)

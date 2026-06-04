@@ -78,7 +78,7 @@ export class AdminBooksService {
       this.bookModel
         .find(filter)
         .select(
-          '_id title subtitle description isPublished isPreorder previewPages coverUrl totalPages priceCents currency driveFileId publishedAt createdAt updatedAt',
+          '_id title subtitle description isPublished isPreorder previewPages coverUrl totalPages priceCents currency driveFileId publishedAt createdAt updatedAt prequelRef',
         )
         .sort({ createdAt: -1 })
         .skip(skip)
@@ -140,6 +140,7 @@ export class AdminBooksService {
       coverUrl: coverUrl || undefined,
       categoryRef: dto.categoryRef ? new Types.ObjectId(dto.categoryRef) : undefined,
       polarProductId,
+      prequelRef: dto.prequelRef ? new Types.ObjectId(dto.prequelRef) : undefined,
       isPublished: false,
       isPreorder: false,
     });
@@ -191,6 +192,9 @@ export class AdminBooksService {
 
     if (dto.isFeatured !== undefined) book.isFeatured = dto.isFeatured;
     if (dto.polarProductId !== undefined) book.polarProductId = dto.polarProductId;
+    if (dto.prequelRef !== undefined) {
+      book.prequelRef = dto.prequelRef ? new Types.ObjectId(dto.prequelRef) : undefined;
+    }
 
     // Sync Polar product (only create if missing, only update if price changed)
     const currentPrice = book.priceCents;

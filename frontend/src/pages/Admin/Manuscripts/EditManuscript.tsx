@@ -22,6 +22,7 @@ export default function EditManuscript() {
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [notificationModal, setNotificationModal] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [coverPreview, setCoverPreview] = useState('');
+  const [allBooks, setAllBooks] = useState<AdminBook[]>([]);
 
   // Load book and drive status on mount
   useEffect(() => {
@@ -46,6 +47,7 @@ export default function EditManuscript() {
             priceCents: data.priceCents,
             currency: data.currency,
             previewPages: data.previewPages,
+            prequelRef: data.prequelRef || null,
           });
         } else {
           setError('Libro no encontrado');
@@ -58,6 +60,10 @@ export default function EditManuscript() {
         ]);
         setDriveStatus(drive);
         setCloudinaryStatus(cloudinary);
+
+        // Load all published books for prequel selector
+        const books = await adminBooksService.getBooks('published', 1, 500);
+        setAllBooks(books.filter(b => b._id !== id));
       } catch (err) {
         setError('Error al cargar el libro: ' + (err as Error).message);
       } finally {
@@ -547,6 +553,22 @@ export default function EditManuscript() {
                     className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-sm text-primary focus:outline-none focus:border-primary"
                     placeholder="prod_xxx..."
                   />
+                </div>
+
+                <div className="pt-4 border-t border-white/10">
+                  <p className="text-label-md text-on-surface-variant uppercase tracking-widest mb-2">
+                    Serie / Precuela
+                  </p>
+                  <select
+                    value={formData.prequelRef ?? ''}
+                    onChange={(e) => setFormData(prev => ({ ...prev, prequelRef: e.target.value || null }))}
+                    className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-sm text-primary focus:outline-none focus:border-primary"
+                  >
+                    <option value="">— Sin precuela —</option>
+                    {allBooks.map(b => (
+                      <option key={b._id} value={b._id}>{b.title}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
             </div>

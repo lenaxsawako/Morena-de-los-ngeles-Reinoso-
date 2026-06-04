@@ -145,6 +145,13 @@ polarProductId!: string;
   // Metadata libre
 
   @Prop({
+    type: Types.ObjectId,
+    ref: 'Book',
+    default: null,
+  })
+  prequelRef?: Types.ObjectId;
+
+  @Prop({
     type: Object,
     default: {},
   })
