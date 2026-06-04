@@ -391,7 +391,12 @@ export default function Book() {
               </button>
             </>
           ) : (
-            <p className="text-body-md text-on-surface-variant">Todavía no hay opiniones sobre este libro.</p>
+            <button
+              onClick={() => setReviewsModalOpen(true)}
+              className="text-body-md text-on-surface-variant hover:text-primary transition-colors"
+            >
+              Todavía no hay opiniones. <span className="text-primary underline">Hacé click para dejar una</span>
+            </button>
           )}
         </div>
 
@@ -448,7 +453,7 @@ export default function Book() {
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" onClick={() => setReviewsModalOpen(false)}>
           <div className="fixed inset-0 bg-black/50" />
           <div
-            className="relative bg-surface-container rounded-t-2xl sm:rounded-2xl w-full sm:max-w-lg max-h-[85vh] flex flex-col shadow-2xl"
+            className="relative bg-surface-container rounded-t-2xl sm:rounded-2xl w-full sm:max-w-lg max-h-[75vh] flex flex-col shadow-2xl"
             style={{ animation: 'slideUp 0.3s ease' }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -458,19 +463,17 @@ export default function Book() {
             <div className="px-6 pt-4 pb-2 border-b border-white/10 flex items-center justify-between">
               <div>
                 <h3 className="text-headline-md font-bold text-primary">Opiniones</h3>
-                {reviewCount > 0 && (
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-headline-sm font-bold text-accent-gold">{avgRating.toFixed(1)}</span>
-                    <div className="flex gap-0.5">
-                      {Array.from({ length: 5 }, (_, i) => (
-                        <span key={i} className={`material-symbols-outlined text-sm ${i < Math.round(avgRating) ? 'text-accent-gold' : 'text-on-surface-variant/30'}`}>
-                          star
-                        </span>
-                      ))}
-                    </div>
-                    <span className="text-label-sm text-on-surface-variant">{reviewCount}</span>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-headline-sm font-bold text-accent-gold">{avgRating.toFixed(1)}</span>
+                  <div className="flex gap-0.5">
+                    {Array.from({ length: 5 }, (_, i) => (
+                      <span key={i} className={`material-symbols-outlined text-sm ${i < Math.round(avgRating) ? 'text-accent-gold' : 'text-on-surface-variant/30'}`}>
+                        star
+                      </span>
+                    ))}
                   </div>
-                )}
+                  <span className="text-label-sm text-on-surface-variant">{reviewCount}</span>
+                </div>
               </div>
               <button
                 onClick={() => setReviewsModalOpen(false)}
