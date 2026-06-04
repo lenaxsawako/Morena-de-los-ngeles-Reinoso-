@@ -7,6 +7,7 @@ export * from './reading-progress.schema';
 export * from './bookmark.schema';
 export * from './reading-session.schema';
 export * from './subscription.schema';
+export * from './failed-webhook.schema';
 
 export const USER_MODEL = 'User';
 export const BOOK_MODEL = 'Book';
@@ -17,3 +18,4 @@ export const READING_PROGRESS_MODEL = 'ReadingProgress';
 export const BOOKMARK_MODEL = 'Bookmark';
 export const READING_SESSION_MODEL = 'ReadingSession';
 export const SUBSCRIPTION_MODEL = 'Subscription';
+export const FAILED_WEBHOOK_MODEL = 'FailedWebhook';
