@@ -178,6 +178,23 @@ export const authService = {
   },
 
   /**
+   * Decodifica el JWT para obtener el ID del usuario (sub)
+   * @returns ID del usuario o null si no está autenticado
+   */
+  getUserId(): string | null {
+    const token = this.getToken();
+    if (!token) return null;
+    try {
+      const parts = token.split('.');
+      if (parts.length !== 3) return null;
+      const payload = JSON.parse(atob(parts[1]));
+      return payload.sub || null;
+    } catch {
+      return null;
+    }
+  },
+
+  /**
    * Decodifica el JWT para obtener el rol del usuario
    * @returns Rol del usuario ('user' | 'admin') o null si no está autenticado
    */

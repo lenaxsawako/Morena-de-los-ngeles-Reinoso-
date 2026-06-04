@@ -4,6 +4,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 export interface ReviewItem {
   id: string;
+  userId?: string;
   userName: string;
   rating: number;
   comment?: string;

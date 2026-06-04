@@ -30,6 +30,11 @@ export default function Book() {
   const [submittingReview, setSubmittingReview] = useState(false);
   const [reviewError, setReviewError] = useState('');
   const [reviewFocused, setReviewFocused] = useState(false);
+  const [editingReview, setEditingReview] = useState(false);
+  const [reviewMenuOpen, setReviewMenuOpen] = useState<string | null>(null);
+
+  const userId = authService.getUserId();
+  const userReview = reviews.find(r => r.userId === userId);
 
   useEffect(() => {
     if (!id) {
@@ -486,13 +491,50 @@ export default function Book() {
 
             {/* Scrollable Reviews List */}
             <div className="flex-1 overflow-y-auto p-6 space-y-4">
-              {reviews.map(review => (
+              {[...reviews].sort((a, b) => {
+                if (a.userId === userId) return -1;
+                if (b.userId === userId) return 1;
+                return 0;
+              }).map(review => {
+                const isOwn = review.userId === userId;
+                return (
                 <div key={review.id} className="p-4 rounded-xl border border-white/10 bg-surface-high space-y-2">
-                  <div className="flex items-center gap-2">
-                    <span className="text-body-sm font-medium text-primary">{review.userName}</span>
-                    <span className="text-label-sm text-on-surface-variant">
-                      {new Date(review.createdAt).toLocaleDateString('es-ES', { dateStyle: 'long' })}
-                    </span>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-body-sm font-medium text-primary">
+                        {isOwn ? 'Tu opinión' : review.userName}
+                      </span>
+                      <span className="text-label-sm text-on-surface-variant">
+                        {new Date(review.createdAt).toLocaleDateString('es-ES', { dateStyle: 'long' })}
+                      </span>
+                    </div>
+                    {isOwn && (
+                      <div className="relative">
+                        <button
+                          onClick={() => setReviewMenuOpen(reviewMenuOpen === review.id ? null : review.id)}
+                          className="p-1 rounded-full hover:bg-white/10 transition-colors"
+                        >
+                          <span className="material-symbols-outlined text-on-surface-variant text-lg">more_vert</span>
+                        </button>
+                        {reviewMenuOpen === review.id && (
+                          <div className="absolute right-0 top-8 z-10 bg-surface-container border border-white/10 rounded-xl shadow-xl min-w-[120px] overflow-hidden">
+                            <button
+                              onClick={() => {
+                                setReviewRating(review.rating);
+                                setReviewComment(review.comment || '');
+                                setEditingReview(true);
+                                setReviewFocused(true);
+                                setReviewMenuOpen(null);
+                              }}
+                              className="w-full flex items-center gap-2 px-4 py-2.5 text-body-sm text-primary hover:bg-white/5 transition-colors"
+                            >
+                              <span className="material-symbols-outlined text-lg">edit</span>
+                              Editar
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                   <div className="flex gap-0.5">
                     {Array.from({ length: 5 }, (_, i) => (
@@ -505,7 +547,7 @@ export default function Book() {
                     <p className="text-body-md text-on-surface-variant leading-relaxed">{review.comment}</p>
                   )}
                 </div>
-              ))}
+              )})}
             </div>
 
             {/* Rating Form (YouTube-style) */}
@@ -530,7 +572,7 @@ export default function Book() {
                         placeholder="Escribí un comentario..."
                         className="w-full bg-transparent border-b border-white/20 pb-1 text-body-md text-on-background outline-none focus:border-primary transition-colors"
                       />
-                      {(reviewFocused || reviewComment) && (
+                      {(editingReview || reviewFocused || reviewComment) && (
                         <div className="flex items-center gap-2 mt-2">
                           <button
                             onClick={async () => {
@@ -541,6 +583,7 @@ export default function Book() {
                                 setReviewRating(5);
                                 setReviewComment('');
                                 setReviewFocused(false);
+                                setEditingReview(false);
                                 const data = await reviewsService.getBookReviews(id!);
                                 setReviews(data.reviews);
                                 setAvgRating(data.avgRating);
@@ -554,10 +597,21 @@ export default function Book() {
                             disabled={submittingReview}
                             className="px-4 py-1.5 rounded-full bg-primary text-on-primary text-label-md font-medium disabled:opacity-40 transition-opacity"
                           >
-                            {submittingReview ? 'Enviando...' : 'Enviar'}
+                            {submittingReview ? 'Enviando...' : editingReview ? 'Guardar' : 'Enviar'}
                           </button>
                           <button
-                            onClick={() => { setReviewComment(''); setReviewRating(5); setReviewFocused(false); }}
+                            onClick={() => {
+                              if (editingReview && userReview) {
+                                setReviewRating(userReview.rating);
+                                setReviewComment(userReview.comment || '');
+                                setEditingReview(false);
+                                setReviewFocused(false);
+                              } else {
+                                setReviewComment('');
+                                setReviewRating(5);
+                                setReviewFocused(false);
+                              }
+                            }}
                             className="px-4 py-1.5 rounded-full text-on-surface-variant text-label-md hover:text-on-background transition-colors"
                           >
                             Cancelar
@@ -567,7 +621,7 @@ export default function Book() {
                     </div>
                   </div>
                   {reviewError && <p className="text-body-sm text-red-400">{reviewError}</p>}
-                  {!reviewComment && (
+                  {!reviewComment && !editingReview && (
                     <p className="text-label-sm text-on-surface-variant">Tu valoración aparecerá inmediatamente</p>
                   )}
                 </div>

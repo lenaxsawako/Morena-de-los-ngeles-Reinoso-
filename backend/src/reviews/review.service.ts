@@ -48,7 +48,13 @@ export class ReviewService {
       { upsert: true, new: true },
     );
 
-    return { id: review._id, status: review.status };
+    return {
+      id: review._id,
+      rating: review.rating,
+      comment: review.comment || undefined,
+      createdAt: review.createdAt,
+      status: review.status,
+    };
   }
 
   async getBookReviews(bookId: string) {
@@ -60,6 +66,7 @@ export class ReviewService {
 
     return reviews.map((r: any) => ({
       id: r._id,
+      userId: r.userRef?._id?.toString(),
       userName: r.userRef?.profile?.username || 'Lector',
       rating: r.rating,
       comment: r.comment || undefined,
