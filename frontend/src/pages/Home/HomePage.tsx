@@ -270,7 +270,7 @@ export default function HomePage() {
           {latestVolumes.length > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
             {latestVolumes.map((book) => (
-              <div key={book._id} className="space-y-6 group cursor-pointer">
+              <Link key={book._id} to={`/book/${book._id}`} className="space-y-6 group cursor-pointer block">
                 <div className="aspect-[2/3] overflow-hidden border border-white/5 transition-colors group-hover:border-[#F3EAD3]/30">
                   <img
                     alt={book.title}
@@ -287,7 +287,7 @@ export default function HomePage() {
                     })}
                   </p>
                 </div>
-              </div>
+              </Link>
             ))}
           </div>
           )}
