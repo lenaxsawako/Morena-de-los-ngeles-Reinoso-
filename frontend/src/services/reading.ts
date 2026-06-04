@@ -68,6 +68,13 @@ export interface LibraryDashboard {
   collection: LibraryBook[];
 }
 
+export interface BookmarkResponse {
+  id: string;
+  page: number;
+  note?: string;
+  createdAt?: string;
+}
+
 export interface ReadingStats {
   totalBooks: number;
   booksInProgress: number;
@@ -401,7 +408,7 @@ export const readingService = {
    * @param page - Número de página
    * @param note - Nota o comentario
    */
-  async createBookmark(bookId: string, page: number, note?: string) {
+  async createBookmark(bookId: string, page: number, note?: string): Promise<BookmarkResponse | null> {
     const authHeader = authService.getAuthHeader();
     if (!authHeader) {
       throw new Error('No autenticado');
@@ -431,7 +438,7 @@ export const readingService = {
    * Obtener todos los marcapáginas de un libro
    * @param bookId - ID del libro
    */
-  async getBookmarks(bookId: string) {
+  async getBookmarks(bookId: string): Promise<BookmarkResponse[]> {
     const authHeader = authService.getAuthHeader();
     if (!authHeader) {
       throw new Error('No autenticado');
