@@ -36,7 +36,7 @@ export class ReviewService {
         $set: {
           rating: dto.rating,
           comment: dto.comment || null,
-          status: ReviewStatus.PENDING,
+          status: ReviewStatus.APPROVED,
           updatedAt: now,
         },
         $setOnInsert: {

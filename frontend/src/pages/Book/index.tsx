@@ -568,7 +568,7 @@ export default function Book() {
                   </div>
                   {reviewError && <p className="text-body-sm text-red-400">{reviewError}</p>}
                   {!reviewComment && (
-                    <p className="text-label-sm text-on-surface-variant">Tu valoración será visible cuando un administrador la apruebe</p>
+                    <p className="text-label-sm text-on-surface-variant">Tu valoración aparecerá inmediatamente</p>
                   )}
                 </div>
               ) : authService.isAuthenticated() && !hasPurchased ? (
