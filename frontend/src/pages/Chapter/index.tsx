@@ -130,33 +130,54 @@ export default function Chapter() {
       return;
     }
 
-    pagesToLoad.forEach(async (pageIndex) => {
-      if (loadingPages.has(pageIndex)) return;
-      setLoadingPages(prev => new Set(prev).add(pageIndex));
-      setLoading(true);
+    // Batch consecutive pages into a single range request
+    pagesToLoad.sort((a, b) => a - b);
+    const ranges: { start: number; pages: number[] }[] = [];
+    let currentRange: { start: number; pages: number[] } | null = null;
+    for (const p of pagesToLoad) {
+      if (loadingPages.has(p)) continue;
+      if (!currentRange || p !== currentRange.pages[currentRange.pages.length - 1] + 1) {
+        currentRange = { start: p, pages: [p] };
+        ranges.push(currentRange);
+      } else {
+        currentRange.pages.push(p);
+      }
+    }
+
+    if (ranges.length > 0) setLoading(true);
+
+    ranges.forEach(async (range) => {
+      const start = range.pages[0] + 1;
+      const end = range.pages[range.pages.length - 1] + 1;
+      range.pages.forEach(p => setLoadingPages(prev => new Set(prev).add(p)));
 
       try {
-        const buffer = await booksService.fetchPageRange(bookId, pageIndex + 1, pageIndex + 1);
+        const buffer = await booksService.fetchPageRange(bookId, start, end);
         if (!buffer) return;
 
         const pdf = await pdfjsLib.getDocument(buffer).promise;
-        const page = await pdf.getPage(1);
-        const viewport = page.getViewport({ scale: 2 });
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d')!;
-        canvas.width = viewport.width;
-        canvas.height = viewport.height;
-        await page.render({ canvasContext: context, viewport, canvas }).promise;
+        for (let i = 0; i < pdf.numPages; i++) {
+          const page = await pdf.getPage(i + 1);
+          const viewport = page.getViewport({ scale: 2 });
+          const canvas = document.createElement('canvas');
+          const context = canvas.getContext('2d')!;
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          await page.render({ canvasContext: context, viewport, canvas }).promise;
 
-        setPageCache(prev => ({ ...prev, [pageIndex]: canvas.toDataURL('image/png') }));
+          const pageIndex = range.pages[i];
+          setPageCache(prev => ({ ...prev, [pageIndex]: canvas.toDataURL('image/png') }));
+        }
       } catch (err) {
-        console.error(`Error loading page ${pageIndex}:`, err);
-        setError(err instanceof Error ? err.message : 'Error cargando página');
+        console.error('Error loading page range:', err);
+        setError(err instanceof Error ? err.message : 'Error cargando páginas');
       } finally {
-        setLoadingPages(prev => {
-          const next = new Set(prev);
-          next.delete(pageIndex);
-          return next;
+        range.pages.forEach(p => {
+          setLoadingPages(prev => {
+            const next = new Set(prev);
+            next.delete(p);
+            return next;
+          });
         });
         setLoading(false);
       }

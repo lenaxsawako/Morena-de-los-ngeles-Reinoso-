@@ -405,8 +405,8 @@ export class CatalogService {
       throw new NotFoundException('Invalid page range');
     }
 
-    // Limit range size to prevent abuse
-    if (e - s + 1 > 20) {
+    // Limit range size — max 3 pages per request for fast loading
+    if (e - s + 1 > 3) {
       throw new NotFoundException('Page range too large (max 20)');
     }
 
