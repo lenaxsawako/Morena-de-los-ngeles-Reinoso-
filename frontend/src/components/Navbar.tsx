@@ -230,7 +230,7 @@ export default function Header() {
       {lastRead && (
         <Link
           to={`/chapter/${lastRead.bookId}`}
-          className="fixed top-[88px] left-0 right-0 z-40 bg-surface-container border-b border-white/5 px-6 md:px-16 py-3 flex items-center gap-3 hover:bg-surface-container-high transition-colors"
+          className="fixed top-[80px] left-0 right-0 z-40 bg-surface-container border-b border-white/5 px-6 md:px-16 py-3 flex items-center gap-3 hover:bg-surface-container-high transition-colors"
         >
           <span className="material-symbols-outlined text-accent-gold text-lg">play_circle</span>
           <span className="font-body-md text-body-md text-primary truncate">{lastRead.title}</span>
