@@ -12,6 +12,7 @@ export interface BookDetail {
   previewPages: number;
   totalPages: number;
   category?: { _id: string; name: string; slug: string } | null;
+  author?: { name: string } | null;
 }
 
 export interface SeriesItem {

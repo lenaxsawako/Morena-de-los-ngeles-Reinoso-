@@ -161,14 +161,19 @@ export class CatalogService {
       .findById(id)
       .where('isPublished').equals(true)
       .select(
-        '_id title subtitle description coverUrl authorNotes priceCents currency previewPages totalPages categoryRef prequelRef',
+        '_id title subtitle description coverUrl authorNotes priceCents currency previewPages totalPages categoryRef prequelRef authorRef',
       )
       .populate('categoryRef', 'name slug')
+      .populate('authorRef', 'profile.username')
       .lean();
 
     if (!book) {
       return null;
     }
+
+    const author = book.authorRef
+      ? { name: (book.authorRef as any).profile?.username || 'Autor' }
+      : null;
 
     return {
       _id: book._id,
@@ -183,6 +188,7 @@ export class CatalogService {
       totalPages: book.totalPages,
       category: book.categoryRef,
       prequelRef: book.prequelRef,
+      author,
     };
   }
 
