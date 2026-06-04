@@ -70,6 +70,31 @@ export default function Book() {
   const price = book.priceCents > 0 ? `$${(book.priceCents / 100).toFixed(2)} ${book.currency}` : 'Gratis';
   const authorName = book.author?.name || 'Autor';
   const pageUrl = `${SITE_URL}/book/${book._id}`;
+  const [shareOpen, setShareOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(pageUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {}
+    setShareOpen(false);
+  };
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: book.title,
+          text: book.description.slice(0, 200),
+          url: pageUrl,
+        });
+      } catch {}
+    } else {
+      setShareOpen(true);
+    }
+  };
 
   const bookSchema = {
     '@context': 'https://schema.org',
@@ -191,6 +216,13 @@ export default function Book() {
                   </span>
                 </button>
               )}
+              <button
+                onClick={handleShare}
+                className="p-3 rounded-full border border-outline text-primary hover:bg-surface-container transition-colors"
+                title="Compartir"
+              >
+                <span className="material-symbols-outlined">share</span>
+              </button>
             </div>
           </div>
         </div>
@@ -327,6 +359,60 @@ export default function Book() {
           </div>
         )}
       </div>
+
+      {/* Share Popup */}
+      {shareOpen && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" onClick={() => setShareOpen(false)}>
+          <div className="fixed inset-0 bg-black/50" />
+          <div
+            className="relative bg-surface-container rounded-t-2xl sm:rounded-2xl w-full sm:max-w-sm p-6 pb-8 shadow-2xl"
+            style={{ animation: 'slideUp 0.3s ease' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-6 sm:hidden" />
+            <h3 className="text-headline-md font-bold text-primary mb-6 text-center">Compartir</h3>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={handleCopyLink}
+                className="flex items-center gap-4 w-full p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors text-left"
+              >
+                <span className="material-symbols-outlined text-2xl text-accent-gold">
+                  {copied ? 'check' : 'link'}
+                </span>
+                <div>
+                  <p className="text-body-md font-medium text-primary">{copied ? '¡Enlace copiado!' : 'Copiar enlace'}</p>
+                  <p className="text-body-sm text-on-surface-variant">{copied ? '' : 'Compartí el enlace del libro'}</p>
+                </div>
+              </button>
+              {navigator.share && (
+                <button
+                  onClick={handleShare}
+                  className="flex items-center gap-4 w-full p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors text-left"
+                >
+                  <span className="material-symbols-outlined text-2xl text-accent-gold">share</span>
+                  <div>
+                    <p className="text-body-md font-medium text-primary">Compartir</p>
+                    <p className="text-body-sm text-on-surface-variant">Usá la hoja de compartir de tu dispositivo</p>
+                  </div>
+                </button>
+              )}
+            </div>
+            <button
+              onClick={() => setShareOpen(false)}
+              className="w-full mt-4 py-3 rounded-xl border border-white/10 text-primary font-medium hover:bg-white/5 transition-colors"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes slideUp {
+          from { transform: translateY(100%); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+      `}</style>
     </div>
   );
 }
