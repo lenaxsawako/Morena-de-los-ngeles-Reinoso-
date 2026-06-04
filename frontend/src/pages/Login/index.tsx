@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { authService } from '../../services/auth';
 import './login.css';
 
 export default function Login() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get('redirect') || '/';
   const [scrollProgress, setScrollProgress] = useState(0);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -63,9 +65,9 @@ export default function Login() {
 
       setSuccessMessage('¡Login exitoso! Redirigiendo...');
       
-      // Redirigir al home después de 1.5 segundos
+      // Redirigir después de 1.5 segundos
       setTimeout(() => {
-        navigate('/');
+        navigate(redirectTo);
       }, 1500);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error durante el login';

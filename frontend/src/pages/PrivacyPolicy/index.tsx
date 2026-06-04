@@ -23,138 +23,195 @@ export default function PrivacyPolicy() {
       <main className="pp-main">
         {/* Header Section */}
         <header className="pp-header">
-          <span className="pp-label">Privacidad de Información</span>
-          <h1 className="pp-title">Nuestro Compromiso con tu Privacidad Intelectual</h1>
-          <p className="pp-date">Efectivo desde el 24 de mayo de 2024. Un tratado de confianza entre el autor y el lector.</p>
+          <span className="pp-label">Privacidad de Datos</span>
+          <h1 className="pp-title">Qué Datos Recopilamos y Por Qué</h1>
+          <p className="pp-date">Última actualización: junio de 2026</p>
         </header>
 
         <article className="pp-article">
-          {/* Section 1: Data Collection */}
+          {/* Section 1: Datos de Cuenta */}
           <section className="pp-section">
             <div className="pp-section-header">
               <span className="pp-section-number">01</span>
-              <h2 className="pp-section-title">Recopilación de Datos</h2>
+              <h2 className="pp-section-title">Datos de Cuenta</h2>
             </div>
             <div className="pp-section-content">
               <p>
-                En la búsqueda de la excelencia digital, Aurelius recopila solo los hilos esenciales de datos requeridos para mantener tu experiencia de biblioteca personalizada. Esto incluye tus credenciales de cuenta y preferencias de lectura, seleccionadas con el mismo cuidado que uno usaría para organizar una colección de manuscritos raros.
+                Para usar la plataforma necesitás crear una cuenta. Recopilamos tu <strong>correo electrónico</strong> y un <strong>nombre</strong> (el que elijas). La <strong>contraseña</strong> se almacena cifrada (hash + salt) — nunca la vemos ni la guardamos en texto plano.
               </p>
               <p>
-                No buscamos mapear tu huella digital completa; más bien, observamos tus interacciones dentro de nuestras propias paredes para entender mejor qué narrativas resuenan. Tu "Por qué" es tuyo; nuestro "Qué" se limita estrictamente a la mecánica funcional de tu estante digital.
+                Podés agregar un <strong>avatar</strong> de forma opcional. Estos datos son necesarios para identificar tu biblioteca, sincronizar tu progreso de lectura entre dispositivos y procesar tus compras.
               </p>
             </div>
           </section>
 
           <div className="pp-divider" />
 
-          {/* Section 2: Cookies and Tracking */}
+          {/* Section 2: Progreso de Lectura */}
           <section className="pp-section">
             <div className="pp-section-header">
               <span className="pp-section-number">02</span>
-              <h2 className="pp-section-title">Cookies y Rastreo</h2>
+              <h2 className="pp-section-title">Progreso de Lectura</h2>
             </div>
             <div className="pp-section-content">
               <p>
-                Nuestro enfoque sobre rastreo es tan minimalista como nuestra tipografía. Utilizamos marcadores de sesión localizados —a menudo llamados cookies— para garantizar que tu transición entre capítulos sea perfecta. Estos marcadores digitales existen para recordar dónde lo dejaste, no para seguirte en la web más amplia.
+                Guardamos automáticamente la <strong>página actual</strong> donde vas leyendo, el <strong>porcentaje de avance</strong> y la <strong>fecha de última lectura</strong> de cada libro. Esto permite que retomés la lectura exactamente donde la dejaste, incluso si cambiás de dispositivo.
               </p>
               <p>
-                Rechazamos la arquitectura invasiva de píxeles publicitarios de terceros. Tu viaje a través de Aurelius sigue siendo un diálogo privado entre lector y texto.
+                Si no iniciás sesión, este progreso se almacena únicamente en tu navegador (localStorage). Al iniciar sesión, se sincroniza con nuestros servidores para que no pierdas tu lugar.
               </p>
             </div>
           </section>
 
           <div className="pp-divider" />
 
-          {/* Section 3: Data Protection */}
+          {/* Section 3: Compras y Pagos */}
           <section className="pp-section">
             <div className="pp-section-header">
               <span className="pp-section-number">03</span>
-              <h2 className="pp-section-title">Protección de Datos</h2>
-            </div>
-            <div className="pp-section-image-wrapper">
-              <img
-                alt="Cybersecurity abstraction"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBWg_QCV63lpjq40UrIJbKjyZiA1lZDrbJoXn6ATU7bH0vUxN4r4oN8qpxtv_olyJawdaTeJ-ZxxFbXI0hE0pRW3biQQEhLcbbES1HkTDAmlRkAo37QVbi-u-4MpXS0Uk-wJXr2Co_oeccP4cMounFMvRxH5EQJ7Guap7LmAmT39rwfH66_dguspPOxlcN6FAH9ifCS_A-R2H_jrf-8jfi5efmY8qkSGIsrHT7uk7uvpHH7K8aLwNg9lKYfeSah67Mu0gW8FhPixA"
-                className="pp-section-image"
-              />
-              <div className="pp-image-overlay" />
-              <div className="pp-image-label">
-                <span className="material-symbols-outlined">encrypted</span>
-                <span>ENCRIPTADO EN REPOSO</span>
-              </div>
+              <h2 className="pp-section-title">Compras y Pagos</h2>
             </div>
             <div className="pp-section-content">
               <p>
-                Tu biblioteca está fortificada con encriptación estándar de la industria, comparable a las bóvedas de archivos antiguos. Aseguramos la biblioteca digital usando protocolos de autenticación multicapa y monitoreo persistente.
+                Cuando comprás un libro, registramos el <strong>libro adquirido</strong>, el <strong>monto</strong>, la <strong>moneda</strong> y un <strong>identificador de transacción</strong> proporcionado por el procesador de pagos.
               </p>
               <p>
-                Tratamos cada byte de datos de usuario como un artefacto sagrado. En el improbable caso de una violación de seguridad, nuestro protocolo de respuesta es rápido, transparente y guiado por una filosofía de "privacidad primero".
+                <strong>No almacenamos</strong> números de tarjeta, datos bancarios ni información de facturación. Todo el procesamiento de pagos lo realiza <strong>Polar</strong> (nuestro proveedor de pagos), que cumple con los estándares de seguridad PCI. Los datos que nosotros vemos se limitan a confirmar si el pago fue exitoso o no.
               </p>
             </div>
           </section>
 
           <div className="pp-divider" />
 
-          {/* Section 4: Third-Party Sharing */}
+          {/* Section 4: Marcadores y Favoritos */}
           <section className="pp-section">
             <div className="pp-section-header">
               <span className="pp-section-number">04</span>
-              <h2 className="pp-section-title">Intercambio con Terceros</h2>
+              <h2 className="pp-section-title">Marcadores y Favoritos</h2>
             </div>
-            <div className="pp-quote-box">
-              <p className="pp-quote">
-                "Tus datos no son nuestro producto. Tu patrocinio es nuestro orgullo."
-              </p>
+            <div className="pp-section-content">
               <p>
-                Aurelius no —y nunca— venderá tus datos personales a intermediarios de terceros. Compartimos información solo con socios de servicio confiables esenciales para procesar transacciones o entregar contenido, todos los cuales están vinculados por los mismos estándares rigurosos de privacidad que mantenemos.
+                Podés guardar <strong>marcadores</strong> en páginas específicas con una nota opcional, y <strong>marcar libros como favoritos</strong>. Estos datos están asociados a tu cuenta y nos permiten ofrecerte una experiencia de lectura personalizada.
               </p>
             </div>
           </section>
 
           <div className="pp-divider" />
 
-          {/* Section 5: Your Rights */}
+          {/* Section 5: Reseñas */}
           <section className="pp-section">
             <div className="pp-section-header">
               <span className="pp-section-number">05</span>
+              <h2 className="pp-section-title">Reseñas</h2>
+            </div>
+            <div className="pp-section-content">
+              <p>
+                Si publicás una <strong>reseña</strong> o <strong>calificación</strong> (de 1 a 5 estrellas), esta se asocia a tu perfil y se muestra públicamente junto con tu nombre. Podés editar o eliminar tus reseñas en cualquier momento desde tu perfil.
+              </p>
+            </div>
+          </section>
+
+          <div className="pp-divider" />
+
+          {/* Section 6: Datos Técnicos */}
+          <section className="pp-section">
+            <div className="pp-section-header">
+              <span className="pp-section-number">06</span>
+              <h2 className="pp-section-title">Datos Técnicos</h2>
+            </div>
+            <div className="pp-section-content">
+              <p>
+                Cuando usás la plataforma, registramos tu <strong>dirección IP</strong> de forma temporal para prevenir abusos y garantizar la seguridad. También registramos el <strong>navegador</strong> y <strong>sistema operativo</strong> de forma anónima para mejorar la compatibilidad.
+              </p>
+              <p>
+                Usamos <strong>cookies técnicas</strong> (tokens JWT almacenados en localStorage) para mantener tu sesión activa. No usamos cookies de rastreo publicitario ni compartimos datos con redes de anuncios.
+              </p>
+            </div>
+          </section>
+
+          <div className="pp-divider" />
+
+          {/* Section 7: Suscripción */}
+          <section className="pp-section">
+            <div className="pp-section-header">
+              <span className="pp-section-number">07</span>
+              <h2 className="pp-section-title">Suscripciones y Newsletters</h2>
+            </div>
+            <div className="pp-section-content">
+              <p>
+                Si te suscribís a nuestro newsletter, guardamos tu <strong>correo electrónico</strong> y el <strong>estado de la suscripción</strong> (activa/inactiva). Podés cancelar la suscripción en cualquier momento desde el perfil o usando el enlace al pie de cada correo.
+              </p>
+            </div>
+          </section>
+
+          <div className="pp-divider" />
+
+          {/* Section 8: Servicios de Terceros */}
+          <section className="pp-section">
+            <div className="pp-section-header">
+              <span className="pp-section-number">08</span>
+              <h2 className="pp-section-title">Servicios de Terceros</h2>
+            </div>
+            <div className="pp-quote-box">
+              <p className="pp-quote">
+                "No vendemos ni alquilamos tus datos personales a nadie."
+              </p>
+              <p>
+                El único servicio externo que procesa datos personales de los usuarios es <strong>Polar</strong>, nuestro procesador de pagos. Ellos manejan la información de pago; nosotros solo recibimos la confirmación de si la transacción fue exitosa o no.
+              </p>
+              <p style={{ marginTop: '1rem' }}>
+                El resto de la infraestructura (almacenamiento de archivos, imágenes) es interna y no involucra datos de los usuarios.
+              </p>
+            </div>
+          </section>
+
+          <div className="pp-divider" />
+
+          {/* Section 9: Tus Derechos */}
+          <section className="pp-section">
+            <div className="pp-section-header">
+              <span className="pp-section-number">09</span>
               <h2 className="pp-section-title">Tus Derechos</h2>
             </div>
             <div className="pp-section-content">
               <p>
-                Como arquitecto de tu propia vida intelectual, retienes autoridad absoluta sobre tus datos. Puedes ejercer los siguientes derechos en cualquier momento a través de la configuración de tu Perfil:
+                En cualquier momento podés:
               </p>
               <ul className="pp-rights-list">
                 <li>
                   <span className="material-symbols-outlined">check_circle</span>
-                  <span><strong>Acceso:</strong> Solicita un registro completo de los datos que guardamos en tu nombre.</span>
+                  <span><strong>Acceder</strong> a todos los datos que tenemos asociados a tu cuenta.</span>
                 </li>
                 <li>
                   <span className="material-symbols-outlined">check_circle</span>
-                  <span><strong>Corrección:</strong> Enmienda cualquier inexactitud en tus registros personales.</span>
+                  <span><strong>Corregir</strong> tu nombre, email o avatar desde la configuración del perfil.</span>
                 </li>
                 <li>
                   <span className="material-symbols-outlined">check_circle</span>
-                  <span><strong>Eliminación:</strong> Solicita la eliminación total y permanente de tus datos de nuestros archivos.</span>
+                  <span><strong>Eliminar</strong> tu cuenta y todos tus datos asociados de forma permanente.</span>
+                </li>
+                <li>
+                  <span className="material-symbols-outlined">check_circle</span>
+                  <span><strong>Exportar</strong> tus datos (progreso de lectura, reseñas, favoritos) en formato legible.</span>
                 </li>
               </ul>
             </div>
           </section>
 
-          {/* Newsletter CTA */}
-          <div className="pp-newsletter">
-            <h3 className="pp-newsletter-title">Mantente Informado</h3>
-            <p className="pp-newsletter-subtitle">
-              Recibe actualizaciones sobre nuestras prácticas de privacidad y nuevos lanzamientos literarios. Prometemos una bandeja de entrada tranquila.
-            </p>
-            <div className="pp-newsletter-form">
-              <input
-                type="email"
-                placeholder="Tu dirección de correo electrónico"
-                className="pp-newsletter-input"
-              />
-              <button className="pp-newsletter-button">Suscribirse</button>
+          <div className="pp-divider" />
+
+          {/* Section 10: Contacto */}
+          <section className="pp-section">
+            <div className="pp-section-header">
+              <span className="pp-section-number">10</span>
+              <h2 className="pp-section-title">Contacto</h2>
             </div>
-          </div>
+            <div className="pp-section-content">
+              <p>
+                Si tenés preguntas sobre esta política, querés ejercer tus derechos o reportar un problema de seguridad, podés escribirnos a través del formulario de contacto en tu perfil o enviar un correo a la dirección indicada en la configuración del sitio.
+              </p>
+            </div>
+          </section>
         </article>
       </main>
     </div>

@@ -170,6 +170,30 @@ export default function Book() {
           </div>
         )}
 
+        {/* Author Notes */}
+        {book.authorNotes && (
+          <div className="max-w-3xl mt-16 space-y-4">
+            <div className="flex items-center gap-3">
+              <h2 className="text-headline-lg font-bold">Sobre esta obra</h2>
+              <div className="flex gap-0.5">
+                {[1, 2, 3, 4].map(i => (
+                  <span key={i} className="material-symbols-outlined text-accent-gold text-xl">
+                    star
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="p-6 rounded-xl border border-white/10 bg-surface-container">
+              <p className="text-label-md text-on-surface-variant uppercase tracking-widest mb-4">
+                El autor explica
+              </p>
+              <p className="text-body-lg text-on-surface-variant leading-relaxed whitespace-pre-line">
+                {book.authorNotes}
+              </p>
+            </div>
+          </div>
+        )}
+
         {/* Series / Sequel / Prequel */}
         {series && (series.prequel || series.sequels.length > 0) && (
           <div className="max-w-3xl mt-16 space-y-6">

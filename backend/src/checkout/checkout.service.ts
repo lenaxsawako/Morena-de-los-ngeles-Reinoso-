@@ -33,11 +33,10 @@ export class CheckoutService {
       throw new BadRequestException('Ya has comprado este libro');
     }
 
-    const baseUrl = process.env.FRONTEND_URL || (origin
-      ? origin.startsWith('http://localhost') || origin.startsWith('http://127.0.0.1')
-        ? origin
-        : `${origin}/book`
-      : 'http://localhost:5174');
+    const isLocalOrigin = origin?.startsWith('http://localhost') || origin?.startsWith('http://127.0.0.1');
+    const baseUrl = origin && !isLocalOrigin
+      ? `${origin}/book`
+      : process.env.FRONTEND_URL || 'http://localhost:5174';
     const checkout = await this.polarService.createCheckout({
       products: [book.polarProductId],
       successUrl: `${baseUrl}/checkout/${bookId}/confirm?checkout_id={CHECKOUT_ID}`,

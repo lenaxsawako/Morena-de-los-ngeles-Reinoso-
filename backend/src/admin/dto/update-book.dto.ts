@@ -42,6 +42,10 @@ export class UpdateBookDto {
   @IsString()
   @IsOptional()
   prequelRef?: string;
+
+  @IsString()
+  @IsOptional()
+  authorNotes?: string;
 }
 
 export class AttachDriveFileDto {

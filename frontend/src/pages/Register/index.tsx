@@ -255,13 +255,13 @@ export default function Register() {
                 </div>
                 <label className="register-terms-label" htmlFor="terms">
                   Acepto los{' '}
-                  <a href="#" className="register-link">
+                  <Link to="/terms-of-service" className="register-link">
                     Términos de Servicio
-                  </a>{' '}
+                  </Link>{' '}
                   y la{' '}
-                  <a href="#" className="register-link">
+                  <Link to="/privacy-policy" className="register-link">
                     Política de Privacidad
-                  </a>
+                  </Link>
                   .
                 </label>
               </div>

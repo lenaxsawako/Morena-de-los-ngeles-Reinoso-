@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import './tos.css';
 
 export default function TermsOfService() {
@@ -24,93 +25,134 @@ export default function TermsOfService() {
         <article className="tos-article">
           {/* Header */}
           <header className="tos-header">
-            <p className="tos-label">Marco Legal</p>
+            <p className="tos-label">Términos Legales</p>
             <h1 className="tos-title">Términos de Servicio</h1>
-            <p className="tos-date">Última actualización: 24 de octubre de 2024</p>
+            <p className="tos-date">Última actualización: junio de 2026</p>
           </header>
 
-          {/* 1. Introduction */}
+          {/* 1. Aceptación */}
           <section className="tos-section">
             <h2 className="tos-section-title">
               <span className="tos-section-number">01</span>
-              Introducción
+              Aceptación de los Términos
             </h2>
             <div className="tos-section-content">
               <p>
-                Bienvenido a Aurelius. Estos Términos de Servicio ("Términos") rigen tu acceso y uso del sitio web, boletines y productos literarios digitales proporcionados por Aurelius (el "Autor").
+                Al crear una cuenta, acceder o usar esta plataforma ("el Servicio"), aceptás estos Términos de Servicio. Si no estás de acuerdo, no uses el Servicio.
               </p>
               <p>
-                Al acceder a nuestra biblioteca digital o comprar cualquiera de nuestras obras, reconoces que has leído, comprendido y aceptas estar obligado por estos Términos. Si no estás de acuerdo con estos Términos, abstente de usar la plataforma. Nuestro compromiso con la precisión intelectual requiere una comprensión mutua de estos parámetros.
+                Este es un servicio de venta de libros digitales (PDF) operado por el administrador del sitio. No está afiliado a ninguna editorial externa.
               </p>
             </div>
           </section>
 
           <div className="tos-divider" />
 
-          {/* 2. Intellectual Property */}
+          {/* 2. Cuentas */}
           <section className="tos-section">
             <h2 className="tos-section-title">
               <span className="tos-section-number">02</span>
-              Propiedad Intelectual
+              Cuentas de Usuario
             </h2>
             <div className="tos-section-content">
               <p>
-                Todo el contenido disponible a través de Aurelius —incluyendo pero no limitado a manuscritos, ensayos, arte de portada, tipografía y diseño del sitio— es propiedad exclusiva del Autor y está protegido por leyes internacionales de derechos de autor, marcas registradas y otras leyes de propiedad intelectual.
+                Para comprar libros y usar el lector digital necesitás una cuenta. Seleccionarás un nombre y una contraseña. La contraseña se almacena cifrada; sos responsable de mantenerla segura.
               </p>
               <p>
-                La marca "Aurelius", incluido el logo e identificadores visuales específicos de identidad, son marcas registradas propietarias. Ninguna parte de estas obras puede ser reproducida, distribuida o transmitida en cualquier forma sin permiso previo por escrito, excepto para breves citas incorporadas en reseñas críticas.
+                No compartas tu cuenta con otras personas. No crees cuentas múltiples para evadir compras o restricciones. Si detectamos actividad fraudulenta, podemos suspender tu cuenta sin previo aviso.
               </p>
             </div>
           </section>
 
           <div className="tos-divider" />
 
-          {/* 3. Digital Access & Licensing */}
+          {/* 3. Compras */}
           <section className="tos-section">
             <h2 className="tos-section-title">
               <span className="tos-section-number">03</span>
-              Acceso Digital y Licencias
+              Compras y Pagos
             </h2>
             <div className="tos-section-content">
               <p>
-                Cuando compras una obra digital de Aurelius, se te otorga una licencia personal no exclusiva, no transferible para acceder y leer el contenido para tu uso privado y no comercial.
+                Los libros se compran de forma individual. El precio se muestra antes de la compra. Los pagos son procesados por <strong>Polar</strong>, un procesador de pagos externo. No almacenamos números de tarjeta ni datos bancarios.
+              </p>
+              <p>
+                Una vez realizada la compra, el libro se agrega a tu biblioteca de forma permanente. Por la naturaleza digital del producto, <strong>no se realizan reembolsos</strong> salvo que el libro esté defectuoso o no coincida con la descripción.
+              </p>
+            </div>
+          </section>
+
+          <div className="tos-divider" />
+
+          {/* 4. Vista Previa */}
+          <section className="tos-section">
+            <h2 className="tos-section-title">
+              <span className="tos-section-number">04</span>
+              Vista Previa Gratuita
+            </h2>
+            <div className="tos-section-content">
+              <p>
+                Las primeras páginas de cada libro están disponibles de forma gratuita para que puedas evaluar el contenido antes de comprar. El número de páginas gratuitas lo define el administrador y puede variar por libro.
+              </p>
+              <p>
+                Para acceder al libro completo, deberás comprarlo. Sin la compra, las páginas más allá de la vista previa estarán bloqueadas.
+              </p>
+            </div>
+          </section>
+
+          <div className="tos-divider" />
+
+          {/* 5. Licencia de Uso */}
+          <section className="tos-section">
+            <h2 className="tos-section-title">
+              <span className="tos-section-number">05</span>
+              Licencia de Uso
+            </h2>
+            <div className="tos-section-content">
+              <p>
+                Al comprar un libro, se te otorga una <strong>licencia personal, no exclusiva, no transferible</strong> para leer el contenido dentro de la plataforma. Esto significa que:
               </p>
               <ul className="tos-list">
-                <li>
-                  <strong>Uso Personal:</strong> La licencia es para un individuo y no puede ser compartida entre múltiples cuentas o dispositivos no autorizados.
-                </li>
-                <li>
-                  <strong>Sin Modificación:</strong> No puedes alterar, transformar o construir sobre la obra licenciada.
-                </li>
-                <li>
-                  <strong>Revocación:</strong> Nos reservamos el derecho de terminar el acceso si se detecta distribución no autorizada o piratería.
-                </li>
+                <li><strong>Podés</strong> leer el libro en cualquier dispositivo donde iniciés sesión con tu cuenta.</li>
+                <li><strong>No podés</strong> descargar, redistribuir, vender ni compartir los archivos PDF originales.</li>
+                <li><strong>No podés</strong> usar el contenido para entrenar modelos de inteligencia artificial ni extraer datos de forma automatizada.</li>
+                <li><strong>No podés</strong> modificar, adaptar ni crear obras derivadas del contenido.</li>
               </ul>
             </div>
           </section>
 
           <div className="tos-divider" />
 
-          {/* 4. User Conduct */}
+          {/* 6. Conducta */}
           <section className="tos-section">
             <h2 className="tos-section-title">
-              <span className="tos-section-number">04</span>
+              <span className="tos-section-number">06</span>
               Conducta del Usuario
             </h2>
             <div className="tos-section-content">
               <p>
-                Como lector dentro del ecosistema Aurelius, aceptas interactuar con la plataforma y comunidad de una manera que refleje rigor intelectual y respeto mutuo. Las conductas prohibidas incluyen:
+                Al usar el Servicio, aceptás no:
               </p>
               <div className="tos-grid">
                 <div className="tos-grid-item">
                   <span className="material-symbols-outlined tos-grid-icon">block</span>
-                  <h3 className="tos-grid-title">Extracción</h3>
-                  <p className="tos-grid-text">Raspado automatizado de datos, recopilación o uso de modelos de IA para entrenar en nuestro texto propietario.</p>
+                  <h3 className="tos-grid-title">Piratería</h3>
+                  <p className="tos-grid-text">Compartir enlaces de descarga, archivos o credenciales para evitar la compra.</p>
                 </div>
                 <div className="tos-grid-item">
-                  <span className="material-symbols-outlined tos-grid-icon">share_off</span>
-                  <h3 className="tos-grid-title">Piratería</h3>
-                  <p className="tos-grid-text">Compartir enlaces de descarga directa o archivos originales en foros públicos o redes de intercambio de archivos.</p>
+                  <span className="material-symbols-outlined tos-grid-icon">gavel</span>
+                  <h3 className="tos-grid-title">Abuso</h3>
+                  <p className="tos-grid-text">Publicar reseñas falsas, spam, contenido ofensivo o acosar a otros usuarios.</p>
+                </div>
+                <div className="tos-grid-item">
+                  <span className="material-symbols-outlined tos-grid-icon">automation</span>
+                  <h3 className="tos-grid-title">Automatización</h3>
+                  <p className="tos-grid-text">Usar bots, scrapers o cualquier método automatizado para acceder al contenido.</p>
+                </div>
+                <div className="tos-grid-item">
+                  <span className="material-symbols-outlined tos-grid-icon">security</span>
+                  <h3 className="tos-grid-title">Seguridad</h3>
+                  <p className="tos-grid-text">Intentar vulnerar la seguridad, realizar ingeniería inversa o interferir con el funcionamiento del sitio.</p>
                 </div>
               </div>
             </div>
@@ -118,40 +160,90 @@ export default function TermsOfService() {
 
           <div className="tos-divider" />
 
-          {/* 5. Limitations of Liability */}
+          {/* 7. Contenido Generado */}
           <section className="tos-section">
             <h2 className="tos-section-title">
-              <span className="tos-section-number">05</span>
-              Limitaciones de Responsabilidad
+              <span className="tos-section-number">07</span>
+              Contenido Generado por el Usuario
             </h2>
             <div className="tos-section-content">
               <p>
-                El contenido proporcionado por Aurelius es solo para propósitos intelectuales y de entretenimiento. Si bien nos esforzamos por la precisión absoluta en nuestra investigación y prosa, el Autor proporciona el sitio web y su contenido en una base "tal cual".
+                Las reseñas y calificaciones que publicás son visibles públicamente junto con tu nombre de usuario. Conservás todos los derechos sobre el contenido que publicás, pero nos otorgás una licencia para mostrarlo dentro de la plataforma.
               </p>
               <p>
-                En la máxima medida permitida por la ley, Aurelius no será responsable por daños indirectos, incidentales o consecuentes que surjan de tu uso de la plataforma o la interpretación de las obras literarias contenidas aquí. Aceptas la responsabilidad total por el uso de cualquier información proporcionada.
+                Nos reservamos el derecho de eliminar reseñas que consideremos inapropiadas, falsas o que violen estos términos.
               </p>
             </div>
           </section>
 
-          {/* Newsletter Callout */}
-          <div className="tos-newsletter">
-            <div className="tos-newsletter-overlay" />
-            <div className="tos-newsletter-content">
-              <h3 className="tos-newsletter-title">Mantente Informado</h3>
-              <p className="tos-newsletter-subtitle">
-                Únete a nuestro círculo privado para actualizaciones filosóficas y acceso temprano a nuevos manuscritos.
+          <div className="tos-divider" />
+
+          {/* 8. Terminación */}
+          <section className="tos-section">
+            <h2 className="tos-section-title">
+              <span className="tos-section-number">08</span>
+              Terminación de Cuenta
+            </h2>
+            <div className="tos-section-content">
+              <p>
+                Podés eliminar tu cuenta en cualquier momento desde la configuración del perfil. Al hacerlo, se eliminarán todos tus datos personales, progreso de lectura, reseñas y marcadores.
               </p>
-              <div className="tos-newsletter-form">
-                <input
-                  type="email"
-                  placeholder="Tu dirección de correo electrónico"
-                  className="tos-newsletter-input"
-                />
-                <button className="tos-newsletter-button">Suscribirse</button>
-              </div>
+              <p>
+                Nosotros podemos suspender o terminar tu cuenta si violás estos términos (por ejemplo, distribución no autorizada de contenido). En esos casos, no se realizarán reembolsos por compras previas.
+              </p>
             </div>
-          </div>
+          </section>
+
+          <div className="tos-divider" />
+
+          {/* 9. Limitación */}
+          <section className="tos-section">
+            <h2 className="tos-section-title">
+              <span className="tos-section-number">09</span>
+              Limitación de Responsabilidad
+            </h2>
+            <div className="tos-section-content">
+              <p>
+                El Servicio se proporciona "tal cual", sin garantías de ningún tipo. No garantizamos que el servicio sea ininterrumpido, libre de errores o seguro.
+              </p>
+              <p>
+                En la máxima medida permitida por la ley, no seremos responsables por daños indirectos, pérdida de datos, interrupción del servicio o cualquier otro daño que surja del uso o la imposibilidad de usar el Servicio.
+              </p>
+            </div>
+          </section>
+
+          <div className="tos-divider" />
+
+          {/* 10. Cambios */}
+          <section className="tos-section">
+            <h2 className="tos-section-title">
+              <span className="tos-section-number">10</span>
+              Cambios a estos Términos
+            </h2>
+            <div className="tos-section-content">
+              <p>
+                Podemos actualizar estos términos en cualquier momento. Los cambios entrarán en vigor al ser publicados en esta página. El uso continuado del Servicio después de cualquier modificación constituye la aceptación de los nuevos términos.
+              </p>
+              <p>
+                Te recomendamos revisar esta página periódicamente. La fecha de la última actualización se muestra al inicio del documento.
+              </p>
+            </div>
+          </section>
+
+          <div className="tos-divider" />
+
+          {/* 11. Contacto */}
+          <section className="tos-section">
+            <h2 className="tos-section-title">
+              <span className="tos-section-number">11</span>
+              Contacto
+            </h2>
+            <div className="tos-section-content">
+              <p>
+                Si tenés preguntas sobre estos términos, podés contactarnos a través del formulario en tu perfil o por los medios indicados en la configuración del sitio.
+              </p>
+            </div>
+          </section>
         </article>
       </main>
     </div>

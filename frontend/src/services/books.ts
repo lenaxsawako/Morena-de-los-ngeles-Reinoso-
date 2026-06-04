@@ -5,6 +5,7 @@ export interface BookDetail {
   title: string;
   subtitle?: string;
   description: string;
+  authorNotes?: string;
   coverUrl?: string;
   priceCents: number;
   currency: string;

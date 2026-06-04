@@ -7,6 +7,7 @@ import { Purchase, PurchaseDocument, PurchaseStatus } from '../models/purchase.s
 import { Review, ReviewDocument, ReviewStatus } from '../models/review.schema';
 import { DriveService } from '../utils/drive.service';
 import { Readable } from 'stream';
+import { PDFDocument } from 'pdf-lib';
 
 @Injectable()
 export class CatalogService {
@@ -160,7 +161,7 @@ export class CatalogService {
       .findById(id)
       .where('isPublished').equals(true)
       .select(
-        '_id title subtitle description coverUrl priceCents currency previewPages totalPages categoryRef prequelRef',
+        '_id title subtitle description coverUrl authorNotes priceCents currency previewPages totalPages categoryRef prequelRef',
       )
       .populate('categoryRef', 'name slug')
       .lean();
@@ -175,6 +176,7 @@ export class CatalogService {
       subtitle: book.subtitle,
       description: book.description,
       coverUrl: book.coverUrl,
+      authorNotes: book.authorNotes,
       priceCents: book.priceCents,
       currency: book.currency,
       previewPages: book.previewPages,
@@ -428,7 +430,6 @@ export class CatalogService {
     const pdfBuffer = await this.driveService.downloadFileAsBuffer(book.driveFileId);
 
     // Extract page range using pdf-lib
-    const { PDFDocument } = await import('pdf-lib');
     const fullPdf = await PDFDocument.load(pdfBuffer);
     const subsetPdf = await PDFDocument.create();
 

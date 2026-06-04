@@ -395,7 +395,7 @@ export const readingService = {
   },
 
   /**
-   * POST /reading-progress/:bookId/bookmarks
+   * POST /bookmarks/:bookId
    * Crear un marcapáginas
    * @param bookId - ID del libro
    * @param page - Número de página
@@ -408,7 +408,7 @@ export const readingService = {
     }
 
     try {
-      const response = await fetch(`${API_URL}/reading-progress/${bookId}/bookmarks`, {
+      const response = await fetch(`${API_URL}/bookmarks/${bookId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -427,7 +427,7 @@ export const readingService = {
   },
 
   /**
-   * GET /reading-progress/:bookId/bookmarks
+   * GET /bookmarks/:bookId
    * Obtener todos los marcapáginas de un libro
    * @param bookId - ID del libro
    */
@@ -438,13 +438,39 @@ export const readingService = {
     }
 
     try {
-      const response = await fetch(`${API_URL}/reading-progress/${bookId}/bookmarks`, {
+      const response = await fetch(`${API_URL}/bookmarks/${bookId}`, {
         headers: authHeader,
       });
 
       if (!response.ok) throw new Error('Error al obtener marcapáginas');
 
       return await safeParseJSON(response, []);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
+      throw new Error(errorMessage);
+    }
+  },
+
+  /**
+   * DELETE /bookmarks/:bookmarkId
+   * Eliminar un marcapáginas
+   * @param bookmarkId - ID del marcapáginas
+   */
+  async deleteBookmark(bookmarkId: string) {
+    const authHeader = authService.getAuthHeader();
+    if (!authHeader) {
+      throw new Error('No autenticado');
+    }
+
+    try {
+      const response = await fetch(`${API_URL}/bookmarks/${bookmarkId}`, {
+        method: 'DELETE',
+        headers: authHeader,
+      });
+
+      if (!response.ok) throw new Error('Error al eliminar marcapáginas');
+
+      return await safeParseJSON(response, { message: 'deleted' });
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
       throw new Error(errorMessage);

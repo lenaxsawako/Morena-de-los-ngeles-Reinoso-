@@ -29,6 +29,7 @@ export interface AdminBook {
   slug: string;
   subtitle?: string;
   description: string;
+  authorNotes?: string;
   coverUrl?: string;
   driveFileId?: string;
   mimeType?: string;
@@ -229,6 +230,7 @@ export interface UpdateBookInput {
   title?: string;
   subtitle?: string;
   description?: string;
+  authorNotes?: string;
   priceCents?: number;
   currency?: string;
   previewPages?: number;

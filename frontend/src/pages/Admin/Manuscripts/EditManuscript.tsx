@@ -44,6 +44,7 @@ export default function EditManuscript() {
             title: data.title,
             subtitle: data.subtitle,
             description: data.description,
+            authorNotes: data.authorNotes,
             priceCents: data.priceCents,
             currency: data.currency,
             previewPages: data.previewPages,
@@ -384,6 +385,23 @@ export default function EditManuscript() {
                 onChange={handleChange}
                 className="w-full bg-transparent border border-white/20 rounded-lg p-4 focus:border-primary transition-colors focus:ring-0 text-primary min-h-[200px]"
                 placeholder="Descripción del libro..."
+              />
+            </div>
+
+            {/* Author Notes */}
+            <div className="glass-card p-8 rounded-xl">
+              <h3 className="font-label-md text-label-md text-primary uppercase tracking-widest mb-6">
+                Notas del autor
+              </h3>
+              <p className="text-body-sm text-on-surface-variant mb-4">
+                Inspiración, curiosidades, proceso creativo — lo que genera conexión con los lectores.
+              </p>
+              <textarea
+                name="authorNotes"
+                value={formData.authorNotes || ''}
+                onChange={handleChange}
+                className="w-full bg-transparent border border-white/20 rounded-lg p-4 focus:border-primary transition-colors focus:ring-0 text-primary min-h-[200px]"
+                placeholder="Compartí la historia detrás de la obra..."
               />
             </div>
 

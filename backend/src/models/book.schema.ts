@@ -38,6 +38,9 @@ export class Book {
   subtitle!: string;
 
   @Prop()
+  authorNotes?: string;
+
+  @Prop()
   coverUrl?: string;
 
   // Google Drive

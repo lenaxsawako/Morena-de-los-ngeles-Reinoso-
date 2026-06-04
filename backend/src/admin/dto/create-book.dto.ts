@@ -41,4 +41,8 @@ export class CreateBookDto {
   @IsString()
   @IsOptional()
   prequelRef?: string;
+
+  @IsString()
+  @IsOptional()
+  authorNotes?: string;
 }

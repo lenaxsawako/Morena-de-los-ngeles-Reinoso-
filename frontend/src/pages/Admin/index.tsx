@@ -5,15 +5,19 @@ import './admin.css';
 
 export default function AdminLayout() {
   const [scrollProgress, setScrollProgress] = useState(0);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
-  const MOBILE_NAV_ITEMS = [
+  const PRIMARY_NAV = [
     { label: 'Panel', icon: 'dashboard', href: '/admin/dashboard' },
     { label: 'Manuscritos', icon: 'menu_book', href: '/admin/manuscripts' },
     { label: 'Ventas', icon: 'payments', href: '/admin/sales' },
     { label: 'Lectores', icon: 'group', href: '/admin/readers' },
-    // { label: 'Archivo', icon: 'inventory_2', href: '/admin/archive' },
+  ];
+
+  const EXTRA_NAV = [
+    { label: 'Newsletter', icon: 'newspaper', href: '/admin/newsletter' },
   ];
 
   useEffect(() => {
@@ -27,6 +31,8 @@ export default function AdminLayout() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  const isActive = (href: string) => location.pathname === href;
 
   return (
     <div className="admin-wrapper">
@@ -78,22 +84,70 @@ export default function AdminLayout() {
 
       {/* Mobile Navigation */}
       <nav className="admin-mobile-nav">
-        {MOBILE_NAV_ITEMS.map((item) => {
-          const isActive = location.pathname === item.href;
+        {/* Primary nav items: first 2 */}
+        {PRIMARY_NAV.slice(0, 2).map((item) => (
+          <Link
+            key={item.href}
+            to={item.href}
+            className={`admin-mobile-nav-btn ${isActive(item.href) ? 'active' : ''}`}
+          >
+            <span className="material-symbols-outlined admin-mobile-nav-btn-icon">
+              {item.icon}
+            </span>
+            <span>{item.label}</span>
+          </Link>
+        ))}
+
+        {/* Hamburger Menu Button */}
+        <button
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+          className={`admin-mobile-hamburger ${isMenuOpen ? 'open' : ''}`}
+          aria-label="Menú"
+        >
+          <div className="admin-hamburger-lines">
+            <span />
+            <span />
+            <span />
+          </div>
+        </button>
+
+        {/* Primary nav items: last 2 */}
+        {PRIMARY_NAV.slice(2).map((item) => (
+          <Link
+            key={item.href}
+            to={item.href}
+            className={`admin-mobile-nav-btn ${isActive(item.href) ? 'active' : ''}`}
+          >
+            <span className="material-symbols-outlined admin-mobile-nav-btn-icon">
+              {item.icon}
+            </span>
+            <span>{item.label}</span>
+          </Link>
+        ))}
+      </nav>
+
+      {/* Expanded menu overlay */}
+      {isMenuOpen && (
+        <div className="admin-mobile-menu-overlay" onClick={() => setIsMenuOpen(false)} />
+      )}
+
+      {/* Expanded menu items */}
+      <div className={`admin-mobile-extra-menu ${isMenuOpen ? 'open' : ''}`}>
+        {EXTRA_NAV.map((item) => {
+          const active = isActive(item.href);
           return (
             <Link
               key={item.href}
               to={item.href}
-              className={`admin-mobile-nav-btn ${isActive ? 'active' : ''}`}
+              onClick={() => setIsMenuOpen(false)}
+              className={`admin-mobile-extra-item ${active ? 'active' : ''}`}
             >
-              <span className="material-symbols-outlined admin-mobile-nav-btn-icon">
-                {item.icon}
-              </span>
+              <span className="material-symbols-outlined">{item.icon}</span>
               <span>{item.label}</span>
             </Link>
           );
         })}
-      </nav>
+      </div>
     </div>
   );
 }

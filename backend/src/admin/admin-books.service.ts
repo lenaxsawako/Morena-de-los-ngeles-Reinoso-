@@ -138,6 +138,7 @@ export class AdminBooksService {
       currency: dto.currency || 'USD',
       previewPages: dto.previewPages || 10,
       coverUrl: coverUrl || undefined,
+      authorNotes: dto.authorNotes || undefined,
       categoryRef: dto.categoryRef ? new Types.ObjectId(dto.categoryRef) : undefined,
       polarProductId,
       prequelRef: dto.prequelRef ? new Types.ObjectId(dto.prequelRef) : undefined,
@@ -195,6 +196,8 @@ export class AdminBooksService {
     if (dto.prequelRef !== undefined) {
       book.prequelRef = dto.prequelRef ? new Types.ObjectId(dto.prequelRef) : undefined;
     }
+
+    if (dto.authorNotes !== undefined) book.authorNotes = dto.authorNotes;
 
     // Sync Polar product (only create if missing, only update if price changed)
     const currentPrice = book.priceCents;

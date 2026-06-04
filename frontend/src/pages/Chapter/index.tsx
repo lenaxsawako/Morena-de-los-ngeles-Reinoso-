@@ -14,12 +14,18 @@ pdfjsLib.GlobalWorkerOptions.workerPort = new pdfjsWorker();
 
 const WINDOW_RADIUS = 1; // pages before/after current to preload
 
+interface BookmarkItem {
+  id: string;
+  page: number;
+  note?: string;
+}
+
 export default function Chapter() {
   const { bookId } = useParams();
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [bookmarks, setBookmarks] = useState<BookmarkItem[]>([]);
   const [pageCache, setPageCache] = useState<Record<number, string>>({});
   const [loadingPages, setLoadingPages] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState(true);
@@ -30,6 +36,8 @@ export default function Chapter() {
   const [showPaywallModal, setShowPaywallModal] = useState(false);
   const [bookData, setBookData] = useState<BookDetail | null>(null);
   const pageContainerRef = useRef<HTMLDivElement>(null);
+
+  const isBookmarked = bookmarks.some(b => b.page === currentPage + 1);
 
   const FREE_PAGES = 4;
   const isBlocked = currentPage >= FREE_PAGES && !isPurchased;
@@ -61,7 +69,7 @@ export default function Chapter() {
     syncPurchases();
   }, [bookId]);
 
-  // Cargar progreso guardado al montar
+  // Cargar progreso guardado y marcadores al montar
   useEffect(() => {
     if (!bookId) return;
     const saved = guestReadingService.getProgress(bookId);
@@ -76,6 +84,8 @@ export default function Chapter() {
           guestReadingService.saveProgress(bookId, apiProgress.currentPage, Math.round((apiProgress.currentPage / total) * 100));
         }
       }).catch(() => {});
+
+      readingService.getBookmarks(bookId).then(setBookmarks).catch(() => {});
     }
   }, [bookId]);
 
@@ -271,6 +281,26 @@ export default function Chapter() {
     return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
   }, []);
 
+  const toggleBookmark = async () => {
+    if (!bookId || !authService.isAuthenticated()) return;
+
+    if (isBookmarked) {
+      const existing = bookmarks.find(b => b.page === currentPage + 1);
+      if (!existing) return;
+      try {
+        await readingService.deleteBookmark(existing.id);
+        setBookmarks(prev => prev.filter(b => b.id !== existing.id));
+      } catch {}
+    } else {
+      try {
+        const created = await readingService.createBookmark(bookId, currentPage + 1);
+        if (created) {
+          setBookmarks(prev => [...prev, { id: created.id, page: created.page, note: created.note }]);
+        }
+      } catch {}
+    }
+  };
+
   const handleBuy = () => {
     // Redirigir al checkout
     navigate(`/checkout/${bookId}`);
@@ -452,7 +482,7 @@ export default function Chapter() {
       {/* Bookmark Button - Solo mostrar si no está bloqueado */}
       {!isBlocked && (
         <button 
-          onClick={() => setIsBookmarked(!isBookmarked)}
+          onClick={toggleBookmark}
           className={`reader-bookmark-btn ${isBookmarked ? 'bookmarked' : ''}`}
           title={isBookmarked ? 'Remover marcador' : 'Agregar marcador'}
         >
