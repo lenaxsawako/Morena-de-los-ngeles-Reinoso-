@@ -120,6 +120,19 @@ export default function Chapter() {
     }).catch(() => {});
   }, [bookId]);
 
+  // Pre-fill form when modal opens if user already has a review
+  useEffect(() => {
+    if (reviewsModalOpen && userReview) {
+      setReviewRating(userReview.rating);
+      setReviewComment(userReview.comment || '');
+      setEditingReview(true);
+      setReviewFocused(true);
+    } else if (!reviewsModalOpen) {
+      setEditingReview(false);
+      setReviewFocused(false);
+    }
+  }, [reviewsModalOpen]);
+
   // Guardar progreso
   const saveProgress = useCallback((page: number) => {
     if (!bookId || totalPages === 0) return;

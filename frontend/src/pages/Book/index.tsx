@@ -36,6 +36,19 @@ export default function Book() {
   const userId = authService.getUserId();
   const userReview = reviews.find(r => r.userId === userId);
 
+  // Pre-fill form when modal opens if user already has a review
+  useEffect(() => {
+    if (reviewsModalOpen && userReview) {
+      setReviewRating(userReview.rating);
+      setReviewComment(userReview.comment || '');
+      setEditingReview(true);
+      setReviewFocused(true);
+    } else if (!reviewsModalOpen) {
+      setEditingReview(false);
+      setReviewFocused(false);
+    }
+  }, [reviewsModalOpen]);
+
   useEffect(() => {
     if (!id) {
       setError('ID no proporcionado');
