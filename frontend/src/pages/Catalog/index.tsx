@@ -312,8 +312,14 @@ export default function Catalog() {
                     }}
                     className="absolute top-2 right-2 z-10 p-1.5 rounded-full bg-black/40 hover:bg-black/60 transition-colors"
                   >
-                    <span className={`material-symbols-outlined text-lg ${favoriteIds.has(book._id) ? 'text-red-400' : 'text-white/70'}`}>
-                      {favoriteIds.has(book._id) ? 'favorite' : 'favorite_outline'}
+                    <span
+                      className="material-symbols-outlined text-lg"
+                      style={{
+                        color: favoriteIds.has(book._id) ? '#f87171' : 'rgba(255,255,255,0.7)',
+                        fontVariationSettings: favoriteIds.has(book._id) ? "'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 24" : undefined,
+                      }}
+                    >
+                      favorite
                     </span>
                   </button>
                 )}

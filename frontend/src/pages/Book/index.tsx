@@ -211,8 +211,11 @@ export default function Book() {
                   className="p-3 rounded-full border border-outline text-primary hover:bg-surface-container transition-colors"
                   title={isFav ? 'Quitar de favoritos' : 'Añadir a favoritos'}
                 >
-                  <span className={`material-symbols-outlined ${isFav ? 'text-red-400' : ''}`}>
-                    {isFav ? 'favorite' : 'favorite_outline'}
+                  <span
+                    className="material-symbols-outlined"
+                    style={{ fontVariationSettings: isFav ? "'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 24" : undefined }}
+                  >
+                    favorite
                   </span>
                 </button>
               )}
