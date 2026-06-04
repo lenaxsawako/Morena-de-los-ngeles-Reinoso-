@@ -1,6 +1,6 @@
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { booksService, type BookDetail, type SeriesInfo } from '../../services/books';
+import { booksService, type BookDetail, type SeriesInfo, type Recommendation } from '../../services/books';
 
 export default function Book() {
   const { id } = useParams<{ id: string }>();
@@ -9,6 +9,7 @@ export default function Book() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [series, setSeries] = useState<SeriesInfo | null>(null);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
 
   useEffect(() => {
     if (!id) {
@@ -30,6 +31,7 @@ export default function Book() {
     });
 
     booksService.getSeries(id).then(s => setSeries(s)).catch(() => {});
+    booksService.getRecommendations(id).then(r => setRecommendations(r)).catch(() => {});
   }, [id]);
 
   if (loading) {
@@ -198,6 +200,48 @@ export default function Book() {
                     {seq.subtitle && (
                       <p className="text-body-sm text-on-surface-variant truncate">{seq.subtitle}</p>
                     )}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Recommendations */}
+        {recommendations.length > 0 && (
+          <div className="max-w-4xl mt-16 space-y-6">
+            <h2 className="text-headline-lg font-bold">También te puede interesar</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {recommendations.map(rec => (
+                <Link
+                  key={rec._id}
+                  to={`/book/${rec._id}`}
+                  className="group space-y-3"
+                >
+                  <div className="aspect-[3/4] rounded-xl overflow-hidden bg-surface-high">
+                    {rec.coverUrl ? (
+                      <img src={rec.coverUrl} alt={rec.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <span className="material-symbols-outlined text-5xl text-on-surface-variant/30">book</span>
+                      </div>
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-body-md font-medium text-primary truncate">{rec.title}</p>
+                    {rec.subtitle && (
+                      <p className="text-body-sm text-on-surface-variant truncate">{rec.subtitle}</p>
+                    )}
+                    <div className="flex items-center gap-1 mt-1">
+                      {Array.from({ length: 5 }, (_, i) => (
+                        <span key={i} className={`material-symbols-outlined text-sm ${i < rec.relevanceScore ? 'text-accent-gold' : 'text-on-surface-variant/30'}`}>
+                          {i < rec.relevanceScore ? 'star' : 'star'}
+                        </span>
+                      ))}
+                    </div>
+                    <p className="text-body-sm text-primary mt-1">
+                      {rec.priceCents > 0 ? `$${(rec.priceCents / 100).toFixed(2)}` : 'Gratis'}
+                    </p>
                   </div>
                 </Link>
               ))}

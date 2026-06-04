@@ -3,6 +3,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Book, BookDocument } from '../models/book.schema';
 import { Category, CategoryDocument } from '../models/category.schema';
+import { Purchase, PurchaseDocument, PurchaseStatus } from '../models/purchase.schema';
+import { Review, ReviewDocument, ReviewStatus } from '../models/review.schema';
 import { DriveService } from '../utils/drive.service';
 import { Readable } from 'stream';
 
@@ -11,6 +13,8 @@ export class CatalogService {
   constructor(
     @InjectModel(Book.name) private bookModel: Model<BookDocument>,
     @InjectModel(Category.name) private categoryModel: Model<CategoryDocument>,
+    @InjectModel(Purchase.name) private purchaseModel: Model<PurchaseDocument>,
+    @InjectModel(Review.name) private reviewModel: Model<ReviewDocument>,
     private driveService: DriveService,
   ) {}
 
@@ -241,6 +245,109 @@ export class CatalogService {
       })),
     };
   }
+
+  /**
+   * Get book recommendations based on category, popularity, and user history
+   */
+  async getRecommendations(bookId: string, userId?: string) {
+    const book = await this.bookModel
+      .findById(bookId)
+      .where('isPublished').equals(true)
+      .select('categoryRef title')
+      .lean();
+
+    if (!book) {
+      return [];
+    }
+
+    // Gather candidate books: same category, excluding current book
+    const candidates = await this.bookModel
+      .find({
+        _id: { $ne: new Types.ObjectId(bookId) },
+        isPublished: true,
+      })
+      .select('_id title subtitle description coverUrl priceCents currency categoryRef views sales')
+      .lean();
+
+    // Get purchase counts for popularity scoring
+    const bookIds = candidates.map(c => c._id);
+    const purchaseCounts = await this.purchaseModel.aggregate([
+      { $match: { bookRef: { $in: bookIds }, status: PurchaseStatus.PAID } },
+      { $group: { _id: '$bookRef', count: { $sum: 1 } } },
+    ]);
+    const purchaseMap = new Map(purchaseCounts.map(p => [p._id.toString(), p.count]));
+
+    // Get average ratings
+    const ratings = await this.reviewModel.aggregate([
+      { $match: { bookRef: { $in: bookIds }, status: ReviewStatus.APPROVED } },
+      { $group: { _id: '$bookRef', avgRating: { $avg: '$rating' }, count: { $sum: 1 } } },
+    ]);
+    const ratingMap = new Map(ratings.map(r => [r._id.toString(), { avg: r.avgRating, count: r.count }]));
+
+    // Get users who bought this book (for collaborative filtering)
+    let sameUserBooks: Set<string> = new Set();
+    if (userId) {
+      const currentBuyers = await this.purchaseModel
+        .find({ bookRef: new Types.ObjectId(bookId), status: PurchaseStatus.PAID })
+        .distinct('userRef');
+      if (currentBuyers.length > 0) {
+        const alsoBought = await this.purchaseModel
+          .find({
+            userRef: { $in: currentBuyers },
+            bookRef: { $ne: new Types.ObjectId(bookId), $in: bookIds },
+            status: PurchaseStatus.PAID,
+          })
+          .distinct('bookRef');
+        sameUserBooks = new Set(alsoBought.map(b => b.toString()));
+      }
+    }
+
+    // Score and rank candidates
+    const scored = candidates.map(c => {
+      const id = c._id.toString();
+      let score = 0;
+
+      // Same category = strong signal
+      if (c.categoryRef && book.categoryRef && c.categoryRef.toString() === book.categoryRef.toString()) {
+        score += 50;
+      }
+
+      // Collaborative: users who bought this also bought that
+      if (sameUserBooks.has(id)) {
+        score += 30;
+      }
+
+      // Popularity: purchases
+      const purchases = purchaseMap.get(id) || 0;
+      score += Math.min(purchases * 5, 20);
+
+      // Views
+      score += Math.min((c.views || 0) / 10, 10);
+
+      return {
+        _id: id,
+        title: c.title,
+        subtitle: c.subtitle || '',
+        description: c.description || '',
+        coverUrl: c.coverUrl || '',
+        priceCents: c.priceCents,
+        currency: c.currency,
+        categoryRef: c.categoryRef,
+        purchases,
+        avgRating: ratingMap.get(id)?.avg ? Math.round(ratingMap.get(id)!.avg * 10) / 10 : 0,
+        reviewCount: ratingMap.get(id)?.count || 0,
+        relevanceScore: Math.min(Math.round(score / 10), 5),
+      };
+    });
+
+    // Sort by score descending, limit to 8
+    return scored.sort((a, b) => {
+      const scoreA = b.purchases - a.purchases;
+      const scoreB = a.relevanceScore - b.relevanceScore;
+      return b.relevanceScore - a.relevanceScore || b.purchases - a.purchases;
+    }).slice(0, 8);
+  }
+
   async getBookPdfStream(id: string): Promise<{ stream: Readable; contentType: string; fileName: string }> {
     const book = await this.bookModel
       .findById(id)

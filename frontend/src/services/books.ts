@@ -28,6 +28,20 @@ export interface SeriesInfo {
   sequels: SeriesItem[];
 }
 
+export interface Recommendation {
+  _id: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  coverUrl: string;
+  priceCents: number;
+  currency: string;
+  purchases: number;
+  avgRating: number;
+  reviewCount: number;
+  relevanceScore: number;
+}
+
 export const booksService = {
   async getBookById(id: string): Promise<BookDetail | null> {
     try {
@@ -46,6 +60,16 @@ export const booksService = {
       return await response.json();
     } catch {
       return { prequel: null, sequels: [] };
+    }
+  },
+
+  async getRecommendations(bookId: string): Promise<Recommendation[]> {
+    try {
+      const response = await fetch(`${API_URL}/books/id/${bookId}/recommendations`);
+      if (!response.ok) return [];
+      return await response.json();
+    } catch {
+      return [];
     }
   },
 

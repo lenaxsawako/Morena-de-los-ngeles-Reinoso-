@@ -1,5 +1,5 @@
-import { Controller, Get, Query, Param, Res } from '@nestjs/common';
-import type { Response } from 'express';
+import { Controller, Get, Query, Param, Req, Res } from '@nestjs/common';
+import type { Response, Request } from 'express';
 import { Public } from '../decorators/public.decorator';
 import { CatalogService } from './catalog.service';
 
@@ -82,6 +82,15 @@ export class BooksController {
   @Get('id/:id/series')
   async getSeries(@Param('id') id: string) {
     return this.catalogService.getSeries(id);
+  }
+
+  /**
+   * GET /books/id/:id/recommendations
+   * Get related book recommendations
+   */
+  @Get('id/:id/recommendations')
+  async getRecommendations(@Param('id') id: string, @Req() req: Request) {
+    return this.catalogService.getRecommendations(id, (req as any).user?.sub);
   }
 
   /**
