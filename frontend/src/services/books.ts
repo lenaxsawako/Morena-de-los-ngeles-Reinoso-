@@ -76,4 +76,19 @@ export const booksService = {
   getPdfUrl(bookId: string): string {
     return `${API_URL}/books/id/${bookId}/pdf`;
   },
+
+  getPageRangeUrl(bookId: string, start: number, end: number): string {
+    return `${API_URL}/books/id/${bookId}/page-range?start=${start}&end=${end}`;
+  },
+
+  async fetchPageRange(bookId: string, start: number, end: number): Promise<ArrayBuffer | null> {
+    try {
+      const url = this.getPageRangeUrl(bookId, start, end);
+      const response = await fetch(url);
+      if (!response.ok) return null;
+      return await response.arrayBuffer();
+    } catch {
+      return null;
+    }
+  },
 };

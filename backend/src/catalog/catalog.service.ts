@@ -372,6 +372,69 @@ export class CatalogService {
   }
 
   /**
+   * Get a subset of PDF pages with access control
+   * Non-purchased users can only access up to previewPages
+   * Purchased users can access any range
+   */
+  async getBookPageRange(
+    bookId: string,
+    startPage: number,
+    endPage: number,
+    userId?: string,
+  ) {
+    const book = await this.bookModel
+      .findById(bookId)
+      .where('isPublished').equals(true)
+      .select('title driveFileId mimeType previewPages totalPages')
+      .lean();
+
+    if (!book) {
+      throw new NotFoundException('Book not found');
+    }
+
+    if (!book.driveFileId) {
+      throw new NotFoundException('No PDF file linked to this book');
+    }
+
+    // Validate page range
+    const total = book.totalPages || 0;
+    const s = Math.max(1, startPage);
+    const e = Math.min(total, endPage);
+
+    if (s > e || s > total) {
+      throw new NotFoundException('Invalid page range');
+    }
+
+    // Check access: non-purchased users limited to previewPages
+    const maxAllowed = book.previewPages || 10;
+    if (e > maxAllowed) {
+      if (!userId) {
+        throw new NotFoundException('Compra el libro para acceder a más páginas');
+      }
+      const purchase = await this.purchaseModel
+        .findOne({ userRef: new Types.ObjectId(userId), bookRef: new Types.ObjectId(bookId), status: PurchaseStatus.PAID })
+        .lean();
+      if (!purchase) {
+        throw new NotFoundException('Compra el libro para acceder a más páginas');
+      }
+    }
+
+    // Download full PDF from Drive
+    const pdfBuffer = await this.driveService.downloadFileAsBuffer(book.driveFileId);
+
+    // Extract page range using pdf-lib
+    const { PDFDocument } = await import('pdf-lib');
+    const fullPdf = await PDFDocument.load(pdfBuffer);
+    const subsetPdf = await PDFDocument.create();
+
+    const pages = await subsetPdf.copyPages(fullPdf, Array.from({ length: e - s + 1 }, (_, i) => s - 1 + i));
+    pages.forEach((p) => subsetPdf.addPage(p));
+
+    const pdfBytes = await subsetPdf.save();
+    return Buffer.from(pdfBytes);
+  }
+
+  /**
    * Get book details by slug (Quick View)
    */
   async getBookBySlug(slug: string) {

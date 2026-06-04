@@ -10,8 +10,9 @@ import { paymentsService } from '../../services/payments';
 import Paywall from '../../components/Paywall';
 import './chapter.css';
 
-// Configurar worker de PDF.js
 pdfjsLib.GlobalWorkerOptions.workerPort = new pdfjsWorker();
+
+const WINDOW_RADIUS = 1; // pages before/after current to preload
 
 export default function Chapter() {
   const { bookId } = useParams();
@@ -19,7 +20,8 @@ export default function Chapter() {
   const [currentPage, setCurrentPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [isBookmarked, setIsBookmarked] = useState(false);
-  const [pageImages, setPageImages] = useState<string[]>([]);
+  const [pageCache, setPageCache] = useState<Record<number, string>>({});
+  const [loadingPages, setLoadingPages] = useState<Set<number>>(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -29,8 +31,6 @@ export default function Chapter() {
   const [bookData, setBookData] = useState<BookDetail | null>(null);
   const pageContainerRef = useRef<HTMLDivElement>(null);
 
-  // Páginas 0-3 son gratis (1-4 en numeración humana)
-  // Páginas 4-5 (5-6) están bloqueadas
   const FREE_PAGES = 4;
   const isBlocked = currentPage >= FREE_PAGES && !isPurchased;
 
@@ -64,19 +64,14 @@ export default function Chapter() {
   // Cargar progreso guardado al montar
   useEffect(() => {
     if (!bookId) return;
-
-    // Siempre cargar desde localStorage (guest o backup)
     const saved = guestReadingService.getProgress(bookId);
     if (saved) {
       setCurrentPage(saved.currentPage);
     }
-
-    // Si está autenticado, cargar desde API (más actualizado)
     if (authService.isAuthenticated()) {
       readingService.getProgress(bookId).then(apiProgress => {
         if (apiProgress && apiProgress.currentPage > (saved?.currentPage ?? 0)) {
           setCurrentPage(apiProgress.currentPage);
-          // Actualizar localStorage con el dato más reciente
           const total = totalPages || 1;
           guestReadingService.saveProgress(bookId, apiProgress.currentPage, Math.round((apiProgress.currentPage / total) * 100));
         }
@@ -84,15 +79,18 @@ export default function Chapter() {
     }
   }, [bookId]);
 
-  // Cargar datos del libro para el paywall
+  // Cargar datos del libro para totalPages y paywall
   useEffect(() => {
     if (!bookId) return;
     booksService.getBookById(bookId).then(data => {
-      if (data) setBookData(data);
+      if (data) {
+        setBookData(data);
+        setTotalPages(data.totalPages);
+      }
     });
   }, [bookId]);
 
-  // Guardar progreso en localStorage + API
+  // Guardar progreso
   const saveProgress = useCallback((page: number) => {
     if (!bookId || totalPages === 0) return;
     const safePage = Math.min(page, totalPages - 1);
@@ -103,7 +101,7 @@ export default function Chapter() {
     }
   }, [bookId, totalPages]);
 
-  // Al cargar el PDF, corregir currentPage si excede totalPages y guardar
+  // Al conocer totalPages, corregir currentPage si excede
   useEffect(() => {
     if (totalPages > 0) {
       if (currentPage >= totalPages) {
@@ -115,55 +113,55 @@ export default function Chapter() {
     }
   }, [totalPages]);
 
-  // Cargar PDF solo si no está bloqueado
+  // Cargar páginas cercanas a currentPage
   useEffect(() => {
-    const loadPdf = async () => {
-      // No cargar si está bloqueado
-      if (isBlocked) {
-        setLoading(false);
-        return;
-      }
+    if (!bookId || totalPages === 0) return;
+    if (isBlocked) return;
+
+    const pagesToLoad: number[] = [];
+    for (let p = Math.max(0, currentPage - WINDOW_RADIUS); p <= Math.min(totalPages - 1, currentPage + WINDOW_RADIUS); p++) {
+      if (!isPurchased && p >= FREE_PAGES) continue;
+      if (pageCache[p] !== undefined) continue;
+      pagesToLoad.push(p);
+    }
+
+    if (pagesToLoad.length === 0) {
+      setLoading(false);
+      return;
+    }
+
+    pagesToLoad.forEach(async (pageIndex) => {
+      if (loadingPages.has(pageIndex)) return;
+      setLoadingPages(prev => new Set(prev).add(pageIndex));
+      setLoading(true);
 
       try {
-        setLoading(true);
-        // Obtener URL del PDF desde el servicio
-        const pdfUrl = booksService.getPdfUrl(bookId || '1');
-        
-        // Cargar el PDF
-        const pdf = await pdfjsLib.getDocument(pdfUrl).promise;
-        setTotalPages(pdf.numPages);
+        const buffer = await booksService.fetchPageRange(bookId, pageIndex + 1, pageIndex + 1);
+        if (!buffer) return;
 
-        // Renderizar cada página a imagen
-        const images: string[] = [];
-        for (let i = 1; i <= pdf.numPages; i++) {
-          const page = await pdf.getPage(i);
-          const viewport = page.getViewport({ scale: 2 });
-          const canvas = document.createElement('canvas');
-          const context = canvas.getContext('2d')!;
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
+        const pdf = await pdfjsLib.getDocument(buffer).promise;
+        const page = await pdf.getPage(1);
+        const viewport = page.getViewport({ scale: 2 });
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d')!;
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        await page.render({ canvasContext: context, viewport, canvas }).promise;
 
-          await page.render({
-            canvasContext: context,
-            viewport: viewport,
-            canvas: canvas,
-          }).promise;
-
-          images.push(canvas.toDataURL('image/png'));
-        }
-        
-        setPageImages(images);
-        setError(null);
+        setPageCache(prev => ({ ...prev, [pageIndex]: canvas.toDataURL('image/png') }));
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Error cargando el PDF');
-        console.error('Error loading PDF:', err);
+        console.error(`Error loading page ${pageIndex}:`, err);
+        setError(err instanceof Error ? err.message : 'Error cargando página');
       } finally {
+        setLoadingPages(prev => {
+          const next = new Set(prev);
+          next.delete(pageIndex);
+          return next;
+        });
         setLoading(false);
       }
-    };
-
-    loadPdf();
-  }, [bookId, isBlocked]);
+    });
+  }, [currentPage, bookId, totalPages, isPurchased, isBlocked]);
 
   // Keyboard Navigation
   useEffect(() => {
@@ -294,11 +292,11 @@ export default function Chapter() {
       ) : (
         <main className={`reader-main ${isFullscreen ? 'fullscreen-active' : ''}`}>
           {/* Loading State */}
-          {loading && (
+          {(loading || pageCache[currentPage] === undefined) && !error && (
             <div className="reader-state-container">
               <div className="reader-loader">
                 <div className="loader-spinner" />
-                <p>Cargando libro...</p>
+                <p>{loading ? 'Cargando libro...' : 'Cargando página...'}</p>
               </div>
             </div>
           )}
@@ -315,7 +313,7 @@ export default function Chapter() {
           )}
 
           {/* Page Viewer */}
-          {!loading && !error && pageImages.length > 0 && (
+          {!error && pageCache[currentPage] !== undefined && (
             <div 
               className="reader-page-container"
               ref={pageContainerRef}
@@ -325,7 +323,7 @@ export default function Chapter() {
               {/* Page Image */}
               <div className="reader-page-wrapper" onClick={toggleFullscreen}>
                 <img 
-                  src={pageImages[currentPage]} 
+                  src={pageCache[currentPage]} 
                   alt={`Página ${currentPage + 1}`}
                   className="reader-page-image"
                 />
@@ -419,7 +417,7 @@ export default function Chapter() {
           )}
 
           {/* Empty State */}
-          {!loading && !error && pageImages.length === 0 && (
+          {!error && pageCache[currentPage] === undefined && !loading && (
             <div className="reader-state-container">
               <div className="reader-empty">
                 <span className="material-symbols-outlined">book</span>

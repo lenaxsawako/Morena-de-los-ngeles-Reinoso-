@@ -94,6 +94,34 @@ export class BooksController {
   }
 
   /**
+   * GET /books/id/:id/page-range?start=1&end=5
+   * Get a subset of PDF pages (with access control)
+   */
+  @Get('id/:id/page-range')
+  async getBookPageRange(
+    @Param('id') id: string,
+    @Query('start') start: string,
+    @Query('end') end: string,
+    @Req() req: Request,
+    @Res() res: Response,
+  ) {
+    const startPage = parseInt(start) || 1;
+    const endPage = parseInt(end) || startPage;
+    const buffer = await this.catalogService.getBookPageRange(
+      id,
+      startPage,
+      endPage,
+      (req as any).user?.sub,
+    );
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': 'inline',
+      'Content-Length': buffer.length.toString(),
+    });
+    res.send(buffer);
+  }
+
+  /**
    * GET /books/:slug
    * Get book details by slug (Quick View)
    */
