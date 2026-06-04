@@ -977,3 +977,28 @@
     font-size: 1rem;
   }
 }
+
+/* ---- Reader Reviews Section ---- */
+.reader-reviews {
+  max-width: 600px;
+  margin: 3rem auto;
+  padding: 0 1.25rem;
+}
+
+.reader-reviews-inner {
+  padding: 1.5rem;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+@media (max-width: 768px) {
+  .reader-reviews {
+    padding: 0 1rem;
+  }
+
+  .reader-reviews-inner {
+    padding: 1.25rem;
+    border-radius: 14px;
+  }
+}
