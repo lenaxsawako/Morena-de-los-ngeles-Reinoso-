@@ -6,6 +6,7 @@ import { ReadingProgress, ReadingProgressDocument } from '../models/reading-prog
 import { Purchase, PurchaseDocument } from '../models/purchase.schema';
 import { User, UserDocument } from '../models/user.schema';
 import { Book, BookDocument } from '../models/book.schema';
+import { Subscription, SubscriptionDocument } from '../models/subscription.schema';
 
 @Injectable()
 export class AdminCommunityService {
@@ -15,6 +16,7 @@ export class AdminCommunityService {
     @InjectModel(Purchase.name) private purchaseModel: Model<PurchaseDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     @InjectModel(Book.name) private bookModel: Model<BookDocument>,
+    @InjectModel(Subscription.name) private subscriptionModel: Model<SubscriptionDocument>,
   ) {}
 
   /**
@@ -88,7 +90,7 @@ export class AdminCommunityService {
         },
       ]),
       // Count newsletter subscribers
-      this.userModel.countDocuments({ newsletterSubscribed: true }),
+      this.subscriptionModel.countDocuments({ isActive: true }),
       // Count approved reviews
       this.reviewModel.countDocuments({ status: ReviewStatus.APPROVED }),
       // Average rating

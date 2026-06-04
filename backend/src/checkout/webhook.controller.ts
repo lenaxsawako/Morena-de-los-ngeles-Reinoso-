@@ -2,9 +2,11 @@ import { Controller, Post, Req, Logger } from '@nestjs/common';
 import { Public } from '../decorators/public.decorator';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { validateEvent, WebhookVerificationError } from '@polar-sh/sdk/webhooks';
 import { Purchase, PurchaseDocument, PurchaseStatus, PaymentProvider } from '../models/purchase.schema';
 import { Book, BookDocument } from '../models/book.schema';
+import { User, UserDocument } from '../models/user.schema';
 import { SiteConfig, SiteConfigDocument } from '../models/site-config.schema';
 
 @Controller('webhooks')
@@ -15,6 +17,8 @@ export class WebhookController {
     @InjectModel(SiteConfig.name) private siteConfigModel: Model<SiteConfigDocument>,
     @InjectModel(Purchase.name) private purchaseModel: Model<PurchaseDocument>,
     @InjectModel(Book.name) private bookModel: Model<BookDocument>,
+    @InjectModel(User.name) private userModel: Model<UserDocument>,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   @Post('polar')
@@ -109,5 +113,22 @@ export class WebhookController {
 
     await this.bookModel.findByIdAndUpdate(bookId, { $inc: { sales: 1 } });
     this.logger.log(`Purchase recorded via ${source}: user=${userId}, book=${bookId}`);
+
+    try {
+      const [user, book] = await Promise.all([
+        this.userModel.findById(userId).select('email').lean(),
+        this.bookModel.findById(bookId).select('title coverUrl').lean(),
+      ]);
+      if (user && book) {
+        this.eventEmitter.emit('purchase.completed', {
+          email: user.email,
+          bookTitle: book.title,
+          bookId,
+          coverUrl: book.coverUrl,
+        });
+      }
+    } catch (err) {
+      this.logger.error(`Error emitting purchase event: ${err.message}`);
+    }
   }
 }

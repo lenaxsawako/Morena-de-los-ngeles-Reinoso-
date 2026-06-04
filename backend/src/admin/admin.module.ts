@@ -8,6 +8,7 @@ import { ReadingSession, ReadingSessionSchema } from '../models/reading-session.
 import { Review, ReviewSchema } from '../models/review.schema';
 import { Category, CategorySchema } from '../models/category.schema';
 import { SiteConfig, SiteConfigSchema } from '../models/site-config.schema';
+import { Subscription, SubscriptionSchema } from '../models/subscription.schema';
 import { AdminBooksService } from './admin-books.service';
 import { AdminAnalyticsService } from './admin-analytics.service';
 import { AdminReportingService } from './admin-reporting.service';
@@ -34,6 +35,7 @@ import { SharedModule } from '../shared/shared.module';
       { name: Review.name, schema: ReviewSchema },
       { name: Category.name, schema: CategorySchema },
       { name: SiteConfig.name, schema: SiteConfigSchema },
+      { name: Subscription.name, schema: SubscriptionSchema },
     ]),
   ],
   controllers: [

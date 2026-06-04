@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authService } from '../../services/auth';
 import { paymentsService } from '../../services/payments';
+import { subscriptionService } from '../../services/subscription';
 import './profile.css';
 
 interface UserProfile {
@@ -36,6 +37,9 @@ export default function Profile() {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [subscribed, setSubscribed] = useState(false);
+  const [subChecking, setSubChecking] = useState(true);
+  const [subMsg, setSubMsg] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -91,6 +95,10 @@ export default function Profile() {
     };
 
     fetchUserProfile();
+    subscriptionService.getStatus().then(s => {
+      setSubscribed(s.subscribed);
+      setSubChecking(false);
+    }).catch(() => setSubChecking(false));
   }, [navigate]);
 
   const handleLogout = () => {
@@ -175,6 +183,51 @@ export default function Profile() {
                 </button>
               </div>
             </div>
+          </div>
+
+          {/* Newsletter Subscription */}
+          <div className="profile-section">
+            <h2 className="profile-section-title">Newsletter</h2>
+            <div className="profile-info-grid">
+              <div className="profile-info-item">
+                <span className="profile-info-label">Estado</span>
+                <p className="profile-info-value">
+                  {subChecking ? 'Verificando...' : subscribed ? 'Suscripto' : 'No suscripto'}
+                </p>
+              </div>
+            </div>
+            {!subChecking && (
+              <button
+                onClick={async () => {
+                  setSubMsg(null);
+                  try {
+                    if (subscribed) {
+                      await subscriptionService.unsubscribe(user.email);
+                      setSubscribed(false);
+                      setSubMsg('Te desuscribiste correctamente');
+                    } else {
+                      await subscriptionService.subscribe(user.email, 'profile');
+                      setSubscribed(true);
+                      setSubMsg('Te suscribiste correctamente');
+                    }
+                  } catch (err: any) {
+                    setSubMsg(err.message || 'Error al gestionar suscripción');
+                  }
+                }}
+                className={`profile-admin-button mt-4 ${subscribed ? 'bg-red-900/40 text-red-400' : ''}`}
+                style={subscribed ? { background: 'rgba(239,68,68,0.15)', color: '#f87171' } : {}}
+              >
+                <span className="material-symbols-outlined notranslate" translate="no">
+                  {subscribed ? 'mail_off' : 'mail'}
+                </span>
+                {subscribed ? 'Cancelar suscripción' : 'Suscribirse al newsletter'}
+              </button>
+            )}
+            {subMsg && (
+              <p className={`profile-bio mt-2 ${subMsg.includes('correctamente') ? '' : ''}`} style={{ color: subMsg.includes('correctamente') ? '#4ade80' : '#f87171' }}>
+                {subMsg}
+              </p>
+            )}
           </div>
 
           {/* Account Info */}

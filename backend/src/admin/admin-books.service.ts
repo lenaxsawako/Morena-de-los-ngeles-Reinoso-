@@ -1,6 +1,7 @@
 import { Injectable, BadRequestException, NotFoundException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Book, BookDocument } from '../models/book.schema';
 import { Purchase, PurchaseDocument } from '../models/purchase.schema';
 import { CreateBookDto } from './dto/create-book.dto';
@@ -19,6 +20,7 @@ export class AdminBooksService {
     @InjectModel(Purchase.name) private purchaseModel: Model<PurchaseDocument>,
     private driveService: DriveService,
     private polarService: PolarService,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   /**
@@ -316,12 +318,19 @@ export class AdminBooksService {
       book.isPreorder = false;
       book.releaseDate = undefined;
 
-      // Mark as latest release (clear all others, set this one)
       await this.bookModel.updateMany({ _id: { $ne: id } }, { isLatestRelease: false });
       book.isLatestRelease = true;
     }
 
-    return await book.save();
+    const saved = await book.save();
+
+    if (asPreorder) {
+      this.eventEmitter.emit('book.preorder', { bookId: saved._id.toString(), title: saved.title, coverUrl: saved.coverUrl });
+    } else {
+      this.eventEmitter.emit('book.published', { bookId: saved._id.toString(), title: saved.title, coverUrl: saved.coverUrl });
+    }
+
+    return saved;
   }
 
   /**

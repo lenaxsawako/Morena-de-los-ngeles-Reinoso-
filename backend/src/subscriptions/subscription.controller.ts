@@ -1,5 +1,6 @@
-import { Controller, Post, Body, ConflictException, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, UseGuards, ConflictException, BadRequestException, NotFoundException, Request } from '@nestjs/common';
 import { SubscriptionService } from './subscription.service';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 
 @Controller('subscriptions')
 export class SubscriptionController {
@@ -32,5 +33,16 @@ export class SubscriptionController {
     } catch {
       throw new BadRequestException('Suscripción no encontrada');
     }
+  }
+
+  @Get('status')
+  @UseGuards(JwtAuthGuard)
+  async getStatus(@Request() req: any) {
+    const email = req.user.email;
+    const sub = await this.subscriptionService.findByEmail(email);
+    return {
+      subscribed: sub?.isActive || false,
+      email,
+    };
   }
 }

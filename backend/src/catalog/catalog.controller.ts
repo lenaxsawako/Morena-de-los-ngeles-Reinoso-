@@ -90,7 +90,7 @@ export class BooksController {
    */
   @Get('id/:id/recommendations')
   async getRecommendations(@Param('id') id: string, @Req() req: Request) {
-    return this.catalogService.getRecommendations(id, (req as any).user?.sub);
+    return this.catalogService.getRecommendations(id, (req as any).user?.userId);
   }
 
   /**
@@ -111,7 +111,7 @@ export class BooksController {
       id,
       startPage,
       endPage,
-      (req as any).user?.sub,
+      (req as any).user?.userId,
     );
     res.set({
       'Content-Type': 'application/pdf',

@@ -47,6 +47,10 @@ export class SubscriptionService {
     return subs.map(s => s.email);
   }
 
+  async findByEmail(email: string): Promise<SubscriptionDocument | null> {
+    return this.subscriptionModel.findOne({ email: email.toLowerCase() }).exec();
+  }
+
   async getStats(): Promise<{ total: number; active: number }> {
     const [total, active] = await Promise.all([
       this.subscriptionModel.countDocuments(),
