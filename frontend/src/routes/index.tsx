@@ -15,6 +15,7 @@ import Chapter from "../pages/Chapter";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import ForgotPassword from "../pages/ForgotPassword";
+import ResetPassword from "../pages/ResetPassword";
 import Checkout from "../pages/checkout";
 import ConfirmPurchase from "../pages/checkout/confirm";
 import TermsOfService from "../pages/ToS";
@@ -67,6 +68,10 @@ export const router = createBrowserRouter([
       {
         path: "/forgot-password",
         element: <ForgotPassword />,
+      },
+      {
+        path: "/reset-password/:token",
+        element: <ResetPassword />,
       },
       {
         path: "/terms-of-service",

@@ -1,7 +1,8 @@
-import { Injectable, BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, BadRequestException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 import { User, UserDocument } from '../models/user.schema';
 import { USER_MODEL } from '../models';
 
@@ -51,5 +52,36 @@ export class UsersService {
     } catch (error) {
       throw new InternalServerErrorException('Error validating user');
     }
+  }
+
+  async generatePasswordResetToken(email: string): Promise<string> {
+    const user = await this.findByEmail(email);
+    if (!user) throw new NotFoundException('User not found');
+
+    const token = crypto.randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+    await this.userModel.findByIdAndUpdate(user._id, {
+      passwordResetToken: token,
+      passwordResetExpiresAt: expiresAt,
+    });
+
+    return token;
+  }
+
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    const user = await this.userModel.findOne({
+      passwordResetToken: token,
+      passwordResetExpiresAt: { $gt: new Date() },
+    });
+
+    if (!user) throw new BadRequestException('Invalid or expired reset token');
+
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    await this.userModel.findByIdAndUpdate(user._id, {
+      passwordHash,
+      passwordResetToken: null,
+      passwordResetExpiresAt: null,
+    });
   }
 }

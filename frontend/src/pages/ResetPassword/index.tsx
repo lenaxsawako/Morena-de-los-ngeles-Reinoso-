@@ -1,51 +1,45 @@
-import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import './forgotpassword.css';
+import { useState } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import '../ForgotPassword/forgotpassword.css';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
-export default function ForgotPassword() {
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [formData, setFormData] = useState({ email: '' });
-  const [isSubmitted, setIsSubmitted] = useState(false);
+export default function ResetPassword() {
+  const { token } = useParams<{ token: string }>();
+  const navigate = useNavigate();
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-      setScrollProgress(scrollPercent);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+  const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (password !== confirmPassword) {
+      setError('Las contraseñas no coinciden');
+      return;
+    }
+    if (password.length < 6) {
+      setError('La contraseña debe tener al menos 6 caracteres');
+      return;
+    }
     setIsLoading(true);
     setError('');
 
     try {
-      const response = await fetch(`${API_URL}/auth/forgot-password`, {
+      const response = await fetch(`${API_URL}/auth/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: formData.email }),
+        body: JSON.stringify({ token, password }),
       });
 
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
-        throw new Error(data.message || 'Error al enviar correo');
+        throw new Error(data.message || 'Error al restablecer contraseña');
       }
 
-      setIsSubmitted(true);
+      setSuccess(true);
+      setTimeout(() => navigate('/login'), 3000);
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -55,19 +49,14 @@ export default function ForgotPassword() {
 
   return (
     <div className="fp-wrapper">
-      <div
-        className="fp-progress"
-        style={{ width: `${scrollProgress}%` }}
-      />
-
       <main className="fp-main">
         <div className="fp-container">
-          {!isSubmitted ? (
+          {!success ? (
             <>
               <div className="fp-header">
-                <h1 className="fp-title">Restaurar Acceso</h1>
+                <h1 className="fp-title">Nueva Contraseña</h1>
                 <p className="fp-subtitle">
-                  Ingresa tu dirección de correo y te enviaremos un enlace para restablecer tu contraseña y volver a tu biblioteca.
+                  Ingresá tu nueva contraseña.
                 </p>
               </div>
 
@@ -77,17 +66,35 @@ export default function ForgotPassword() {
                 <div className="fp-form">
                   <div className="fp-input-group">
                     <input
-                      type="email"
-                      id="email"
-                      name="email"
+                      type="password"
+                      id="password"
+                      name="password"
                       placeholder=" "
                       className="fp-input peer"
-                      value={formData.email}
-                      onChange={handleChange}
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
                       required
+                      minLength={6}
                     />
-                    <label htmlFor="email" className="fp-label">
-                      Dirección de Correo
+                    <label htmlFor="password" className="fp-label">
+                      Nueva Contraseña
+                    </label>
+                  </div>
+
+                  <div className="fp-input-group">
+                    <input
+                      type="password"
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      placeholder=" "
+                      className="fp-input peer"
+                      value={confirmPassword}
+                      onChange={e => setConfirmPassword(e.target.value)}
+                      required
+                      minLength={6}
+                    />
+                    <label htmlFor="confirmPassword" className="fp-label">
+                      Confirmar Contraseña
                     </label>
                   </div>
 
@@ -102,7 +109,7 @@ export default function ForgotPassword() {
                           progress_activity
                         </span>
                       ) : (
-                        <span className="fp-button-text">Enviar Enlace de Restablecimiento</span>
+                        <span className="fp-button-text">Restablecer Contraseña</span>
                       )}
                     </button>
                   </div>
@@ -126,20 +133,11 @@ export default function ForgotPassword() {
                 <span className="material-symbols-outlined">check_circle</span>
               </div>
               <div className="fp-success-content">
-                <h3 className="fp-success-title">Enlace Enviado</h3>
+                <h3 className="fp-success-title">Contraseña Restablecida</h3>
                 <p className="fp-success-text">
-                  Hemos enviado un enlace de recuperación a <span className="fp-email">{formData.email}</span>. Por favor revisa tu bandeja de entrada.
+                  Tu contraseña se ha cambiado correctamente. Redirigiendo al inicio de sesión...
                 </p>
               </div>
-              <button
-                onClick={() => {
-                  setIsSubmitted(false);
-                  setFormData({ email: '' });
-                }}
-                className="fp-resend-button"
-              >
-                Reenviar Correo
-              </button>
             </div>
           )}
         </div>

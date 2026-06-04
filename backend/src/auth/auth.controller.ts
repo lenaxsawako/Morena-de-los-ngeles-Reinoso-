@@ -23,4 +23,19 @@ export class AuthController {
   async getCurrentUser(@Request() req: any) {
     return this.authService.getCurrentUser(req.user.userId);
   }
+
+  @Post('forgot-password')
+  async forgotPassword(@Body('email') email: string) {
+    await this.authService.forgotPassword(email);
+    return { message: 'If the email exists, a reset link has been sent' };
+  }
+
+  @Post('reset-password')
+  async resetPassword(
+    @Body('token') token: string,
+    @Body('password') password: string,
+  ) {
+    await this.authService.resetPassword(token, password);
+    return { message: 'Password reset successfully' };
+  }
 }
