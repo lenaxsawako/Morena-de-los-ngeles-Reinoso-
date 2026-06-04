@@ -61,6 +61,7 @@ export default function Header() {
   };
 
   return (
+    <>
     <nav className="fixed top-0 w-full bg-surface/80 backdrop-blur-md border-b border-white/5 z-50 transition-all duration-500 ease-out">
       <div className="flex justify-between items-center w-full px-6 md:px-16 py-6 z-50 max-w-[1200px] mx-auto">
         {/* Logo */}
@@ -104,17 +105,6 @@ export default function Header() {
           >
             Catálogo
           </Link>
-
-          {lastRead && (
-            <Link
-              to={`/chapter/${lastRead.bookId}`}
-              className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors group"
-            >
-              <span className="material-symbols-outlined text-lg">play_circle</span>
-              <span className="font-label-md text-label-md tracking-widest">{lastRead.title}</span>
-              <span className="font-label-sm text-label-sm text-accent-gold/60 group-hover:text-accent-gold transition-colors">Seguir Leyendo</span>
-            </Link>
-          )}
         </div>
 
         {/* Action Icons */}
@@ -212,18 +202,6 @@ export default function Header() {
               Catalog
             </Link>
 
-            {lastRead && (
-              <Link
-                to={`/chapter/${lastRead.bookId}`}
-                onClick={handleNavClick}
-                className="flex items-center gap-2 text-accent-gold hover:text-primary transition-colors py-2"
-              >
-                <span className="material-symbols-outlined text-lg">play_circle</span>
-                <span className="font-label-md text-label-md tracking-widest">{lastRead.title}</span>
-                <span className="font-label-sm text-label-sm text-on-surface-variant ml-auto">Seguir Leyendo</span>
-              </Link>
-            )}
-
             <div className="border-t border-white/10 pt-4 mt-2">
               {isLoggedIn ? (
                 <Link
@@ -246,6 +224,19 @@ export default function Header() {
           </div>
         </div>
       )}
-    </nav>
+      </nav>
+
+      {/* Continue Reading Banner */}
+      {lastRead && (
+        <Link
+          to={`/chapter/${lastRead.bookId}`}
+          className="fixed top-[88px] left-0 right-0 z-40 bg-surface-container border-b border-white/5 px-6 md:px-16 py-3 flex items-center gap-3 hover:bg-surface-container-high transition-colors"
+        >
+          <span className="material-symbols-outlined text-accent-gold text-lg">play_circle</span>
+          <span className="font-body-md text-body-md text-primary truncate">{lastRead.title}</span>
+          <span className="font-label-sm text-label-sm text-accent-gold uppercase tracking-widest ml-auto flex-shrink-0">Continuar Leyendo</span>
+        </Link>
+      )}
+    </>
   );
 }
