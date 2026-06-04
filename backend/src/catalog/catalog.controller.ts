@@ -1,6 +1,7 @@
-import { Controller, Get, Query, Param, Req, Res } from '@nestjs/common';
+import { Controller, Get, Query, Param, Req, Res, UseGuards } from '@nestjs/common';
 import type { Response, Request } from 'express';
 import { Public } from '../decorators/public.decorator';
+import { PurchaseAccessGuard } from '../guards/purchase-access.guard';
 import { CatalogService } from './catalog.service';
 
 @Controller('catalog')
@@ -66,6 +67,7 @@ export class BooksController {
    * Stream PDF file from Google Drive
    */
   @Get('id/:id/pdf')
+  @UseGuards(PurchaseAccessGuard)
   async getBookPdf(@Param('id') id: string, @Res() res: Response) {
     const { stream, contentType, fileName } = await this.catalogService.getBookPdfStream(id);
     res.set({
@@ -98,6 +100,7 @@ export class BooksController {
    * Get a subset of PDF pages (with access control)
    */
   @Get('id/:id/page-range')
+  @UseGuards(PurchaseAccessGuard)
   async getBookPageRange(
     @Param('id') id: string,
     @Query('start') start: string,

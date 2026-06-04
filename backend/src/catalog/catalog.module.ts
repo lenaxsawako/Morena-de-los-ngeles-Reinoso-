@@ -7,6 +7,7 @@ import { Review, ReviewSchema } from '../models/review.schema';
 import { SharedModule } from '../shared/shared.module';
 import { CatalogService } from './catalog.service';
 import { CatalogController, BooksController } from './catalog.controller';
+import { PurchaseAccessGuard } from '../guards/purchase-access.guard';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { CatalogController, BooksController } from './catalog.controller';
     SharedModule,
   ],
   controllers: [CatalogController, BooksController],
-  providers: [CatalogService],
+  providers: [CatalogService, PurchaseAccessGuard],
   exports: [CatalogService],
 })
 export class CatalogModule {}
