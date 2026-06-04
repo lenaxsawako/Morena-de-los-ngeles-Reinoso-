@@ -213,7 +213,10 @@ export default function Book() {
                 >
                   <span
                     className="material-symbols-outlined"
-                    style={{ fontVariationSettings: isFav ? "'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 24" : undefined }}
+                    style={{
+                      color: isFav ? '#f87171' : undefined,
+                      fontVariationSettings: isFav ? "'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 24" : undefined,
+                    }}
                   >
                     favorite
                   </span>
