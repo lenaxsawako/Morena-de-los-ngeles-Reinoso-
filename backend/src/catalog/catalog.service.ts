@@ -405,9 +405,14 @@ export class CatalogService {
       throw new NotFoundException('Invalid page range');
     }
 
+    // Limit range size to prevent abuse
+    if (e - s + 1 > 20) {
+      throw new NotFoundException('Page range too large (max 20)');
+    }
+
     // Check access: non-purchased users limited to previewPages
     const maxAllowed = book.previewPages || 10;
-    if (e > maxAllowed) {
+    if (s > maxAllowed || e > maxAllowed) {
       if (!userId) {
         throw new NotFoundException('Compra el libro para acceder a más páginas');
       }
