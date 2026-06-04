@@ -1,12 +1,20 @@
-# Plataforma de Publicación de Libros
+# LBB — Plataforma de Publicación de Libros Digitales
 
-Backend (NestJS + MongoDB) y frontend (React + Vite + Tailwind) para publicar, vender y leer libros digitales en PDF con pagos integrados vía Polar.
+Backend (NestJS + MongoDB) y frontend (React + Vite) para publicar, vender y leer libros digitales en PDF con pagos integrados vía Polar.
+
+## Licencia
+
+**Todos los derechos reservados.**
+
+Este repositorio y todo su contenido es propiedad de su autor. **No está permitido** su uso con fines comerciales, de negocio o de lucro. No está permitido distribuir, modificar, vender ni utilizar este código como base para productos o servicios propios sin autorización explícita del autor.
+
+El acceso al código se proporciona únicamente con fines de revisión y aprendizaje personal.
 
 ## Estructura
 
 ```
 backend/    – API REST (NestJS + MongoDB)
-frontend/   – Cliente web (React + Vite + Tailwind)
+frontend/   – Cliente web (React + Vite)
 ```
 
 ## Requisitos
