@@ -80,13 +80,24 @@ export default function HomePage() {
       <main className="pt-32">
         <div style={{
           display: 'flex',
+          flexDirection: 'column',
           justifyContent: 'center',
           alignItems: 'center',
           minHeight: '100vh',
-          color: '#fca5a5',
-          textAlign: 'center'
+          textAlign: 'center',
+          padding: '2rem'
         }}>
-          <p>{error || 'No se pudieron cargar los datos'}</p>
+          <img
+            src="https://i.pinimg.com/736x/0a/d9/24/0ad924c584760a3f2c9e59e7b36c16fd.jpg"
+            alt="Error"
+            style={{ maxWidth: '300px', borderRadius: '12px', marginBottom: '1.5rem' }}
+          />
+          <p style={{ color: '#e5e2e1', fontSize: '1.2rem', fontWeight: 500 }}>
+            Yo había ponido mi página aquí
+          </p>
+          <p style={{ color: '#fca5a5', fontSize: '0.85rem', marginTop: '0.5rem' }}>
+            {error || 'No se pudieron cargar los datos'}
+          </p>
         </div>
       </main>
     );

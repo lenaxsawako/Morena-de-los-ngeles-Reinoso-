@@ -178,19 +178,17 @@ export default function Book() {
                 </div>
               )}
             </div>
-            {reviewCount > 0 && (
-              <div className="flex items-center justify-center gap-2">
-                <span className="text-headline-lg font-bold text-accent-gold">{avgRating.toFixed(1)}</span>
-                <div className="flex gap-0.5">
-                  {Array.from({ length: 5 }, (_, i) => (
-                    <span key={i} className={`material-symbols-outlined text-lg ${i < Math.round(avgRating) ? 'text-accent-gold' : 'text-on-surface-variant/30'}`}>
-                      star
-                    </span>
-                  ))}
-                </div>
-                <span className="text-label-md text-on-surface-variant">({reviewCount})</span>
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-headline-lg font-bold text-accent-gold">{avgRating.toFixed(1)}</span>
+              <div className="flex gap-0.5">
+                {Array.from({ length: 5 }, (_, i) => (
+                  <span key={i} className={`material-symbols-outlined text-lg ${i < Math.round(avgRating) ? 'text-accent-gold' : 'text-on-surface-variant/30'}`}>
+                    star
+                  </span>
+                ))}
               </div>
-            )}
+              <span className="text-label-md text-on-surface-variant">({reviewCount})</span>
+            </div>
           </div>
 
           {/* Book Info */}
@@ -233,7 +231,7 @@ export default function Book() {
               >
                 Leer Online
               </button>
-              {book.priceCents > 0 && (
+              {book.priceCents > 0 && !hasPurchased && (
                 <button
                   onClick={() => navigate(`/checkout/${id}`)}
                   className="flex-1 border border-outline text-primary py-3 rounded-full font-medium text-body-md hover:bg-surface-container transition-colors"
@@ -362,36 +360,40 @@ export default function Book() {
         )}
 
         {/* Opinions Preview (YouTube-style) */}
-        {reviews.length > 0 && (
-          <div className="max-w-3xl mt-16 space-y-4">
-            <h3 className="text-headline-md font-bold">Opiniones</h3>
-            <div className="p-4 rounded-xl border border-white/10 bg-surface-container space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="text-body-sm font-medium text-primary">{reviews[0].userName}</span>
-                <span className="text-label-sm text-on-surface-variant">
-                  {new Date(reviews[0].createdAt).toLocaleDateString('es-ES', { dateStyle: 'long' })}
-                </span>
-              </div>
-              <div className="flex gap-0.5">
-                {Array.from({ length: 5 }, (_, i) => (
-                  <span key={i} className={`material-symbols-outlined text-sm ${i < reviews[0].rating ? 'text-accent-gold' : 'text-on-surface-variant/30'}`}>
-                    star
+        <div className="max-w-3xl mt-16 space-y-4">
+          <h3 className="text-headline-md font-bold">Opiniones</h3>
+          {reviews.length > 0 ? (
+            <>
+              <div className="p-4 rounded-xl border border-white/10 bg-surface-container space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-body-sm font-medium text-primary">{reviews[0].userName}</span>
+                  <span className="text-label-sm text-on-surface-variant">
+                    {new Date(reviews[0].createdAt).toLocaleDateString('es-ES', { dateStyle: 'long' })}
                   </span>
-                ))}
+                </div>
+                <div className="flex gap-0.5">
+                  {Array.from({ length: 5 }, (_, i) => (
+                    <span key={i} className={`material-symbols-outlined text-sm ${i < reviews[0].rating ? 'text-accent-gold' : 'text-on-surface-variant/30'}`}>
+                      star
+                    </span>
+                  ))}
+                </div>
+                {reviews[0].comment && (
+                  <p className="text-body-md text-on-surface-variant leading-relaxed">{reviews[0].comment}</p>
+                )}
               </div>
-              {reviews[0].comment && (
-                <p className="text-body-md text-on-surface-variant leading-relaxed">{reviews[0].comment}</p>
-              )}
-            </div>
-            <button
-              onClick={() => setReviewsModalOpen(true)}
-              className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors text-body-md font-medium"
-            >
-              Ver todas las opiniones ({reviewCount})
-              <span className="material-symbols-outlined text-lg">chevron_right</span>
-            </button>
-          </div>
-        )}
+              <button
+                onClick={() => setReviewsModalOpen(true)}
+                className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors text-body-md font-medium"
+              >
+                Ver todas las opiniones ({reviewCount})
+                <span className="material-symbols-outlined text-lg">chevron_right</span>
+              </button>
+            </>
+          ) : (
+            <p className="text-body-md text-on-surface-variant">Todavía no hay opiniones sobre este libro.</p>
+          )}
+        </div>
 
         {/* Recommendations */}
         {recommendations.length > 0 && (
