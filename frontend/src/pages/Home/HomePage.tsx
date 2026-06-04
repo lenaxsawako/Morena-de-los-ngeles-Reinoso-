@@ -104,24 +104,75 @@ export default function HomePage() {
 
       {/* Hero Section: Latest Release */}
       {latestRelease && (
-      <section className="px-16 mb-32 max-w-[1200px] mx-auto">
+      <section className="px-5 md:px-16 mb-32 max-w-[1200px] mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
-          {/* Left Content */}
-          <div className="lg:col-span-7 order-2 lg:order-1">
-            <div className="space-y-6">
-              <span className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant opacity-60">
-                Último lanzamiento
-              </span>
-              <h1 className="font-display-lg text-display-lg text-primary max-w-xl">
+          {/* Mobile label above image */}
+          <div className="lg:hidden order-1">
+            <span className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant opacity-60">
+              Último lanzamiento
+            </span>
+          </div>
+
+          {/* Hero Image (mobile: order-2, desktop: right side) */}
+          <div className="lg:col-span-5 order-2 lg:order-2">
+            <div className="relative aspect-[3/4] w-full max-w-[450px] mx-auto overflow-hidden group">
+              <img
+                alt={latestRelease.title}
+                src={latestRelease.coverUrl}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none"></div>
+              {/* Title overlaid on image (mobile only) */}
+              <h1 className="lg:hidden absolute top-6 left-6 right-6 font-display-lg text-display-sm text-primary">
                 {latestRelease.title}
               </h1>
+              {/* Buttons overlaid at bottom of image (mobile only) */}
+              <div className="lg:hidden absolute bottom-6 left-6 right-6 flex flex-col gap-3">
+                <button 
+                  onClick={() => navigate(purchasedIds.has(latestRelease._id) ? `/chapter/${latestRelease._id}` : `/chapter/${latestRelease._id}`)}
+                  className="w-full bg-[#F3EAD3] text-[#0A0A0A] font-label-md py-3 transition-all duration-300 hover:opacity-90 tracking-widest uppercase"
+                >
+                  {purchasedIds.has(latestRelease._id) ? 'LEER AHORA' : 'LEE EL PRIMER CAPÍTULO'}
+                </button>
+                {purchasedIds.has(latestRelease._id) ? (
+                  <button 
+                    onClick={() => navigate(`/chapter/${latestRelease._id}`)}
+                    className="w-full border border-green-500/50 text-green-400 font-label-md py-3 transition-all duration-300 hover:border-green-400 tracking-widest uppercase"
+                  >
+                    ✓ YA COMPRADO
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => navigate(`/checkout/${latestRelease._id}`)}
+                    className="w-full border border-white/20 text-primary font-label-md py-3 transition-all duration-300 hover:border-[#F3EAD3] hover:shadow-[0_0_15px_rgba(243,234,211,0.2)] uppercase tracking-widest"
+                  >
+                    COMPRAR: ${(latestRelease.priceCents / 100).toFixed(2)}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Subtitle/description below image on mobile, left content on desktop */}
+          <div className="lg:col-span-7 order-3 lg:order-1">
+            <div className="space-y-6">
+              {/* Desktop label + title */}
+              <div className="hidden lg:block space-y-6">
+                <span className="font-label-md text-label-md uppercase tracking-widest text-on-surface-variant opacity-60">
+                  Último lanzamiento
+                </span>
+                <h1 className="font-display-lg text-display-lg text-primary max-w-xl">
+                  {latestRelease.title}
+                </h1>
+              </div>
               <p className="font-body-lg text-body-lg text-on-surface-variant max-w-lg italic">
                 {latestRelease.subtitle}
               </p>
               <p className="font-body-lg text-body-lg text-on-surface-variant max-w-lg">
                 {latestRelease.description}
               </p>
-              <div className="pt-8 flex flex-wrap gap-6">
+              {/* Desktop buttons */}
+              <div className="hidden lg:flex pt-8 flex-wrap gap-6">
                 <button 
                   onClick={() => navigate(purchasedIds.has(latestRelease._id) ? `/chapter/${latestRelease._id}` : `/chapter/${latestRelease._id}`)}
                   className="bg-[#F3EAD3] text-[#0A0A0A] font-label-md px-8 py-4 transition-all duration-300 hover:opacity-90 tracking-widest uppercase"
@@ -144,18 +195,6 @@ export default function HomePage() {
                   </button>
                 )}
               </div>
-            </div>
-          </div>
-
-          {/* Right Hero Image */}
-          <div className="lg:col-span-5 order-1 lg:order-2">
-            <div className="relative aspect-[3/4] w-full max-w-[450px] mx-auto overflow-hidden group">
-              <img
-                alt={latestRelease.title}
-                src={latestRelease.coverUrl}
-                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none"></div>
             </div>
           </div>
         </div>
