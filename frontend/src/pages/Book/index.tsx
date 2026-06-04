@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import { booksService, type BookDetail, type SeriesInfo, type Recommendation } from '../../services/books';
 import { favoritesService } from '../../services/favorites';
 import { authService } from '../../services/auth';
+import { paymentsService } from '../../services/payments';
+import { reviewsService, type ReviewItem } from '../../services/reviews';
 import SEO from '../../components/SEO';
 
 const SITE_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'https://lbb.app';
@@ -18,6 +20,15 @@ export default function Book() {
   const [isFav, setIsFav] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [reviews, setReviews] = useState<ReviewItem[]>([]);
+  const [avgRating, setAvgRating] = useState(0);
+  const [reviewCount, setReviewCount] = useState(0);
+  const [hasPurchased, setHasPurchased] = useState(false);
+  const [reviewsModalOpen, setReviewsModalOpen] = useState(false);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState('');
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewError, setReviewError] = useState('');
 
   useEffect(() => {
     if (!id) {
@@ -42,7 +53,19 @@ export default function Book() {
     booksService.getRecommendations(id).then(r => setRecommendations(r)).catch(() => {});
     if (authService.isAuthenticated()) {
       favoritesService.checkFavorite(id).then(setIsFav).catch(() => {});
+      paymentsService.getPurchases().then(purchases => {
+        const purchased = purchases.some(p =>
+          (p.status === 'paid' || p.status === 'completed') &&
+          (typeof p.bookRef === 'string' ? p.bookRef === id : p.bookRef?._id === id)
+        );
+        setHasPurchased(purchased);
+      }).catch(() => {});
     }
+    reviewsService.getBookReviews(id).then(data => {
+      setReviews(data.reviews);
+      setAvgRating(data.avgRating);
+      setReviewCount(data.count);
+    }).catch(() => {});
   }, [id]);
 
   if (loading) {
@@ -83,7 +106,7 @@ export default function Book() {
   };
 
   const handleShare = async () => {
-    if (navigator.share) {
+    if ('share' in navigator) {
       try {
         await navigator.share({
           title: book.title,
@@ -141,16 +164,31 @@ export default function Book() {
       <div className="max-w-4xl mx-auto px-6 py-12">
         <div className="grid grid-cols-1 md:grid-cols-[300px_1fr] gap-8 mb-12">
           {/* Cover */}
-          <div className="rounded-xl overflow-hidden shadow-lg">
-            {book.coverUrl ? (
-              <img
-                src={book.coverUrl}
-                alt={book.title}
-                className="w-full h-auto aspect-[3/4] object-cover"
-              />
-            ) : (
-              <div className="w-full aspect-[3/4] bg-surface-high flex items-center justify-center">
-                <span className="material-symbols-outlined text-6xl text-on-surface-variant/30">book</span>
+          <div className="space-y-3">
+            <div className="rounded-xl overflow-hidden shadow-lg">
+              {book.coverUrl ? (
+                <img
+                  src={book.coverUrl}
+                  alt={book.title}
+                  className="w-full h-auto aspect-[3/4] object-cover"
+                />
+              ) : (
+                <div className="w-full aspect-[3/4] bg-surface-high flex items-center justify-center">
+                  <span className="material-symbols-outlined text-6xl text-on-surface-variant/30">book</span>
+                </div>
+              )}
+            </div>
+            {reviewCount > 0 && (
+              <div className="flex items-center justify-center gap-2">
+                <span className="text-headline-lg font-bold text-accent-gold">{avgRating.toFixed(1)}</span>
+                <div className="flex gap-0.5">
+                  {Array.from({ length: 5 }, (_, i) => (
+                    <span key={i} className={`material-symbols-outlined text-lg ${i < Math.round(avgRating) ? 'text-accent-gold' : 'text-on-surface-variant/30'}`}>
+                      star
+                    </span>
+                  ))}
+                </div>
+                <span className="text-label-md text-on-surface-variant">({reviewCount})</span>
               </div>
             )}
           </div>
@@ -323,6 +361,38 @@ export default function Book() {
           </div>
         )}
 
+        {/* Opinions Preview (YouTube-style) */}
+        {reviews.length > 0 && (
+          <div className="max-w-3xl mt-16 space-y-4">
+            <h3 className="text-headline-md font-bold">Opiniones</h3>
+            <div className="p-4 rounded-xl border border-white/10 bg-surface-container space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="text-body-sm font-medium text-primary">{reviews[0].userName}</span>
+                <span className="text-label-sm text-on-surface-variant">
+                  {new Date(reviews[0].createdAt).toLocaleDateString('es-ES', { dateStyle: 'long' })}
+                </span>
+              </div>
+              <div className="flex gap-0.5">
+                {Array.from({ length: 5 }, (_, i) => (
+                  <span key={i} className={`material-symbols-outlined text-sm ${i < reviews[0].rating ? 'text-accent-gold' : 'text-on-surface-variant/30'}`}>
+                    star
+                  </span>
+                ))}
+              </div>
+              {reviews[0].comment && (
+                <p className="text-body-md text-on-surface-variant leading-relaxed">{reviews[0].comment}</p>
+              )}
+            </div>
+            <button
+              onClick={() => setReviewsModalOpen(true)}
+              className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors text-body-md font-medium"
+            >
+              Ver todas las opiniones ({reviewCount})
+              <span className="material-symbols-outlined text-lg">chevron_right</span>
+            </button>
+          </div>
+        )}
+
         {/* Recommendations */}
         {recommendations.length > 0 && (
           <div className="max-w-4xl mt-16 space-y-6">
@@ -349,11 +419,16 @@ export default function Book() {
                       <p className="text-body-sm text-on-surface-variant truncate">{rec.subtitle}</p>
                     )}
                     <div className="flex items-center gap-1 mt-1">
-                      {Array.from({ length: 5 }, (_, i) => (
-                        <span key={i} className={`material-symbols-outlined text-sm ${i < rec.relevanceScore ? 'text-accent-gold' : 'text-on-surface-variant/30'}`}>
-                          {i < rec.relevanceScore ? 'star' : 'star'}
-                        </span>
-                      ))}
+                      {rec.avgRating > 0 ? (
+                        <>
+                          {Array.from({ length: 5 }, (_, i) => (
+                            <span key={i} className={`material-symbols-outlined text-sm ${i < Math.round(rec.avgRating) ? 'text-accent-gold' : 'text-on-surface-variant/30'}`}>
+                              star
+                            </span>
+                          ))}
+                          <span className="text-label-sm text-on-surface-variant ml-1">({rec.reviewCount})</span>
+                        </>
+                      ) : null}
                     </div>
                     <p className="text-body-sm text-primary mt-1">
                       {rec.priceCents > 0 ? `$${(rec.priceCents / 100).toFixed(2)}` : 'Gratis'}
@@ -365,6 +440,128 @@ export default function Book() {
           </div>
         )}
       </div>
+
+      {/* Reviews Modal (YouTube-style) */}
+      {reviewsModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" onClick={() => setReviewsModalOpen(false)}>
+          <div className="fixed inset-0 bg-black/50" />
+          <div
+            className="relative bg-surface-container rounded-t-2xl sm:rounded-2xl w-full sm:max-w-lg max-h-[85vh] flex flex-col shadow-2xl"
+            style={{ animation: 'slideUp 0.3s ease' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mt-3 mb-2 sm:hidden" />
+
+            {/* Header */}
+            <div className="px-6 pt-4 pb-2 border-b border-white/10 flex items-center justify-between">
+              <div>
+                <h3 className="text-headline-md font-bold text-primary">Opiniones</h3>
+                {reviewCount > 0 && (
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-headline-sm font-bold text-accent-gold">{avgRating.toFixed(1)}</span>
+                    <div className="flex gap-0.5">
+                      {Array.from({ length: 5 }, (_, i) => (
+                        <span key={i} className={`material-symbols-outlined text-sm ${i < Math.round(avgRating) ? 'text-accent-gold' : 'text-on-surface-variant/30'}`}>
+                          star
+                        </span>
+                      ))}
+                    </div>
+                    <span className="text-label-sm text-on-surface-variant">{reviewCount}</span>
+                  </div>
+                )}
+              </div>
+              <button
+                onClick={() => setReviewsModalOpen(false)}
+                className="p-2 rounded-full hover:bg-white/10 transition-colors"
+              >
+                <span className="material-symbols-outlined text-on-surface-variant">close</span>
+              </button>
+            </div>
+
+            {/* Scrollable Reviews List */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
+              {reviews.map(review => (
+                <div key={review.id} className="p-4 rounded-xl border border-white/10 bg-surface-high space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-body-sm font-medium text-primary">{review.userName}</span>
+                    <span className="text-label-sm text-on-surface-variant">
+                      {new Date(review.createdAt).toLocaleDateString('es-ES', { dateStyle: 'long' })}
+                    </span>
+                  </div>
+                  <div className="flex gap-0.5">
+                    {Array.from({ length: 5 }, (_, i) => (
+                      <span key={i} className={`material-symbols-outlined text-sm ${i < review.rating ? 'text-accent-gold' : 'text-on-surface-variant/30'}`}>
+                        star
+                      </span>
+                    ))}
+                  </div>
+                  {review.comment && (
+                    <p className="text-body-md text-on-surface-variant leading-relaxed">{review.comment}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Rating Form (only for purchased users) */}
+            <div className="border-t border-white/10 p-6">
+              {authService.isAuthenticated() && hasPurchased ? (
+                <div className="space-y-3">
+                  <div className="flex justify-center gap-1">
+                    {[1, 2, 3, 4, 5].map(n => (
+                      <button key={n} type="button" onClick={() => setReviewRating(n)}>
+                        <span className={`material-symbols-outlined text-3xl transition-colors ${n <= reviewRating ? 'text-accent-gold' : 'text-on-surface-variant/30'}`}>
+                          star
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                  <textarea
+                    value={reviewComment}
+                    onChange={e => setReviewComment(e.target.value)}
+                    placeholder="Escribí un comentario (opcional)"
+                    className="w-full p-3 rounded-xl bg-surface-high text-on-background text-body-md outline-none resize-none h-20"
+                  />
+                  {reviewError && <p className="text-body-sm text-red-400 text-center">{reviewError}</p>}
+                  <button
+                    onClick={async () => {
+                      setSubmittingReview(true);
+                      setReviewError('');
+                      try {
+                        await reviewsService.upsert(id!, reviewRating, reviewComment || undefined);
+                        setReviewRating(5);
+                        setReviewComment('');
+                        const data = await reviewsService.getBookReviews(id!);
+                        setReviews(data.reviews);
+                        setAvgRating(data.avgRating);
+                        setReviewCount(data.count);
+                      } catch (err: any) {
+                        setReviewError(err.message);
+                      } finally {
+                        setSubmittingReview(false);
+                      }
+                    }}
+                    disabled={submittingReview}
+                    className="w-full py-3 rounded-full bg-primary text-on-primary font-medium text-body-md disabled:opacity-40 transition-opacity"
+                  >
+                    {submittingReview ? 'Enviando...' : 'Valorar este libro'}
+                  </button>
+                  <p className="text-label-sm text-on-surface-variant text-center">
+                    Tu valoración será visible cuando un administrador la apruebe
+                  </p>
+                </div>
+              ) : authService.isAuthenticated() && !hasPurchased ? (
+                <p className="text-body-md text-on-surface-variant text-center">
+                  <Link to={`/checkout/${id}`} className="text-primary underline">Comprá el libro</Link> para valorarlo
+                </p>
+              ) : (
+                <p className="text-body-md text-on-surface-variant text-center">
+                  <Link to="/login" className="text-primary underline">Iniciá sesión</Link> para valorar
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Share Popup */}
       {shareOpen && (
@@ -390,7 +587,7 @@ export default function Book() {
                   <p className="text-body-sm text-on-surface-variant">{copied ? '' : 'Compartí el enlace del libro'}</p>
                 </div>
               </button>
-              {navigator.share && (
+              {'share' in navigator && (
                 <button
                   onClick={handleShare}
                   className="flex items-center gap-4 w-full p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors text-left"

@@ -173,7 +173,7 @@ export class AdminCommunityService {
     const [reviews, total] = await Promise.all([
       this.reviewModel
         .find({ status: ReviewStatus.APPROVED })
-        .select('_id userRef bookRef rating content createdAt')
+        .select('_id userRef bookRef rating comment createdAt')
         .populate('userRef', 'name email')
         .populate('bookRef', 'title')
         .sort({ createdAt: -1 })
@@ -191,7 +191,7 @@ export class AdminCommunityService {
         userName: review.userRef?.name || review.userRef?.email || 'Anonymous',
         bookTitle: review.bookRef?.title || 'Unknown',
         rating: review.rating,
-        content: review.content,
+        comment: review.comment,
         createdAt: review.createdAt,
       })),
       total,

@@ -31,6 +31,7 @@ import SalesData from "../pages/Admin/SalesData";
 import ReaderInsights from "../pages/Admin/ReaderInsights";
 import Settings from "../pages/Admin/Settings";
 import NewsletterAdmin from "../pages/Admin/Newsletter";
+import AdminReviews from "../pages/Admin/Reviews";
 
 import NotFound from "../pages/NotFound";
 
@@ -154,6 +155,10 @@ export const router = createBrowserRouter([
       {
         path: "newsletter",
         element: <NewsletterAdmin />,
+      },
+      {
+        path: "reviews",
+        element: <AdminReviews />,
       },
     ],
   },

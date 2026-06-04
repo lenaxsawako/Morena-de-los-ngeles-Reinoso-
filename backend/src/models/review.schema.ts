@@ -36,12 +36,8 @@ export class Review {
   })
   rating!: number;
 
-  @Prop({
-    required: true,
-    minlength: 10,
-    maxlength: 5000,
-  })
-  content!: string;
+  @Prop()
+  comment?: string;
 
   @Prop({
     enum: ReviewStatus,

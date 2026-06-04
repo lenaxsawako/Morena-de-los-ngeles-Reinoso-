@@ -18,6 +18,7 @@ export default function AdminLayout() {
 
   const EXTRA_NAV = [
     { label: 'Newsletter', icon: 'newspaper', href: '/admin/newsletter' },
+    { label: 'Reseñas', icon: 'reviews', href: '/admin/reviews' },
   ];
 
   useEffect(() => {
