@@ -90,7 +90,7 @@ export class LandingService {
       this.getFeaturedBooks(),
       this.getLatestVolumes(),
       this.getPhilosophy(),
-      this.siteConfigModel.findOne().select('siteName socialLinks').lean().exec(),
+      this.siteConfigModel.findOne().select('siteName socialLinks logoUrl').lean().exec(),
     ]);
 
     return {
@@ -99,6 +99,7 @@ export class LandingService {
       featuredBooks,
       latestVolumes,
       siteName: siteConfig?.siteName || '',
+      logoUrl: siteConfig?.logoUrl || '',
       socialLinks: siteConfig?.socialLinks || { instagram: '', twitter: '', tiktok: '', youtube: '' },
     };
   }

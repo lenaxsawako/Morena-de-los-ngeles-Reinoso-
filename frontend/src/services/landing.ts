@@ -44,6 +44,7 @@ export interface LandingData {
   latestVolumes: LatestVolume[];
   philosophy: Philosophy;
   siteName: string;
+  logoUrl: string;
   socialLinks: SocialLinks;
 }
 

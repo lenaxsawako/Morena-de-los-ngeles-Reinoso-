@@ -9,10 +9,12 @@ export default function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [siteName, setSiteName] = useState('');
+  const [logoUrl, setLogoUrl] = useState('');
 
   useEffect(() => {
     landingService.getLandingData().then(data => {
       if (data.siteName) setSiteName(data.siteName);
+      if (data.logoUrl) setLogoUrl(data.logoUrl);
     }).catch(() => {});
   }, []);
 
@@ -48,9 +50,13 @@ export default function Header() {
     <nav className="fixed top-0 w-full bg-surface/80 backdrop-blur-md border-b border-white/5 z-50 transition-all duration-500 ease-out">
       <div className="flex justify-between items-center w-full px-6 md:px-16 py-6 z-50 max-w-[1200px] mx-auto">
         {/* Logo */}
-        <div className="font-display-lg text-headline-sm text-primary tracking-tighter">
-          {siteName}
-        </div>
+        <Link to="/" className="flex items-center gap-3">
+          {logoUrl ? (
+            <img src={logoUrl} alt={siteName} className="h-8 w-auto object-contain" />
+          ) : (
+            <span className="font-display-lg text-headline-sm text-primary tracking-tighter">{siteName}</span>
+          )}
+        </Link>
 
         {/* Navigation Links - Desktop */}
         <div className="hidden md:flex items-center gap-10">
