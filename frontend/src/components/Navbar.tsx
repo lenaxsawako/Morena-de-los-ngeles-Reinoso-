@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { authService } from '../services/auth';
 import { landingService } from '../services/landing';
+import { guestReadingService } from '../services/guestReading';
+import { booksService } from '../services/books';
 import './Header.css';
 
 export default function Header() {
@@ -10,11 +12,23 @@ export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [siteName, setSiteName] = useState('');
   const [logoUrl, setLogoUrl] = useState('');
+  const [lastRead, setLastRead] = useState<{ bookId: string; title: string; coverUrl?: string } | null>(null);
 
   useEffect(() => {
     landingService.getLandingData().then(data => {
       if (data.siteName) setSiteName(data.siteName);
       if (data.logoUrl) setLogoUrl(data.logoUrl);
+    }).catch(() => {});
+  }, []);
+
+  // Load last read book for "Continue Reading"
+  useEffect(() => {
+    const allProgress = guestReadingService.getAll();
+    if (allProgress.length === 0) return;
+    const sorted = allProgress.sort((a, b) => new Date(b.lastReadAt).getTime() - new Date(a.lastReadAt).getTime());
+    const last = sorted[0];
+    booksService.getBookById(last.bookId).then(data => {
+      if (data) setLastRead({ bookId: last.bookId, title: data.title, coverUrl: data.coverUrl });
     }).catch(() => {});
   }, []);
 
@@ -90,6 +104,17 @@ export default function Header() {
           >
             Catálogo
           </Link>
+
+          {lastRead && (
+            <Link
+              to={`/chapter/${lastRead.bookId}`}
+              className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors group"
+            >
+              <span className="material-symbols-outlined text-lg">play_circle</span>
+              <span className="font-label-md text-label-md tracking-widest">{lastRead.title}</span>
+              <span className="font-label-sm text-label-sm text-accent-gold/60 group-hover:text-accent-gold transition-colors">Seguir Leyendo</span>
+            </Link>
+          )}
         </div>
 
         {/* Action Icons */}
@@ -186,6 +211,18 @@ export default function Header() {
             >
               Catalog
             </Link>
+
+            {lastRead && (
+              <Link
+                to={`/chapter/${lastRead.bookId}`}
+                onClick={handleNavClick}
+                className="flex items-center gap-2 text-accent-gold hover:text-primary transition-colors py-2"
+              >
+                <span className="material-symbols-outlined text-lg">play_circle</span>
+                <span className="font-label-md text-label-md tracking-widest">{lastRead.title}</span>
+                <span className="font-label-sm text-label-sm text-on-surface-variant ml-auto">Seguir Leyendo</span>
+              </Link>
+            )}
 
             <div className="border-t border-white/10 pt-4 mt-2">
               {isLoggedIn ? (
