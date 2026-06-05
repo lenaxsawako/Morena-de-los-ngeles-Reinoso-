@@ -23,6 +23,7 @@ import PrivacyPolicy from "../pages/PrivacyPolicy";
 import Profile from "../pages/Profile";
 import Favorites from "../pages/Favorites";
 import Support from "../pages/Support";
+import Unsubscribe from "../pages/Unsubscribe";
 import AdminSupport from "../pages/Admin/Support";
 
 import Dashboard from "../pages/Admin/Dashboard";
@@ -95,6 +96,10 @@ export const router = createBrowserRouter([
       {
         path: "/support",
         element: <Support />,
+      },
+      {
+        path: "/unsubscribe",
+        element: <Unsubscribe />,
       },
     ],
   },

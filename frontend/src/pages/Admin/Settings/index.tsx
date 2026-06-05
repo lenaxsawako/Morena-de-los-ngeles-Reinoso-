@@ -286,6 +286,8 @@ export default function Settings() {
     smtpPassword: '',
     senderEmail: '',
   });
+  const [emailSaving, setEmailSaving] = useState(false);
+  const [emailSaveResult, setEmailSaveResult] = useState<{ success: boolean; message: string } | null>(null);
 
   // System
   const [system, setSystem] = useState<SystemSettings>({
@@ -654,6 +656,30 @@ export default function Settings() {
       console.error('Error saving system settings:', error);
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleSaveEmail = async () => {
+    setEmailSaving(true);
+    setEmailSaveResult(null);
+    try {
+      const smtpData: Record<string, unknown> = {
+        host: email.smtpHost,
+        port: email.smtpPort,
+        user: email.smtpUser,
+        senderEmail: email.senderEmail,
+      };
+      if (email.smtpPassword !== '••••••••••••') {
+        smtpData.password = email.smtpPassword;
+      }
+      await adminBooksService.updateSettings({ smtp: smtpData });
+      setEmailSaveResult({ success: true, message: '¡Guardado!' });
+      setTimeout(() => setEmailSaveResult(null), 2000);
+    } catch (error) {
+      setEmailSaveResult({ success: false, message: 'Error al guardar configuración de email' });
+      setTimeout(() => setEmailSaveResult(null), 2000);
+    } finally {
+      setEmailSaving(false);
     }
   };
 
@@ -2038,67 +2064,86 @@ export default function Settings() {
               <p>Configure SMTP settings</p>
             </div>
 
-            <div className="settings-field-group">
-              <label htmlFor="smtpHost" className="settings-label">SMTP Host</label>
-              <input
-                id="smtpHost"
-                type="text"
-                value={email.smtpHost}
-                onChange={(e) => setEmail({ ...email, smtpHost: e.target.value })}
-                className="settings-input"
-              />
-            </div>
+            <form autoComplete="off" onSubmit={(e) => e.preventDefault()}>
+              <div className="settings-field-group">
+                <label htmlFor="smtpHost" className="settings-label">SMTP Host</label>
+                <input
+                  id="smtpHost"
+                  type="text"
+                  value={email.smtpHost}
+                  onChange={(e) => setEmail({ ...email, smtpHost: e.target.value })}
+                  className="settings-input"
+                />
+              </div>
 
-            <div className="settings-field-group">
-              <label htmlFor="smtpPort" className="settings-label">SMTP Port</label>
-              <input
-                id="smtpPort"
-                type="number"
-                value={email.smtpPort}
-                onChange={(e) => setEmail({ ...email, smtpPort: parseInt(e.target.value) })}
-                className="settings-input"
-              />
-            </div>
+              <div className="settings-field-group">
+                <label htmlFor="smtpPort" className="settings-label">SMTP Port</label>
+                <input
+                  id="smtpPort"
+                  type="number"
+                  value={email.smtpPort}
+                  onChange={(e) => setEmail({ ...email, smtpPort: parseInt(e.target.value) })}
+                  className="settings-input"
+                />
+              </div>
 
-            <div className="settings-field-group">
-              <label htmlFor="smtpUser" className="settings-label">SMTP User</label>
-              <input
-                id="smtpUser"
-                type="text"
-                value={email.smtpUser}
-                onChange={(e) => setEmail({ ...email, smtpUser: e.target.value })}
-                className="settings-input"
-              />
-            </div>
+              <div className="settings-field-group">
+                <label htmlFor="smtpUser" className="settings-label">SMTP User</label>
+                <input
+                  id="smtpUser"
+                  type="text"
+                  value={email.smtpUser}
+                  onChange={(e) => setEmail({ ...email, smtpUser: e.target.value })}
+                  className="settings-input"
+                  autoComplete="off"
+                />
+              </div>
 
-            <div className="settings-field-group">
-              <label htmlFor="smtpPassword" className="settings-label">SMTP Password</label>
-              <input
-                id="smtpPassword"
-                type="password"
-                value={email.smtpPassword}
-                onChange={(e) => setEmail({ ...email, smtpPassword: e.target.value })}
-                className="settings-input"
-              />
-            </div>
+              <div className="settings-field-group">
+                <label htmlFor="smtpPassword" className="settings-label">SMTP Password</label>
+                <input
+                  id="smtpPassword"
+                  type="text"
+                  value={email.smtpPassword}
+                  onChange={(e) => setEmail({ ...email, smtpPassword: e.target.value })}
+                  className="settings-input"
+                  autoComplete="new-password"
+                />
+              </div>
 
-            <div className="settings-field-group">
-              <label htmlFor="senderEmail" className="settings-label">Sender Email</label>
-              <input
-                id="senderEmail"
-                type="email"
-                value={email.senderEmail}
-                onChange={(e) => setEmail({ ...email, senderEmail: e.target.value })}
-                className="settings-input"
-              />
-            </div>
+              <div className="settings-field-group">
+                <label htmlFor="senderEmail" className="settings-label">Sender Email</label>
+                <input
+                  id="senderEmail"
+                  type="email"
+                  value={email.senderEmail}
+                  onChange={(e) => setEmail({ ...email, senderEmail: e.target.value })}
+                  className="settings-input"
+                />
+              </div>
+            </form>
+
+            {emailSaveResult && (
+              <div style={{
+                padding: '0.75rem 1rem', marginBottom: '1rem', borderRadius: '0.5rem',
+                backgroundColor: emailSaveResult.success ? '#10b98120' : '#ef444420',
+                border: `1px solid ${emailSaveResult.success ? '#10b981' : '#ef4444'}`,
+                color: emailSaveResult.success ? '#10b981' : '#ef4444', fontSize: '0.875rem',
+              }}>
+                {emailSaveResult.message}
+              </div>
+            )}
 
             <div style={{ display: 'flex', gap: '1rem' }}>
               <button onClick={handleTestEmail} className="settings-btn-secondary">
                 Test Email
               </button>
-              <button className="settings-btn-primary">
-                Save Configuration
+              <button
+                onClick={handleSaveEmail}
+                disabled={emailSaving}
+                className="settings-btn-primary"
+              >
+                {emailSaving ? 'Guardando...' : 'Save Configuration'}
               </button>
             </div>
           </div>
