@@ -4,7 +4,7 @@ import { booksService, type BookDetail, type SeriesInfo, type Recommendation } f
 import { favoritesService } from '../../services/favorites';
 import { authService } from '../../services/auth';
 import { paymentsService } from '../../services/payments';
-import { type ReviewItem } from '../../services/reviews';
+import { reviewsService, type ReviewItem } from '../../services/reviews';
 import ReviewCarousel from '../../components/ReviewCarousel';
 import SEO from '../../components/SEO';
 

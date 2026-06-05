@@ -2,7 +2,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import * as pdfjsLib from 'pdfjs-dist';
 import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.mjs?worker';
-import { Link } from 'react-router-dom';
 import { booksService, type BookDetail } from '../../services/books';
 import { reviewsService, type ReviewItem } from '../../services/reviews';
 import { guestReadingService } from '../../services/guestReading';
