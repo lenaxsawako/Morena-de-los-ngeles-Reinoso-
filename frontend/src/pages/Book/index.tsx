@@ -261,7 +261,7 @@ export default function Book() {
               {authService.isAuthenticated() && (
                 <button
                   onClick={() => {
-                    favoritesService.toggleFavorite(book._id, isFav).then(() => setIsFav(!isFav));
+                    favoritesService.toggleFavorite(book._id, isFav).then((ok) => ok && setIsFav(!isFav));
                   }}
                   className="p-3 rounded-full border border-outline text-primary hover:bg-surface-container transition-colors"
                   title={isFav ? 'Quitar de favoritos' : 'Añadir a favoritos'}

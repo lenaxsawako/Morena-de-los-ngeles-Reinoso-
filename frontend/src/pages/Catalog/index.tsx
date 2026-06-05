@@ -302,7 +302,8 @@ export default function Catalog() {
                     onClick={(e) => {
                       e.stopPropagation();
                       const isFav = favoriteIds.has(book._id);
-                      favoritesService.toggleFavorite(book._id, isFav).then(() => {
+                      favoritesService.toggleFavorite(book._id, isFav).then((ok) => {
+                        if (!ok) return;
                         if (isFav) {
                           setFavoriteIds(prev => { const next = new Set(prev); next.delete(book._id); return next; });
                         } else {
