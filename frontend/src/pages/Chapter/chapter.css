@@ -105,12 +105,18 @@
   }
 }
 
-/* ---- Bookmark Button (Floating) ---- */
-.reader-bookmark-btn {
+/* ---- Floating Actions Group ---- */
+.reader-actions {
   position: fixed;
   top: 1.5rem;
   right: 1.5rem;
   z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.reader-action-btn {
   width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -124,69 +130,65 @@
   backdrop-filter: blur(10px);
 }
 
-.reader-bookmark-btn:hover {
+.reader-action-btn:hover {
   background: rgba(255, 255, 255, 0.12);
   border-color: rgba(255, 255, 255, 0.2);
 }
 
-.reader-bookmark-btn:active {
+.reader-action-btn:active {
   transform: scale(0.95);
 }
 
-.reader-bookmark-btn .material-symbols-outlined {
+.reader-action-btn .material-symbols-outlined {
   font-size: 1.25rem;
   color: #ccc6bb;
   transition: all 0.3s ease;
 }
 
-.reader-bookmark-btn.bookmarked .material-symbols-outlined {
+.reader-action-btn.bookmarked .material-symbols-outlined {
   color: #F3EAD3;
   font-variation-settings: 'FILL' 1;
 }
 
-.reader-bookmark-btn.bookmarked {
+.reader-action-btn.bookmarked {
   animation: bookmarkAdd 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+@keyframes bookmarkAdd {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
 @media (max-width: 768px) {
-  .reader-bookmark-btn {
+  .reader-actions {
     top: 6.5rem !important;
     right: 1rem !important;
+  }
+
+  .reader-action-btn {
     width: 36px !important;
     height: 36px !important;
   }
 
-  .reader-bookmark-btn .material-symbols-outlined {
+  .reader-action-btn .material-symbols-outlined {
     font-size: 1.125rem;
   }
 }
 
 @media (max-width: 300px) {
-  .reader-bookmark-btn {
+  .reader-actions {
     top: 5.5rem !important;
     right: 1rem !important;
+  }
+
+  .reader-action-btn {
     width: 40px !important;
     height: 40px !important;
-    border-radius: 50% !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
   }
 
-  .reader-bookmark-btn .material-symbols-outlined {
+  .reader-action-btn .material-symbols-outlined {
     font-size: 1.125rem;
-  }
-}
-
-@keyframes bookmarkAdd {
-  0% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.15);
-  }
-  100% {
-    transform: scale(1);
   }
 }
 
@@ -551,115 +553,58 @@
   }
 }
 
-/* ---- Progress Dots (Mobile/Tablet) ---- */
-.reader-dots-container {
+/* ---- Page Jump Input ---- */
+.reader-page-jumper {
   display: none;
-  width: 100%;
+  align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  padding: 1rem 0;
-  overflow-x: auto;
-  scroll-behavior: smooth;
-  -webkit-overflow-scrolling: touch;
+  padding: 0.75rem 0;
 }
 
 @media (max-width: 768px) {
-  .reader-dots-container {
+  .reader-page-jumper {
     display: flex;
-    justify-content: center;
   }
 }
 
 @media (max-width: 300px) {
-  .reader-dots-container {
+  .reader-page-jumper {
     gap: 0.4rem !important;
-    padding: 0.75rem 0 !important;
+    padding: 0.5rem 0 !important;
     display: flex !important;
-    justify-content: center !important;
   }
 }
 
-.reader-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  flex-shrink: 0;
-}
-
-.reader-dot:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-.reader-dot.active {
-  background: #F3EAD3;
-  width: 8px;
-  height: 8px;
-}
-
-@media (max-width: 300px) {
-  .reader-dot {
-    width: 5px !important;
-    height: 5px !important;
-    border-radius: 50% !important;
-  }
-
-  .reader-dot.active {
-    width: 7px !important;
-    height: 7px !important;
-  }
-}
-
-/* ---- Fullscreen Button ---- */
-.reader-fullscreen-btn {
-  position: fixed;
-  bottom: 1.5rem;
-  right: 1.5rem;
-  z-index: 50;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
+.reader-page-input {
+  width: 60px;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(10px);
-}
-
-.reader-fullscreen-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.2);
-}
-
-.reader-fullscreen-btn:active {
-  transform: scale(0.95);
-}
-
-.reader-fullscreen-btn .material-symbols-outlined {
-  font-size: 1.25rem;
   color: #ffffff;
+  font-family: 'Geist', monospace;
+  font-size: 0.85rem;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.2s ease;
+  -moz-appearance: textfield;
 }
 
-@media (max-width: 300px) {
-  .reader-fullscreen-btn {
-    bottom: 1rem !important;
-    right: 1rem !important;
-    width: 40px !important;
-    height: 40px !important;
-    border-radius: 50% !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-  }
+.reader-page-input::-webkit-inner-spin-button,
+.reader-page-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
 
-  .reader-fullscreen-btn .material-symbols-outlined {
-    font-size: 1.125rem;
-  }
+.reader-page-input:focus {
+  border-color: #F3EAD3;
+}
+
+.reader-page-jumper-total {
+  font-family: 'Geist', monospace;
+  font-size: 0.85rem;
+  color: #999888;
 }
 
 /* ---- Fullscreen Mode ---- */

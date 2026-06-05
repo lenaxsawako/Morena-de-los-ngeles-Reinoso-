@@ -448,18 +448,23 @@ export default function Chapter() {
                 </div>
               )}
 
-              {/* Progress Dots - Mobile */}
-              {!isFullscreen && (
-                <div className="reader-dots-container">
-                  {Array.from({ length: totalPages }).map((_, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => { setCurrentPage(idx); saveProgress(idx); }}
-                      className={`reader-dot ${currentPage === idx ? 'active' : ''}`}
-                      title={`Ir a página ${idx + 1}`}
-                      aria-label={`Página ${idx + 1}`}
-                    />
-                  ))}
+              {/* Page Jump Input */}
+              {!isFullscreen && totalPages > 1 && (
+                <div className="reader-page-jumper">
+                  <input
+                    type="number"
+                    min={1}
+                    max={totalPages}
+                    value={currentPage + 1}
+                    onChange={e => {
+                      const p = Math.max(1, Math.min(totalPages, Number(e.target.value) || 1));
+                      setCurrentPage(p - 1);
+                      saveProgress(p - 1);
+                    }}
+                    className="reader-page-input"
+                    aria-label="Ir a página"
+                  />
+                  <span className="reader-page-jumper-total">/ {totalPages}</span>
                 </div>
               )}
 
@@ -513,40 +518,43 @@ export default function Chapter() {
         </main>
       )}
 
-      {/* Bookmark Button - Solo mostrar si no está bloqueado */}
-      {!isBlocked && (
-        <button 
-          onClick={toggleBookmark}
-          className={`reader-bookmark-btn ${isBookmarked ? 'bookmarked' : ''}`}
-          title={isBookmarked ? 'Remover marcador' : 'Agregar marcador'}
-        >
-          <span className="material-symbols-outlined">
-            {isBookmarked ? 'bookmark_added' : 'bookmark_add'}
-          </span>
-        </button>
-      )}
+      {/* Floating Actions Group */}
+      <div className="reader-actions">
+        {/* Bookmark Button */}
+        {!isBlocked && (
+          <button 
+            onClick={toggleBookmark}
+            className={`reader-action-btn ${isBookmarked ? 'bookmarked' : ''}`}
+            title={isBookmarked ? 'Remover marcador' : 'Agregar marcador'}
+          >
+            <span className="material-symbols-outlined">
+              {isBookmarked ? 'bookmark_added' : 'bookmark_add'}
+            </span>
+          </button>
+        )}
 
-      {/* Share Button */}
-      {!isBlocked && bookData && (
-        <ShareButton
-          title={bookData.title}
-          currentPage={currentPage + 1}
-          totalPages={totalPages}
-          authorName={bookData.author?.name}
-          bookUrl={bookId}
-        />
-      )}
+        {/* Share Button */}
+        {!isBlocked && bookData && (
+          <ShareButton
+            title={bookData.title}
+            currentPage={currentPage + 1}
+            totalPages={totalPages}
+            authorName={bookData.author?.name}
+            bookUrl={bookId}
+          />
+        )}
 
-      {/* Fullscreen Button - Solo mostrar si no está bloqueado */}
-      {!isBlocked && (
-        <button 
-          onClick={toggleFullscreen}
-          className="reader-fullscreen-btn"
-          title="Pantalla completa (F)"
-        >
-          <span className="material-symbols-outlined">fullscreen</span>
-        </button>
-      )}
+        {/* Fullscreen Button */}
+        {!isBlocked && (
+          <button 
+            onClick={toggleFullscreen}
+            className="reader-action-btn"
+            title="Pantalla completa (F)"
+          >
+            <span className="material-symbols-outlined">fullscreen</span>
+          </button>
+        )}
+      </div>
 
       {/* Paywall Modal - Mostrar cuando intenta acceder a página bloqueada */}
       {showPaywallModal && (
