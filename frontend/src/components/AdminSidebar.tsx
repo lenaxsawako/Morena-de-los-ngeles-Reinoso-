@@ -37,15 +37,10 @@ export default function AdminSidebar() {
   };
 
   const handleLogout = () => {
-    // Lógica para logout
-    console.log('Logout clicked');
-    // Puedes agregar lógica de autenticación aquí
     navigate('/login');
   };
 
   const handleSupport = () => {
-    // Abre soporte o modal
-    console.log('Support clicked');
   };
 
   return (

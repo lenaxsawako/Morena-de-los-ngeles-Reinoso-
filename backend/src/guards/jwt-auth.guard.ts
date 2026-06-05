@@ -19,7 +19,6 @@ export class JwtAuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [context.getHandler(), context.getClass()]);
     if (isPublic) {
-      this.logger.debug('Public route — skipping authentication');
       return true;
     }
 
@@ -39,7 +38,6 @@ export class JwtAuthGuard implements CanActivate {
         throw new UnauthorizedException('Token revoked');
       }
       (request as any).user = { userId: payload.sub, email: payload.email };
-      this.logger.debug(`Authenticated: ${payload.email} (sub: ${payload.sub})`);
       return true;
     } catch (error) {
       if (error instanceof UnauthorizedException) throw error;

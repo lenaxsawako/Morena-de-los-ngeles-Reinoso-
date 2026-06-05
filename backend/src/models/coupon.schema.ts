@@ -22,5 +22,3 @@ export class Coupon {
 }
 
 export const CouponSchema = SchemaFactory.createForClass(Coupon);
-
-CouponSchema.index({ code: 1 });

@@ -65,13 +65,8 @@ export const authService = {
       }
 
       const authData = result as AuthResponse;
-      console.log('[AUTH] login - Success | Token received:', authData.access_token.substring(0, 20) + '...');
-      console.log('[AUTH] login - Token parts:', authData.access_token.split('.').length);
-      
       localStorage.setItem("token", authData.access_token);
       localStorage.setItem("userEmail", data.email);
-      console.log('[AUTH] login - Token saved to localStorage');
-      console.log('[AUTH] login - Verifying stored role:', this.getUserRole());
 
       // Sincronizar progreso de lectura del guest después de autenticación
       const { guestReadingService } = await import('./guestReading');
@@ -120,13 +115,8 @@ export const authService = {
       }
 
       const authData = result as AuthResponse;
-      console.log('[AUTH] register - Success | Token received:', authData.access_token.substring(0, 20) + '...');
-      console.log('[AUTH] register - Token parts:', authData.access_token.split('.').length);
-      
       localStorage.setItem("token", authData.access_token);
       localStorage.setItem("userEmail", data.email);
-      console.log('[AUTH] register - Token saved to localStorage');
-      console.log('[AUTH] register - Verifying stored role:', this.getUserRole());
 
       // Sincronizar progreso de lectura del guest después de autenticación
       const { guestReadingService } = await import('./guestReading');
@@ -200,46 +190,23 @@ export const authService = {
    */
   getUserRole(): 'user' | 'admin' | null {
     const token = this.getToken();
-    console.log('[AUTH] getUserRole - Token:', token ? token.substring(0, 20) + '...' : 'null');
-    
-    if (!token) {
-      console.log('[AUTH] getUserRole - No token found');
-      return null;
-    }
+    if (!token) return null;
 
     try {
-      // Decodifica el JWT (formato: header.payload.signature)
       const parts = token.split('.');
-      console.log('[AUTH] getUserRole - Token parts count:', parts.length);
-      
-      if (parts.length !== 3) {
-        console.warn('[AUTH] getUserRole - Invalid token format (expected 3 parts)');
-        return null;
-      }
+      if (parts.length !== 3) return null;
 
-      const decodedPayload = atob(parts[1]);
-      console.log('[AUTH] getUserRole - Decoded payload:', decodedPayload);
-      
-      const payload = JSON.parse(decodedPayload);
-      console.log('[AUTH] getUserRole - Parsed payload:', payload);
-      
-      // El backend envía isAdmin como booleano, pero también buscamos role como fallback
+      const payload = JSON.parse(atob(parts[1]));
       let role: 'user' | 'admin' | null = null;
-      
+
       if (payload.isAdmin === true) {
         role = 'admin';
-        console.log('[AUTH] getUserRole - Found isAdmin: true');
       } else if (payload.role) {
         role = payload.role;
-        console.log('[AUTH] getUserRole - Found role field:', payload.role);
-      } else {
-        console.log('[AUTH] getUserRole - No isAdmin or role field found');
       }
-      
-      console.log('[AUTH] getUserRole - Final role:', role);
+
       return role;
-    } catch (error) {
-      console.error('[AUTH] getUserRole - Error decodificando token:', error);
+    } catch {
       return null;
     }
   },
@@ -249,9 +216,7 @@ export const authService = {
    * @returns true si el usuario tiene rol 'admin'
    */
   isAdmin(): boolean {
-    const role = this.getUserRole();
-    console.log('[AUTH] isAdmin - User role:', role, '| Is admin:', role === 'admin');
-    return role === 'admin';
+    return this.getUserRole() === 'admin';
   },
 
   /**
@@ -302,10 +267,9 @@ export const authService = {
       );
 
       if (!response.ok) {
-        console.error('Error sincronizando progreso de lectura:', response.statusText);
+        // Error silencioso
       }
-    } catch (error) {
-      console.error('Error en syncReadingProgress:', error);
+    } catch {
       // No lanzar error para que no bloquee el flujo de autenticación
     }
   },

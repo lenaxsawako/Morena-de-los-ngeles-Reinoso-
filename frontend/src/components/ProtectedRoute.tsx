@@ -14,22 +14,12 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const isAuthenticated = authService.isAuthenticated();
   const isAdmin = authService.isAdmin();
 
-  console.log('[PROTECTED_ROUTE] isAuthenticated:', isAuthenticated);
-  console.log('[PROTECTED_ROUTE] isAdmin:', isAdmin);
-
-  // Si no está autenticado, redirige a login
   if (!isAuthenticated) {
-    console.warn('[PROTECTED_ROUTE] User not authenticated - redirecting to /login');
     return <Navigate to="/login" replace />;
   }
 
-  // Si está autenticado pero no es admin, redirige a home
   if (!isAdmin) {
-    console.warn('[PROTECTED_ROUTE] User is not admin - redirecting to home');
     return <Navigate to="/" replace />;
   }
-
-  // Si es admin autenticado, muestra el contenido
-  console.log('[PROTECTED_ROUTE] User is authenticated admin - granting access');
   return <>{children}</>;
 }

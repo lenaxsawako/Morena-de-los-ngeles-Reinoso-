@@ -23,10 +23,7 @@ export class PolarService implements OnModuleInit {
     try {
       const config = await this.siteConfigModel.findOne().select('+polar').lean().exec();
       if (config?.polar) {
-        this.logger.debug(`[POLAR DEBUG] loaded from DB — enabled: ${config.polar.enabled}, key length: ${config.polar.apiKey?.length || 0}, first chars: ${config.polar.apiKey ? config.polar.apiKey.substring(0, 4) + '...' : 'N/A'}`);
         this.configure(config.polar);
-      } else {
-        this.logger.debug('[POLAR DEBUG] no polar config found in DB');
       }
     } catch (err) {
       this.logger.error(`Error loading Polar config: ${err.message}`);
@@ -38,12 +35,9 @@ export class PolarService implements OnModuleInit {
 
     if (config.enabled && config.apiKey) {
       const server = config.server || 'sandbox';
-      const baseUrl = server === 'production' ? 'https://api.polar.sh' : 'https://sandbox-api.polar.sh';
-      this.logger.debug(`[POLAR DEBUG] configuring SDK — key len: ${config.apiKey.length}, first 4: ${config.apiKey.substring(0, 4)}..., server: ${server}, baseUrl: ${baseUrl}`);
       this.client = new Polar({ accessToken: config.apiKey, server });
       this.logger.log(`Polar SDK configured (${server})`);
     } else {
-      this.logger.debug(`[POLAR DEBUG] configuring SDK — enabled: ${config.enabled}, key present: ${!!config.apiKey}`);
       this.client = null;
       this.logger.log('Polar disabled');
     }
@@ -102,7 +96,6 @@ export class PolarService implements OnModuleInit {
       throw new Error('Polar not configured');
     }
 
-    this.logger.debug(`[POLAR DEBUG] createProduct — client configured: true`);
     const result = await this.client.products.create({
       name: params.name,
       description: params.description || null,

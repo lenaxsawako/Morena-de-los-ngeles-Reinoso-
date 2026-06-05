@@ -33,5 +33,4 @@ export class Subscription {
 
 export const SubscriptionSchema = SchemaFactory.createForClass(Subscription);
 
-SubscriptionSchema.index({ email: 1 });
 SubscriptionSchema.index({ isActive: 1 });
