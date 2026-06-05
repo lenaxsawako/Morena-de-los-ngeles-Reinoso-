@@ -76,7 +76,7 @@ export default function TermsOfService() {
                 Los libros se compran de forma individual. El precio se muestra antes de la compra. Los pagos son procesados por <strong>Polar</strong>, un procesador de pagos externo. No almacenamos números de tarjeta ni datos bancarios.
               </p>
               <p>
-                Una vez realizada la compra, el libro se agrega a tu biblioteca de forma permanente. Por la naturaleza digital del producto, <strong>no se realizan reembolsos</strong> salvo que el libro esté defectuoso o no coincida con la descripción.
+                Una vez realizada la compra, el libro se agrega a tu biblioteca de forma permanente. Por tratarse de contenido digital de acceso inmediato dentro de la plataforma, <strong>no se realizan reembolsos</strong> una vez procesada la compra, salvo que el contenido esté defectuoso o no coincida con la descripción publicada. Al completar la compra, el usuario acepta expresamente estas condiciones y reconoce que el acceso inmediato al contenido digital excluye el derecho de arrepentimiento.
               </p>
             </div>
           </section>
@@ -109,14 +109,21 @@ export default function TermsOfService() {
             </h2>
             <div className="tos-section-content">
               <p>
-                Al comprar un libro, se te otorga una <strong>licencia personal, no exclusiva, no transferible</strong> para leer el contenido dentro de la plataforma. Esto significa que:
+                Al comprar un libro, se te otorga una <strong>licencia personal, no exclusiva y no transferible</strong> para leer el contenido dentro de esta plataforma. Los libros no son descargables — el acceso es exclusivamente a través del lector integrado en el sitio.
+              </p>
+              <p>
+                Está estrictamente prohibido y puede constituir una infracción a la <strong>Ley 11.723 de Propiedad Intelectual (Argentina)</strong>:
               </p>
               <ul className="tos-list">
-                <li><strong>Podés</strong> leer el libro en cualquier dispositivo donde iniciés sesión con tu cuenta.</li>
-                <li><strong>No podés</strong> descargar, redistribuir, vender ni compartir los archivos PDF originales.</li>
-                <li><strong>No podés</strong> usar el contenido para entrenar modelos de inteligencia artificial ni extraer datos de forma automatizada.</li>
-                <li><strong>No podés</strong> modificar, adaptar ni crear obras derivadas del contenido.</li>
+                <li>Capturar, copiar o reproducir el contenido por cualquier medio</li>
+                <li>Distribuir, compartir o publicar el contenido en plataformas externas</li>
+                <li>Piratear o redistribuir los archivos por cualquier canal</li>
+                <li>Usar el contenido para entrenar modelos de inteligencia artificial</li>
+                <li>Realizar ingeniería inversa o extracción automatizada de datos</li>
               </ul>
+              <p>
+                El incumplimiento puede resultar en la <strong>suspensión inmediata de la cuenta sin reembolso</strong> y en acciones legales correspondientes.
+              </p>
             </div>
           </section>
 
