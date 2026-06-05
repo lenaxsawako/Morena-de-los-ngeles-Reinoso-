@@ -185,7 +185,7 @@ export default function TermsOfService() {
             </h2>
             <div className="tos-section-content">
               <p>
-                Podés eliminar tu cuenta en cualquier momento desde la configuración del perfil. Al hacerlo, se eliminarán todos tus datos personales, progreso de lectura, reseñas y marcadores.
+                Podés eliminar tu cuenta en cualquier momento desde la configuración del perfil. Al hacerlo, tus datos personales serán anonimizados de forma permanente: tu email, nombre y contraseña se reemplazarán por valores vacíos y no recuperables. Tu progreso de lectura, marcadores y favoritos serán eliminados. Las reseñas que hayas publicado quedarán en la plataforma de forma anónima, sin ningún vínculo con tu identidad. Los registros de compra se conservan por obligaciones contables pero sin datos personales asociados.
               </p>
               <p>
                 Nosotros podemos suspender o terminar tu cuenta si violás estos términos (por ejemplo, distribución no autorizada de contenido). En esos casos, no se realizarán reembolsos por compras previas.
