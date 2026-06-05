@@ -60,6 +60,20 @@ export interface Category {
   slug: string;
 }
 
+export interface RecommendedBook {
+  _id: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  coverUrl: string;
+  priceCents: number;
+  currency: string;
+  purchases: number;
+  avgRating: number;
+  reviewCount: number;
+  relevanceScore: number;
+}
+
 export interface CatalogLanding {
   latestRelease?: {
     _id: string;
@@ -206,6 +220,20 @@ export const catalogService = {
     const amount = (priceCents / 100).toFixed(2);
     const symbol = currency === 'USD' ? '$' : currency;
     return `${symbol}${amount}`;
+  },
+
+  /**
+   * GET /catalog/recommendations
+   * Obtiene recomendaciones generales
+   */
+  async getRecommendations(): Promise<RecommendedBook[]> {
+    try {
+      const response = await fetch(`${API_URL}/catalog/recommendations`);
+      if (!response.ok) return [];
+      return await safeParseJSON(response, []);
+    } catch {
+      return [];
+    }
   },
 
   /**

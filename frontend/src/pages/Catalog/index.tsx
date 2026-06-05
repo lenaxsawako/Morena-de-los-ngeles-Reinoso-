@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { catalogService, type CatalogLanding, type BookItem } from '../../services/catalog';
+import { catalogService, type CatalogLanding, type BookItem, type RecommendedBook } from '../../services/catalog';
 import { guestReadingService } from '../../services/guestReading';
 import { paymentsService } from '../../services/payments';
 import { authService } from '../../services/auth';
@@ -21,6 +21,7 @@ export default function Catalog() {
   const [catalogLanding, setCatalogLanding] = useState<CatalogLanding | null>(null);
   const [books, setBooks] = useState<BookItem[]>([]);
   const [pages, setPages] = useState(0);
+  const [recommendations, setRecommendations] = useState<RecommendedBook[]>([]);
 
   // Purchased books (from API if authenticated)
   const [purchasedIds, setPurchasedIds] = useState<Set<string>>(new Set());
@@ -57,6 +58,9 @@ export default function Catalog() {
 
         const landingData = await catalogService.getCatalogLanding();
         setCatalogLanding(landingData);
+
+        const recs = await catalogService.getRecommendations();
+        setRecommendations(recs);
 
         if (authService.isAuthenticated()) {
           const purchases = await paymentsService.getPurchases().catch(() => []);
@@ -281,6 +285,41 @@ export default function Catalog() {
                 </div>
               </div>
             ))}
+          </div>
+        </section>
+      )}
+
+      {/* Recommendations Carousel */}
+      {recommendations.length > 0 && (
+        <section className="catalog-recommendations-section">
+          <div className="catalog-section-header">
+            <h2 className="catalog-section-title">Recomendaciones</h2>
+            <div className="catalog-section-divider"></div>
+          </div>
+          <div className="catalog-recommendations-carousel">
+            <div className="catalog-recommendations-track">
+              {recommendations.map((book) => (
+                <div key={book._id} className="catalog-recommendation-card" onClick={() => navigate(`/book/${book._id}`)}>
+                  <div className="catalog-recommendation-image">
+                    <img src={book.coverUrl || 'https://via.placeholder.com/200x300?text=Book+Cover'} alt={book.title} />
+                  </div>
+                  <div className="catalog-recommendation-info">
+                    <h4 className="catalog-recommendation-title">{book.title}</h4>
+                    {book.subtitle && <p className="catalog-recommendation-subtitle">{book.subtitle}</p>}
+                    <div className="catalog-recommendation-meta">
+                      {book.avgRating > 0 && (
+                        <span className="catalog-recommendation-rating">
+                          ★ {book.avgRating.toFixed(1)}
+                        </span>
+                      )}
+                      <span className="catalog-recommendation-price">
+                        {catalogService.formatPrice(book.priceCents)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
       )}

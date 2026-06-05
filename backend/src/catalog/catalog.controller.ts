@@ -26,6 +26,15 @@ export class CatalogController {
   async getCategories() {
     return this.catalogService.getCategories();
   }
+
+  /**
+   * GET /catalog/recommendations
+   * Returns general book recommendations (popular + high-rated)
+   */
+  @Get('recommendations')
+  async getGeneralRecommendations() {
+    return this.catalogService.getGeneralRecommendations();
+  }
 }
 
 @Controller('books')

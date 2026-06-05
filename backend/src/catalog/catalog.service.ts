@@ -356,6 +356,57 @@ export class CatalogService {
     }).slice(0, 8);
   }
 
+  /**
+   * Get general recommendations for the catalog page (popular + high-rated)
+   */
+  async getGeneralRecommendations() {
+    const candidates = await this.bookModel
+      .find({ isPublished: true })
+      .select('_id title subtitle description coverUrl priceCents currency categoryRef views sales')
+      .sort({ sales: -1, views: -1 })
+      .limit(20)
+      .lean();
+
+    const bookIds = candidates.map(c => c._id);
+    const purchaseCounts = await this.purchaseModel.aggregate([
+      { $match: { bookRef: { $in: bookIds }, status: PurchaseStatus.PAID } },
+      { $group: { _id: '$bookRef', count: { $sum: 1 } } },
+    ]);
+    const purchaseMap = new Map(purchaseCounts.map(p => [p._id.toString(), p.count]));
+
+    const ratings = await this.reviewModel.aggregate([
+      { $match: { bookRef: { $in: bookIds }, status: ReviewStatus.APPROVED } },
+      { $group: { _id: '$bookRef', avgRating: { $avg: '$rating' }, count: { $sum: 1 } } },
+    ]);
+    const ratingMap = new Map(ratings.map(r => [r._id.toString(), { avg: r.avgRating, count: r.count }]));
+
+    const scored = candidates.map(c => {
+      const id = c._id.toString();
+      const purchases = purchaseMap.get(id) || 0;
+      const avgRating = ratingMap.get(id)?.avg || 0;
+      const reviewCount = ratingMap.get(id)?.count || 0;
+      const popularityScore = purchases * 10 + (c.views || 0) * 0.1;
+      const ratingScore = avgRating * reviewCount;
+      return {
+        _id: id,
+        title: c.title,
+        subtitle: c.subtitle || '',
+        description: c.description || '',
+        coverUrl: c.coverUrl || '',
+        priceCents: c.priceCents,
+        currency: c.currency,
+        purchases,
+        avgRating: Math.round(avgRating * 10) / 10,
+        reviewCount,
+        relevanceScore: Math.min(Math.round((popularityScore + ratingScore) / 10), 5),
+      };
+    });
+
+    return scored
+      .sort((a, b) => b.relevanceScore - a.relevanceScore || b.purchases - a.purchases)
+      .slice(0, 8);
+  }
+
   async getBookPdfStream(id: string): Promise<{ stream: Readable; contentType: string; fileName: string }> {
     const book = await this.bookModel
       .findById(id)
