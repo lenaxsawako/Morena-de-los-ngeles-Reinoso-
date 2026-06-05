@@ -11,6 +11,7 @@ import { paymentsService } from '../../services/payments';
 import Paywall from '../../components/Paywall';
 import ShareButton from '../../components/ShareButton';
 import ReviewCarousel from '../../components/ReviewCarousel';
+import ReviewModal from '../../components/ReviewModal';
 import './chapter.css';
 
 pdfjsLib.GlobalWorkerOptions.workerPort = new pdfjsWorker();
@@ -105,12 +106,24 @@ export default function Chapter() {
         setTotalPages(data.totalPages);
       }
     });
-    reviewsService.getBookReviews(bookId).then(data => {
+    reviewsService.getBookReviews(bookId, 1, 4).then(data => {
       setReviews(data.reviews);
       setAvgRating(data.avgRating);
       setReviewCount(data.count);
     }).catch(() => {});
   }, [bookId]);
+
+  // Re-fetch preview when modal closes
+  const [modalOpen, setModalOpen] = useState(false);
+  useEffect(() => {
+    if (!modalOpen && bookId) {
+      reviewsService.getBookReviews(bookId, 1, 4).then(data => {
+        setReviews(data.reviews);
+        setAvgRating(data.avgRating);
+        setReviewCount(data.count);
+      }).catch(() => {});
+    }
+  }, [modalOpen, bookId]);
 
   // Guardar progreso
   const saveProgress = useCallback((page: number) => {
@@ -561,31 +574,21 @@ export default function Chapter() {
           <div className="reader-reviews-inner">
             <ReviewCarousel
               reviews={reviews}
-              currentUserId={userId}
-              hasPurchase={isPurchased}
-              bookId={bookId!}
+              totalCount={reviewCount}
               avgRating={avgRating}
-              reviewCount={reviewCount}
-              onReviewSubmit={(review) => {
-                setReviews(prev => [review, ...prev]);
-                setAvgRating(prev => {
-                  const total = prev * reviewCount + review.rating;
-                  return total / (reviewCount + 1);
-                });
-                setReviewCount(prev => prev + 1);
-              }}
-              onReviewUpdate={(updated) => {
-                setReviews(prev => {
-                  const next = prev.map(r => r.id === updated.id ? updated : r);
-                  const total = next.reduce((sum, r) => sum + r.rating, 0);
-                  setAvgRating(next.length > 0 ? total / next.length : 0);
-                  return next;
-                });
-              }}
+              onOpenModal={() => setModalOpen(true)}
             />
           </div>
         </div>
       )}
+
+      <ReviewModal
+        bookId={bookId!}
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        currentUserId={userId}
+        hasPurchase={isPurchased}
+      />
     </div>
   );
 }

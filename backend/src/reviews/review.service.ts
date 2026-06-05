@@ -59,22 +59,33 @@ export class ReviewService {
     };
   }
 
-  async getBookReviews(bookId: string) {
-    const reviews = await this.reviewModel
-      .find({ bookRef: new Types.ObjectId(bookId), status: ReviewStatus.APPROVED })
-      .populate('userRef', 'profile.username')
-      .sort({ createdAt: -1 })
-      .lean();
+  async getBookReviews(bookId: string, page = 1, limit = 10) {
+    const filter = { bookRef: new Types.ObjectId(bookId), status: ReviewStatus.APPROVED };
+    const [reviews, total] = await Promise.all([
+      this.reviewModel
+        .find(filter)
+        .populate('userRef', 'profile.username')
+        .sort({ createdAt: -1 })
+        .skip((page - 1) * limit)
+        .limit(limit)
+        .lean(),
+      this.reviewModel.countDocuments(filter),
+    ]);
 
-    return reviews.map((r: any) => ({
-      id: r._id,
-      userId: r.userRef?._id?.toString(),
-      userName: r.userRef?.profile?.username || 'Lector',
-      rating: r.rating,
-      comment: r.comment || undefined,
-      createdAt: r.createdAt,
-      verified: r.verified ?? false,
-    }));
+    return {
+      reviews: reviews.map((r: any) => ({
+        id: r._id,
+        userId: r.userRef?._id?.toString(),
+        userName: r.userRef?.profile?.username || 'Lector',
+        rating: r.rating,
+        comment: r.comment || undefined,
+        createdAt: r.createdAt,
+        verified: r.verified ?? false,
+      })),
+      total,
+      page,
+      totalPages: Math.ceil(total / limit) || 1,
+    };
   }
 
   async getBookRating(bookId: string) {

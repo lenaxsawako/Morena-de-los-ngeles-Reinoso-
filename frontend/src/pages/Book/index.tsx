@@ -6,6 +6,7 @@ import { authService } from '../../services/auth';
 import { paymentsService } from '../../services/payments';
 import { reviewsService, type ReviewItem } from '../../services/reviews';
 import ReviewCarousel from '../../components/ReviewCarousel';
+import ReviewModal from '../../components/ReviewModal';
 import SEO from '../../components/SEO';
 
 const SITE_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'https://lbb.app';
@@ -25,6 +26,7 @@ export default function Book() {
   const [avgRating, setAvgRating] = useState(0);
   const [reviewCount, setReviewCount] = useState(0);
   const [hasPurchased, setHasPurchased] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const userId = authService.getUserId();
 
@@ -59,12 +61,23 @@ export default function Book() {
         setHasPurchased(purchased);
       }).catch(() => {});
     }
-    reviewsService.getBookReviews(id).then(data => {
+    reviewsService.getBookReviews(id, 1, 4).then(data => {
       setReviews(data.reviews);
       setAvgRating(data.avgRating);
       setReviewCount(data.count);
     }).catch(() => {});
   }, [id]);
+
+  // Re-fetch preview when modal closes (data may have changed)
+  useEffect(() => {
+    if (!modalOpen && id) {
+      reviewsService.getBookReviews(id, 1, 4).then(data => {
+        setReviews(data.reviews);
+        setAvgRating(data.avgRating);
+        setReviewCount(data.count);
+      }).catch(() => {});
+    }
+  }, [modalOpen, id]);
 
   if (loading) {
     return (
@@ -361,27 +374,9 @@ export default function Book() {
         <div className="max-w-4xl mt-16">
           <ReviewCarousel
             reviews={reviews}
-            currentUserId={userId}
-            hasPurchase={hasPurchased}
-            bookId={id!}
+            totalCount={reviewCount}
             avgRating={avgRating}
-            reviewCount={reviewCount}
-            onReviewSubmit={(review) => {
-              setReviews(prev => [review, ...prev]);
-              setAvgRating(prev => {
-                const total = prev * reviewCount + review.rating;
-                return total / (reviewCount + 1);
-              });
-              setReviewCount(prev => prev + 1);
-            }}
-            onReviewUpdate={(updated) => {
-              setReviews(prev => {
-                const next = prev.map(r => r.id === updated.id ? updated : r);
-                const total = next.reduce((sum, r) => sum + r.rating, 0);
-                setAvgRating(next.length > 0 ? total / next.length : 0);
-                return next;
-              });
-            }}
+            onOpenModal={() => setModalOpen(true)}
           />
         </div>
 
@@ -433,7 +428,13 @@ export default function Book() {
         )}
       </div>
 
-
+      <ReviewModal
+        bookId={id!}
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        currentUserId={userId}
+        hasPurchase={hasPurchased}
+      />
 
       {/* Share Popup */}
       {shareOpen && (

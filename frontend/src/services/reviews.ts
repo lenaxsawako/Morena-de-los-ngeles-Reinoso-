@@ -16,6 +16,9 @@ export interface BookReviewsResponse {
   reviews: ReviewItem[];
   avgRating: number;
   count: number;
+  total?: number;
+  page?: number;
+  totalPages?: number;
 }
 
 export interface AdminReviewItem {
@@ -51,8 +54,8 @@ export const reviewsService = {
     return response.json();
   },
 
-  async getBookReviews(bookId: string): Promise<BookReviewsResponse> {
-    const response = await fetch(`${API_URL}/reviews/book/${bookId}`);
+  async getBookReviews(bookId: string, page = 1, limit = 10): Promise<BookReviewsResponse> {
+    const response = await fetch(`${API_URL}/reviews/book/${bookId}?page=${page}&limit=${limit}`);
     if (!response.ok) return { reviews: [], avgRating: 0, count: 0 };
     return response.json();
   },
