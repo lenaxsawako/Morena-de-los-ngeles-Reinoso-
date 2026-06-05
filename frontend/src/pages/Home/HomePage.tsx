@@ -16,6 +16,7 @@ export default function HomePage() {
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [newsletterStatus, setNewsletterStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [newsletterMessage, setNewsletterMessage] = useState('');
+  const [subscribed, setSubscribed] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -44,6 +45,8 @@ export default function HomePage() {
               .filter((id): id is string => !!id),
           );
           setPurchasedIds(ids);
+
+          subscriptionService.getStatus().then(s => setSubscribed(s.subscribed)).catch(() => {});
         }
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Error desconocido';
@@ -344,7 +347,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Newsletter Signup */}
+      {/* Newsletter Signup — oculto si ya está suscripto */}
+      {!subscribed && (
       <section id="newsletter" className="py-48 px-5 md:px-16">
         <div className="max-w-[600px] mx-auto text-center glass-card p-16 relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4 opacity-10">
@@ -395,6 +399,7 @@ export default function HomePage() {
           <p className="mt-8 font-body-sm text-body-sm text-white/30 italic">Sin frecuencia. Solo calidad.</p>
         </div>
       </section>
+      )}
 
     </main>
   );
