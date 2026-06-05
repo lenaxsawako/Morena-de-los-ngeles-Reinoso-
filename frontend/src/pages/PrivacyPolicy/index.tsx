@@ -124,7 +124,7 @@ export default function PrivacyPolicy() {
                 Cuando usás la plataforma, registramos tu <strong>dirección IP</strong> de forma temporal para prevenir abusos y garantizar la seguridad. También registramos el <strong>navegador</strong> y <strong>sistema operativo</strong> de forma anónima para mejorar la compatibilidad.
               </p>
               <p>
-                Usamos <strong>cookies técnicas</strong> (tokens JWT almacenados en localStorage) para mantener tu sesión activa. No usamos cookies de rastreo publicitario ni compartimos datos con redes de anuncios.
+                Usamos <strong>tokens de sesión almacenados localmente en tu navegador (localStorage)</strong> para mantener tu sesión activa. No usamos cookies de rastreo publicitario ni compartimos datos con redes de anuncios.
               </p>
             </div>
           </section>
@@ -189,10 +189,6 @@ export default function PrivacyPolicy() {
                 <li>
                   <span className="material-symbols-outlined">check_circle</span>
                   <span><strong>Eliminar</strong> tu cuenta y todos tus datos asociados de forma permanente.</span>
-                </li>
-                <li>
-                  <span className="material-symbols-outlined">check_circle</span>
-                  <span><strong>Exportar</strong> tus datos (progreso de lectura, reseñas, favoritos) en formato legible.</span>
                 </li>
               </ul>
             </div>
