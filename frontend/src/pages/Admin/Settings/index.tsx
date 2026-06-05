@@ -270,6 +270,9 @@ export default function Settings() {
   const [serviceAccountJsonError, setServiceAccountJsonError] = useState<string | null>(null);
   const [showJsonUploadInput, setShowJsonUploadInput] = useState(false);
 
+  const logoInputRef = useRef<HTMLInputElement>(null);
+  const [logoUploading, setLogoUploading] = useState(false);
+
   const [cloudinary, setCloudinary] = useState<CloudinarySettingsState>({
     enabled: false,
     cloudName: '',
@@ -328,6 +331,24 @@ export default function Settings() {
   // Handlers
   const handleWebsiteChange = (field: keyof WebsiteSettings, value: string) => {
     setWebsite(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setLogoUploading(true);
+    try {
+      const result = await adminBooksService.uploadSiteLogo(file);
+      if (result?.url) {
+        setWebsite(prev => ({ ...prev, siteLogo: result.url }));
+      }
+    } catch {
+      // error logged in service
+    } finally {
+      setLogoUploading(false);
+      e.target.value = '';
+    }
   };
 
   const handleAuthorImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -892,10 +913,27 @@ export default function Settings() {
             <div className="settings-field-group">
               <label className="settings-label">Site Logo</label>
               <div className="profile-image-upload">
-                <img src={website.siteLogo} alt="Logo" className="profile-image" />
-                <button className="upload-btn">
+                {website.siteLogo ? (
+                  <img src={website.siteLogo} alt="Logo" className="profile-image" />
+                ) : (
+                  <div className="profile-image profile-image-placeholder">
+                    <span className="material-symbols-outlined text-4xl text-on-surface-variant opacity-50">image</span>
+                  </div>
+                )}
+                <input
+                  ref={logoInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  className="hidden"
+                  onChange={handleLogoChange}
+                />
+                <button
+                  className="upload-btn"
+                  onClick={() => logoInputRef.current?.click()}
+                  disabled={logoUploading}
+                >
                   <span className="material-symbols-outlined">photo_camera</span>
-                  Change Logo
+                  {logoUploading ? 'Subiendo...' : 'Change Logo'}
                 </button>
               </div>
             </div>

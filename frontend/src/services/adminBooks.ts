@@ -1443,6 +1443,28 @@ class AdminBooksService {
   /**
    * Upload author image for the landing page
    */
+  async uploadSiteLogo(file: File): Promise<{ url: string } | null> {
+    try {
+      const formData = new FormData();
+      formData.append('logo', file);
+
+      const response = await handleAdminFetch(`${API_URL}/admin/settings/logo`, {
+        method: 'POST',
+        headers: authService.getAuthHeader(),
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Upload logo failed: ${response.statusText}`);
+      }
+
+      return await safeParseJSON(response, null);
+    } catch (error) {
+      console.error('Error uploading logo:', error);
+      return null;
+    }
+  }
+
   async uploadAuthorImage(file: File): Promise<{ authorImageUrl: string } | null> {
     try {
       const formData = new FormData();

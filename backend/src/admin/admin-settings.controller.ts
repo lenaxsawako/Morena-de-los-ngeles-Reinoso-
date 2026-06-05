@@ -6,8 +6,12 @@ import {
   Body,
   Query,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
   BadRequestException,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { memoryStorage } from 'multer';
 import { AdminSettingsService } from './admin-settings.service';
 import { CloudinaryService } from '../utils/cloudinary.service';
 import { UpdateSettingsDto } from './dto/settings.dto';
@@ -99,5 +103,43 @@ export class AdminSettingsController {
   @Post('test-email')
   async testEmail() {
     return this.adminSettingsService.testEmail();
+  }
+
+  /**
+   * POST /admin/settings/logo
+   * Upload site logo to Cloudinary
+   */
+  @Post('logo')
+  @UseInterceptors(
+    FileInterceptor('logo', {
+      storage: memoryStorage(),
+      limits: { fileSize: 5 * 1024 * 1024 },
+    }),
+  )
+  async uploadLogo(@UploadedFile() logo: any) {
+    if (!logo) {
+      throw new BadRequestException('No se proporcionó archivo de logo');
+    }
+
+    if (!this.cloudinaryService.isConfigured()) {
+      throw new BadRequestException(
+        'Cloudinary no está configurado. Actívalo en Ajustes → Almacenamiento.',
+      );
+    }
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(logo.mimetype)) {
+      throw new BadRequestException('El logo debe ser JPEG, PNG o WebP');
+    }
+
+    const url = await this.cloudinaryService.uploadImage(
+      logo.buffer,
+      logo.originalname,
+      logo.mimetype,
+    );
+
+    await this.adminSettingsService.updateSettings({ logoUrl: url });
+
+    return { url };
   }
 }
