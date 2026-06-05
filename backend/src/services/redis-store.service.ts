@@ -1,9 +1,8 @@
-import { Injectable, Global, Logger, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, Logger, OnModuleDestroy } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
 import { IStore } from '../interfaces/store.interface';
 
-@Global()
 @Injectable()
 export class RedisStoreService implements IStore, OnModuleDestroy {
   private readonly logger = new Logger(RedisStoreService.name);

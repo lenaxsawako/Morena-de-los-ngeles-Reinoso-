@@ -1,7 +1,23 @@
 services:
+  redis:
+    image: redis:7-alpine
+    container_name: lbb-redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis-data:/data
+
   backend:
     build: .
     container_name: lbb-backend
     ports:
       - '3109:3109'
     env_file: .env
+    environment:
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+
+volumes:
+  redis-data:

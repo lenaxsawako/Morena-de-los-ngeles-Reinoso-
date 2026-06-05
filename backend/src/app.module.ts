@@ -17,7 +17,6 @@ import { SubscriptionModule } from './subscriptions/subscription.module';
 import { CheckoutModule } from './checkout/checkout.module';
 import { FavoritesModule } from './favorites/favorites.module';
 import { ReviewModule } from './reviews/review.module';
-import { RedisStoreService } from './services/redis-store.service';
 import { IpExtractorService } from './services/ip-extractor.service';
 @Module({
   imports: [
@@ -48,6 +47,6 @@ import { IpExtractorService } from './services/ip-extractor.service';
     ReviewModule,
   ],
   controllers: [AppController],
-  providers: [AppService, RedisStoreService, IpExtractorService],
+  providers: [AppService, IpExtractorService],
 })
 export class AppModule {}
