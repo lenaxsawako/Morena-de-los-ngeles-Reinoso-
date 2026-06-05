@@ -63,7 +63,7 @@ export class AdminCouponsController {
         code: pd.code,
         name: pd.name,
         type: pd.type,
-        amount: pd.amount,
+        amount: pd.type === 'percentage' ? ((pd.basis_points ?? 0) / 100) : pd.amount,
         redemptionsCount: pd.redemptions_count ?? 0,
         maxRedemptions: pd.max_redemptions,
         endsAt: pd.ends_at,

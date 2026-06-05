@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Body, Put, Query, UseGuards, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Param, Post, Body, Put, Delete, Query, UseGuards, NotFoundException, BadRequestException } from '@nestjs/common';
 import { AdminCommunityService } from './admin-community.service';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { RolesGuard } from '../guards/roles.guard';
@@ -92,31 +92,13 @@ export class AdminReviewsController {
   }
 
   /**
-   * PUT /admin/reviews/:id/approve
+   * DELETE /admin/reviews/:id
    */
-  @Put(':id/approve')
-  async approveReview(@Param('id') id: string) {
-    const review = await this.reviewModel.findByIdAndUpdate(
-      id,
-      { status: ReviewStatus.APPROVED, rejectionReason: undefined },
-      { new: true },
-    );
-    if (!review) throw new NotFoundException('Review not found');
-    return { id: review._id, status: review.status };
-  }
-
-  /**
-   * PUT /admin/reviews/:id/reject
-   */
-  @Put(':id/reject')
-  async rejectReview(@Param('id') id: string, @Body('reason') reason?: string) {
-    const review = await this.reviewModel.findByIdAndUpdate(
-      id,
-      { status: ReviewStatus.REJECTED, rejectionReason: reason || null },
-      { new: true },
-    );
-    if (!review) throw new NotFoundException('Review not found');
-    return { id: review._id, status: review.status };
+  @Delete(':id')
+  async deleteReview(@Param('id') id: string) {
+    const result = await this.reviewModel.deleteOne({ _id: id });
+    if (result.deletedCount === 0) throw new NotFoundException('Review not found');
+    return { message: 'Review deleted' };
   }
 }
 

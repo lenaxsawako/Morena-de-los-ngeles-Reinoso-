@@ -69,24 +69,13 @@ export const reviewsService = {
     return response.json();
   },
 
-  async approve(id: string) {
+  async deleteReview(id: string) {
     const authHeader = authService.getAuthHeader();
-    const response = await fetch(`${API_URL}/admin/reviews/${id}/approve`, {
-      method: 'PUT',
+    const response = await fetch(`${API_URL}/admin/reviews/${id}`, {
+      method: 'DELETE',
       headers: { ...authHeader },
     });
-    if (!response.ok) throw new Error('Error al aprobar valoración');
-    return response.json();
-  },
-
-  async reject(id: string, reason?: string) {
-    const authHeader = authService.getAuthHeader();
-    const response = await fetch(`${API_URL}/admin/reviews/${id}/reject`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', ...authHeader },
-      body: JSON.stringify({ reason }),
-    });
-    if (!response.ok) throw new Error('Error al rechazar valoración');
+    if (!response.ok) throw new Error('Error al eliminar valoración');
     return response.json();
   },
 };
