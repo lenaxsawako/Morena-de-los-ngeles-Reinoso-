@@ -11,7 +11,7 @@ interface ReviewCarouselProps {
 export default function ReviewCarousel({ reviews, totalCount, avgRating, onOpenModal }: ReviewCarouselProps) {
   const [index, setIndex] = useState(0);
   const [fadeIn, setFadeIn] = useState(true);
-  const timerRef = useRef<ReturnType<typeof setInterval>>();
+  const timerRef = useRef<ReturnType<typeof setInterval>>(undefined);
   const isHovering = useRef(false);
 
   useEffect(() => {
