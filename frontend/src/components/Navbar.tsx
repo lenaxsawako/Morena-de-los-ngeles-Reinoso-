@@ -251,8 +251,8 @@ export default function Header() {
       )}
       </nav>
 
-      {/* Continue Reading Banner */}
-      {lastRead && (
+      {/* Continue Reading Banner — only on home page */}
+      {lastRead && isActive('/') && (
         <Link
           to={`/chapter/${lastRead.bookId}`}
           className="fixed top-[80px] left-0 right-0 z-40 bg-surface-container border-b border-white/5 px-6 md:px-16 py-3 flex items-center gap-3 hover:bg-surface-container-high transition-colors"
