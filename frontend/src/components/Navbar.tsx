@@ -117,6 +117,16 @@ export default function Header() {
               Favoritos
             </Link>
           )}
+          <Link
+            to="/support"
+            className={`font-label-md text-label-md uppercase tracking-widest transition-colors duration-300 pb-1 ${
+              isActive('/support')
+                ? 'text-primary border-b border-primary'
+                : 'text-on-surface-variant hover:text-primary'
+            }`}
+          >
+            Soporte
+          </Link>
         </div>
 
         {/* Action Icons */}
@@ -226,6 +236,17 @@ export default function Header() {
                 Favoritos
               </Link>
             )}
+            <Link
+              to="/support"
+              onClick={handleNavClick}
+              className={`font-label-md text-label-md uppercase tracking-widest transition-colors duration-300 py-2 ${
+                isActive('/support')
+                  ? 'text-primary border-l-2 border-primary pl-2'
+                  : 'text-on-surface-variant hover:text-primary'
+              }`}
+            >
+              Soporte
+            </Link>
 
             <div className="border-t border-white/10 pt-4 mt-2">
               {isLoggedIn ? (
