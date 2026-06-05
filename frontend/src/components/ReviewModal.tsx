@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { reviewsService, type ReviewItem } from '../services/reviews';
-import { authService } from '../services/auth';
 
 interface ReviewModalProps {
   bookId: string;
