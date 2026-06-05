@@ -62,6 +62,28 @@ export default function ReviewModal({ bookId, isOpen, onClose, currentUserId, ha
   }, [isOpen, bookId, fetchPage]);
 
   useEffect(() => {
+    if (isOpen) {
+      const scrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+    } else {
+      const scrollY = document.body.style.top;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      window.scrollTo(0, parseInt(scrollY || '0') * -1);
+    }
+    return () => {
+      const scrollY = document.body.style.top;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      window.scrollTo(0, parseInt(scrollY || '0') * -1);
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
     if (!isOpen) return;
     const el = sentinelRef.current;
     if (!el) return;
@@ -139,7 +161,7 @@ export default function ReviewModal({ bookId, isOpen, onClose, currentUserId, ha
 
       {/* Mobile: full screen; Desktop: right drawer */}
       <div
-        className="fixed bottom-0 md:top-0 md:right-0 md:bottom-0 w-full md:w-[460px] bg-surface-container md:rounded-l-2xl flex flex-col shadow-2xl"
+        className="fixed inset-x-0 bottom-0 md:inset-auto md:top-0 md:right-0 md:bottom-0 w-full md:w-[460px] max-h-[90vh] md:max-h-none bg-surface-container md:rounded-l-2xl flex flex-col shadow-2xl"
         style={{ animation: 'reviewSlideUp 0.3s ease' }}
         onClick={e => e.stopPropagation()}
       >
@@ -164,91 +186,88 @@ export default function ReviewModal({ bookId, isOpen, onClose, currentUserId, ha
           </button>
         </div>
 
-        {/* Scrollable content */}
-        <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">
-          {/* Form section */}
-          <div className="px-6 pt-4 pb-3 border-b border-white/5">
-            {currentUserId ? (
-              hasPurchase ? (
-                userReview ? (
-                  /* User already reviewed — show inline edit on their card */
-                  <div className="p-3 rounded-xl border border-accent-gold/30 bg-surface-high space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-body-sm font-medium text-primary">Tu opinión</span>
-                      {!editState[userReview.id]?.editing && (
-                        <button onClick={() => startEdit(userReview)} className="p-1 rounded-full hover:bg-white/10 transition-colors" title="Editar">
-                          <span className="material-symbols-outlined text-on-surface-variant text-lg">edit</span>
-                        </button>
-                      )}
-                    </div>
-                    {editState[userReview.id]?.editing ? (
-                      <>
-                        <div className="flex gap-0.5">
-                          {[1, 2, 3, 4, 5].map(n => (
-                            <button key={n} type="button" onClick={() => setEditState(prev => ({ ...prev, [userReview.id]: { ...prev[userReview.id], editRating: n } }))}>
-                              <span className={`material-symbols-outlined text-lg ${n <= (editState[userReview.id]?.editRating ?? userReview.rating) ? 'text-accent-gold' : 'text-on-surface-variant/30'}`}>star</span>
-                            </button>
-                          ))}
-                        </div>
-                        <textarea
-                          value={editState[userReview.id]?.editText ?? ''}
-                          onChange={e => setEditState(prev => ({ ...prev, [userReview.id]: { ...prev[userReview.id], editText: e.target.value } }))}
-                          className="w-full bg-surface-container rounded-lg p-2 text-body-sm text-on-surface-variant outline-none border border-white/10 focus:border-primary resize-none"
-                          rows={3}
-                        />
-                        <div className="flex items-center gap-2">
-                          <button onClick={() => saveEdit(userReview)} disabled={submitting} className="px-3 py-1 rounded-full bg-primary text-on-primary text-label-xs font-medium disabled:opacity-40">Guardar</button>
-                          <button onClick={() => cancelEdit(userReview.id)} className="px-3 py-1 rounded-full text-on-surface-variant text-label-xs hover:text-on-background transition-colors">Cancelar</button>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <div className="flex gap-0.5">
-                          {Array.from({ length: 5 }, (_, i) => (
-                            <span key={i} className={`material-symbols-outlined text-sm ${i < userReview.rating ? 'text-accent-gold' : 'text-on-surface-variant/30'}`}>star</span>
-                          ))}
-                        </div>
-                        {userReview.comment && <p className="text-body-sm text-on-surface-variant leading-relaxed">{userReview.comment}</p>}
-                      </>
+        {/* Form section — fixed at top, does not scroll */}
+        <div className="shrink-0 px-6 pt-4 pb-3 border-b border-white/5">
+          {currentUserId ? (
+            hasPurchase ? (
+              userReview ? (
+                <div className="p-3 rounded-xl border border-accent-gold/30 bg-surface-high space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-body-sm font-medium text-primary">Tu opinión</span>
+                    {!editState[userReview.id]?.editing && (
+                      <button onClick={() => startEdit(userReview)} className="p-1 rounded-full hover:bg-white/10 transition-colors" title="Editar">
+                        <span className="material-symbols-outlined text-on-surface-variant text-lg">edit</span>
+                      </button>
                     )}
                   </div>
-                ) : (
-                  /* User can review — show form */
-                  <div className="space-y-3">
-                    <p className="text-body-sm font-medium text-accent-gold">Dejá tu opinión</p>
-                    <div className="flex gap-0.5">
-                      {[1, 2, 3, 4, 5].map(n => (
-                        <button key={n} type="button" onClick={() => setFormRating(n)}>
-                          <span className={`material-symbols-outlined text-xl transition-colors ${n <= formRating ? 'text-accent-gold' : 'text-on-surface-variant/30'}`}>star</span>
-                        </button>
-                      ))}
-                    </div>
-                    <textarea
-                      value={formComment}
-                      onChange={e => setFormComment(e.target.value)}
-                      placeholder="Escribí un comentario..."
-                      className="w-full bg-surface-high rounded-lg p-2 text-body-sm text-on-surface-variant outline-none border border-white/10 focus:border-primary resize-none"
-                      rows={3}
-                    />
-                    <button onClick={submitNewReview} disabled={submitting} className="w-full py-2 rounded-full bg-primary text-on-primary text-label-md font-medium disabled:opacity-40 transition-opacity">
-                      {submitting ? 'Enviando...' : 'Publicar'}
-                    </button>
-                  </div>
-                )
+                  {editState[userReview.id]?.editing ? (
+                    <>
+                      <div className="flex gap-0.5">
+                        {[1, 2, 3, 4, 5].map(n => (
+                          <button key={n} type="button" onClick={() => setEditState(prev => ({ ...prev, [userReview.id]: { ...prev[userReview.id], editRating: n } }))}>
+                            <span className={`material-symbols-outlined text-lg ${n <= (editState[userReview.id]?.editRating ?? userReview.rating) ? 'text-accent-gold' : 'text-on-surface-variant/30'}`}>star</span>
+                          </button>
+                        ))}
+                      </div>
+                      <textarea
+                        value={editState[userReview.id]?.editText ?? ''}
+                        onChange={e => setEditState(prev => ({ ...prev, [userReview.id]: { ...prev[userReview.id], editText: e.target.value } }))}
+                        className="w-full bg-surface-container rounded-lg p-2 text-body-sm text-on-surface-variant outline-none border border-white/10 focus:border-primary resize-none"
+                        rows={3}
+                      />
+                      <div className="flex items-center gap-2">
+                        <button onClick={() => saveEdit(userReview)} disabled={submitting} className="px-3 py-1 rounded-full bg-primary text-on-primary text-label-xs font-medium disabled:opacity-40">Guardar</button>
+                        <button onClick={() => cancelEdit(userReview.id)} className="px-3 py-1 rounded-full text-on-surface-variant text-label-xs hover:text-on-background transition-colors">Cancelar</button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex gap-0.5">
+                        {Array.from({ length: 5 }, (_, i) => (
+                          <span key={i} className={`material-symbols-outlined text-sm ${i < userReview.rating ? 'text-accent-gold' : 'text-on-surface-variant/30'}`}>star</span>
+                        ))}
+                      </div>
+                      {userReview.comment && <p className="text-body-sm text-on-surface-variant leading-relaxed">{userReview.comment}</p>}
+                    </>
+                  )}
+                </div>
               ) : (
-                <p className="text-body-sm text-on-surface-variant text-center py-2">
-                  <Link to={`/checkout/${bookId}`} className="text-primary underline">Comprá el libro</Link> para dejar tu opinión
-                </p>
+                <div className="space-y-3">
+                  <p className="text-body-sm font-medium text-accent-gold">Dejá tu opinión</p>
+                  <div className="flex gap-0.5">
+                    {[1, 2, 3, 4, 5].map(n => (
+                      <button key={n} type="button" onClick={() => setFormRating(n)}>
+                        <span className={`material-symbols-outlined text-xl transition-colors ${n <= formRating ? 'text-accent-gold' : 'text-on-surface-variant/30'}`}>star</span>
+                      </button>
+                    ))}
+                  </div>
+                  <textarea
+                    value={formComment}
+                    onChange={e => setFormComment(e.target.value)}
+                    placeholder="Escribí un comentario..."
+                    className="w-full bg-surface-high rounded-lg p-2 text-body-sm text-on-surface-variant outline-none border border-white/10 focus:border-primary resize-none"
+                    rows={3}
+                  />
+                  <button onClick={submitNewReview} disabled={submitting} className="w-full py-2 rounded-full bg-primary text-on-primary text-label-md font-medium disabled:opacity-40 transition-opacity">
+                    {submitting ? 'Enviando...' : 'Publicar'}
+                  </button>
+                </div>
               )
             ) : (
               <p className="text-body-sm text-on-surface-variant text-center py-2">
-                <Link to="/login" className="text-primary underline">Iniciá sesión</Link> para dejar tu opinión
+                <Link to={`/checkout/${bookId}`} className="text-primary underline">Comprá el libro</Link> para dejar tu opinión
               </p>
-            )}
-            {error && <p className="text-body-sm text-red-400 mt-2">{error}</p>}
-          </div>
+            )
+          ) : (
+            <p className="text-body-sm text-on-surface-variant text-center py-2">
+              <Link to="/login" className="text-primary underline">Iniciá sesión</Link> para dejar tu opinión
+            </p>
+          )}
+          {error && <p className="text-body-sm text-red-400 mt-2">{error}</p>}
+        </div>
 
-          {/* Reviews list */}
+        {/* Scrollable reviews list */}
+        <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">
           <div className="px-6 py-4 space-y-4">
             {reviews.map(review => {
               const isOwn = review.userId === currentUserId;
@@ -257,12 +276,6 @@ export default function ReviewModal({ bookId, isOpen, onClose, currentUserId, ha
                 <div key={review.id} className="p-3 rounded-xl border border-white/10 bg-surface-high space-y-2">
                   <div className="flex items-center gap-2">
                     <span className="text-body-sm font-medium text-primary">{review.userName}</span>
-                    {review.verified && (
-                      <span className="flex items-center gap-0.5 text-label-xs text-green-400">
-                        <span className="material-symbols-outlined text-sm">check_circle</span>
-                        Compra verificada
-                      </span>
-                    )}
                     <span className="text-label-xs text-on-surface-variant ml-auto">
                       {new Date(review.createdAt).toLocaleDateString('es-ES', { dateStyle: 'long' })}
                     </span>
@@ -277,7 +290,6 @@ export default function ReviewModal({ bookId, isOpen, onClose, currentUserId, ha
               );
             })}
 
-            {/* Sentinel for infinite scroll */}
             <div ref={sentinelRef} className="h-4" />
 
             {loading && (

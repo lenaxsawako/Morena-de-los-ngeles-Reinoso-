@@ -189,7 +189,7 @@ export default function Header() {
                   : 'text-on-surface-variant hover:text-primary'
               }`}
             >
-              Home
+              Inicio
             </Link>
             <Link
               to="/library"
@@ -200,7 +200,7 @@ export default function Header() {
                   : 'text-on-surface-variant hover:text-primary'
               }`}
             >
-              Library
+              Biblioteca
             </Link>
             <Link
               to="/catalog"
@@ -211,7 +211,7 @@ export default function Header() {
                   : 'text-on-surface-variant hover:text-primary'
               }`}
             >
-              Catalog
+              Catálogo
             </Link>
             {isLoggedIn && (
               <Link
@@ -234,7 +234,7 @@ export default function Header() {
                   onClick={handleNavClick}
                   className="font-label-md text-label-md uppercase tracking-widest text-primary hover:opacity-80 transition-opacity block py-2"
                 >
-                  Profile
+                  Perfil
                 </Link>
               ) : (
                 <Link
@@ -242,7 +242,7 @@ export default function Header() {
                   onClick={handleNavClick}
                   className="font-label-md text-label-md uppercase tracking-widest text-primary hover:opacity-80 transition-opacity block py-2"
                 >
-                  Sign In
+                  Iniciar Sesión
                 </Link>
               )}
             </div>
