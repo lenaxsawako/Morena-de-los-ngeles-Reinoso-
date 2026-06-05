@@ -139,6 +139,7 @@ export default function Profile() {
   }
 
   return (
+    <>
     <div className="profile-wrapper">
       <main className="profile-main">
         <div className="profile-container">
@@ -324,6 +325,7 @@ export default function Profile() {
           </div>
         </div>
       </main>
+      </div>
 
       {/* Delete Confirmation Modal */}
       {deleteModalOpen && (
@@ -390,5 +392,6 @@ export default function Profile() {
           </div>
         </div>
       )}
+    </>
   );
 }
