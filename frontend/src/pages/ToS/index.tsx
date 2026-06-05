@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import './tos.css';
 
 export default function TermsOfService() {
@@ -77,6 +78,9 @@ export default function TermsOfService() {
               </p>
               <p>
                 Una vez realizada la compra, el libro se agrega a tu biblioteca de forma permanente. Por tratarse de contenido digital de acceso inmediato dentro de la plataforma, <strong>no se realizan reembolsos</strong> una vez procesada la compra, salvo que el contenido esté defectuoso o no coincida con la descripción publicada. Al completar la compra, el usuario acepta expresamente estas condiciones y reconoce que el acceso inmediato al contenido digital excluye el derecho de arrepentimiento.
+              </p>
+              <p>
+                Si tu compra no aparece en tu biblioteca o encontrás algún problema con el contenido adquirido, podés contactarnos a través del <Link to="/support" className="tos-link">formulario de soporte</Link> para que lo resolvamos.
               </p>
             </div>
           </section>
@@ -246,7 +250,7 @@ export default function TermsOfService() {
             </h2>
             <div className="tos-section-content">
               <p>
-                Si tenés preguntas sobre estos términos, podés contactarnos a través del formulario en tu perfil o por los medios indicados en la configuración del sitio.
+                Si tenés preguntas sobre estos términos, podés contactarnos a través de nuestro <Link to="/support">formulario de soporte</Link>.
               </p>
             </div>
           </section>

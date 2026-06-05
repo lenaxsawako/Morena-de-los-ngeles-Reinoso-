@@ -16,6 +16,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Reader Insights', icon: 'group', href: '/admin/readers' },
   { label: 'Cupones', icon: 'redeem', href: '/admin/coupons' },
   { label: 'Newsletter', icon: 'mail', href: '/admin/newsletter' },
+  { label: 'Soporte', icon: 'headset_mic', href: '/admin/support' },
   { label: 'Settings', icon: 'settings', href: '/admin/settings' },
 ];
 

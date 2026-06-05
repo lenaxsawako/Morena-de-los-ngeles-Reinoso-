@@ -8,6 +8,7 @@ import { TemplateService } from './template.service';
 import { TransactionalService } from './transactional.service';
 import { TransactionalListener } from './transactional.listener';
 import { ReadingReminderCron } from './reading-reminder.cron';
+import { SupportListener } from './support.listener';
 import { SubscriptionController } from './subscription.controller';
 import { AdminSubscriptionController } from './admin-subscription.controller';
 import { EmailModule } from '../emails/email.module';
@@ -42,6 +43,7 @@ import { ReadingProgress, ReadingProgressSchema } from '../models/reading-progre
     TransactionalService,
     TransactionalListener,
     ReadingReminderCron,
+    SupportListener,
   ],
   exports: [SubscriptionService, NewsletterService, TemplateService, TransactionalService],
 })

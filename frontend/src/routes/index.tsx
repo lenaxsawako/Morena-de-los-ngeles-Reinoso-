@@ -22,6 +22,8 @@ import TermsOfService from "../pages/ToS";
 import PrivacyPolicy from "../pages/PrivacyPolicy";
 import Profile from "../pages/Profile";
 import Favorites from "../pages/Favorites";
+import Support from "../pages/Support";
+import AdminSupport from "../pages/Admin/Support";
 
 import Dashboard from "../pages/Admin/Dashboard";
 import ActivityViewAll from "../pages/Admin/Dashboard/ActivityViewAll";
@@ -89,6 +91,10 @@ export const router = createBrowserRouter([
       {
         path: "/favorites",
         element: <Favorites />,
+      },
+      {
+        path: "/support",
+        element: <Support />,
       },
     ],
   },
@@ -169,6 +175,10 @@ export const router = createBrowserRouter([
       {
         path: "coupons",
         element: <AdminCoupons />,
+      },
+      {
+        path: "support",
+        element: <AdminSupport />,
       },
     ],
   },

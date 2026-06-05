@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { paymentsService } from '../../services/payments';
 
 export default function ConfirmPurchase() {
@@ -75,6 +75,10 @@ export default function ConfirmPurchase() {
           IR A BIBLIOTECA
         </button>
       </div>
+      <p className="text-on-surface-variant text-sm mt-8">
+        ¿Tu compra no aparece en tu biblioteca?{' '}
+        <Link to="/support" className="text-primary underline">Contactanos</Link>
+      </p>
     </div>
   );
 }

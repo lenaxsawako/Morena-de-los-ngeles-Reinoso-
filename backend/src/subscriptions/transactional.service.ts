@@ -80,4 +80,39 @@ export class TransactionalService {
     }, { url: `${baseUrl}/chapter/${bookId}`, text: 'CONTINUAR LEYENDO' });
     await this.emailService.sendEmail(email, `¿Seguís leyendo ${bookTitle}?`, content, html);
   }
+
+  async sendTicketConfirmation(email: string, name: string, ticketId: string) {
+    const content = `
+      <p>Hola, ${name}.</p>
+      <p>Recibimos tu mensaje. Te responderemos a la brevedad a este email.</p>
+      <p style="font-size:14px;color:rgba(255,255,255,0.6);margin-top:20px;">
+        Número de referencia: <strong>#${ticketId}</strong>
+      </p>
+    `;
+    const html = this.templateService.render({
+      site_name: process.env.SITE_NAME || 'LBB',
+      subject: `Recibimos tu consulta (#${ticketId})`,
+      content,
+      unsubscribe_url: '',
+    });
+    await this.emailService.sendEmail(email, `Recibimos tu consulta (#${ticketId})`, content, html);
+  }
+
+  async sendTicketReply(email: string, name: string, ticketId: string, adminReply: string) {
+    const content = `
+      <p>Hola, ${name}.</p>
+      <p>Recibiste una respuesta a tu consulta <strong>#${ticketId}</strong>:</p>
+      <div style="background:rgba(255,255,255,0.05);border-left:3px solid #F3EAD3;padding:1rem;margin:1rem 0;border-radius:4px;">
+        ${adminReply}
+      </div>
+      <p>Si necesitás más ayuda, no dudes en responder a este correo.</p>
+    `;
+    const html = this.templateService.render({
+      site_name: process.env.SITE_NAME || 'LBB',
+      subject: `Respuesta a tu consulta (#${ticketId})`,
+      content,
+      unsubscribe_url: '',
+    });
+    await this.emailService.sendEmail(email, `Respuesta a tu consulta (#${ticketId})`, content, html);
+  }
 }
