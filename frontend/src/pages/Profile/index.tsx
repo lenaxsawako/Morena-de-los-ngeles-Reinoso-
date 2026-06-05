@@ -40,6 +40,10 @@ export default function Profile() {
   const [subscribed, setSubscribed] = useState(false);
   const [subChecking, setSubChecking] = useState(true);
   const [subMsg, setSubMsg] = useState<string | null>(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState('');
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -302,8 +306,89 @@ export default function Profile() {
               </div>
             </div>
           </div>
+
+          {/* Delete Account */}
+          <div className="profile-section" style={{ borderColor: 'rgba(239,68,68,0.2)' }}>
+            <h2 className="profile-section-title" style={{ color: '#f87171' }}>Zona de Peligro</h2>
+            <p className="profile-bio mb-4">
+              Esta acción eliminará permanentemente tu cuenta y todos tus datos personales.
+            </p>
+            <button
+              onClick={() => setDeleteModalOpen(true)}
+              className="profile-logout-button"
+              style={{ background: 'rgba(239,68,68,0.15)', color: '#f87171', border: '1px solid rgba(239,68,68,0.3)' }}
+            >
+              <span className="material-symbols-outlined notranslate" translate="no">delete_forever</span>
+              Eliminar mi cuenta
+            </button>
+          </div>
         </div>
       </main>
-    </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => { setDeleteModalOpen(false); setDeleteConfirm(''); setDeleteError(''); }}>
+          <div className="fixed inset-0 bg-black/50" />
+          <div
+            className="relative bg-surface-container rounded-2xl w-full max-w-md p-6 shadow-2xl border border-white/10 mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-headline-md font-bold mb-2">Eliminar cuenta</h3>
+            <p className="text-body-md text-on-surface-variant mb-4">
+              Esta acción es irreversible. Se eliminarán todos tus datos personales, progreso de lectura, favoritos y suscripciones. Tus compras y valoraciones se conservarán de forma anónima.
+            </p>
+            <p className="text-body-sm text-on-surface-variant mb-3">
+              Escribí <strong className="text-red-400">ELIMINAR</strong> para confirmar:
+            </p>
+            <input
+              type="text"
+              value={deleteConfirm}
+              onChange={e => setDeleteConfirm(e.target.value)}
+              placeholder="ELIMINAR"
+              className="w-full px-4 py-3 rounded-xl bg-surface-high border border-white/10 text-body-md text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary transition-colors mb-4"
+            />
+            {deleteError && <p className="text-body-sm text-red-400 mb-3">{deleteError}</p>}
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => { setDeleteModalOpen(false); setDeleteConfirm(''); setDeleteError(''); }}
+                className="px-4 py-2 rounded-xl border border-white/10 text-label-sm text-on-surface-variant hover:bg-white/5 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={async () => {
+                  if (deleteConfirm !== 'ELIMINAR') {
+                    setDeleteError('Escribí ELIMINAR para confirmar');
+                    return;
+                  }
+                  setDeleting(true);
+                  setDeleteError('');
+                  try {
+                    const token = authService.getToken();
+                    const response = await fetch(`${import.meta.env.VITE_API_URL}/users/me`, {
+                      method: 'DELETE',
+                      headers: { 'Authorization': `Bearer ${token}` },
+                    });
+                    if (!response.ok) {
+                      const data = await response.json().catch(() => ({}));
+                      throw new Error(data.message || 'Error al eliminar cuenta');
+                    }
+                    authService.logout();
+                    navigate('/login');
+                  } catch (err: any) {
+                    setDeleteError(err.message);
+                  } finally {
+                    setDeleting(false);
+                  }
+                }}
+                disabled={deleting}
+                className="px-4 py-2 rounded-xl bg-red-600 text-label-sm font-medium text-white hover:bg-red-700 transition-colors disabled:opacity-50"
+              >
+                {deleting ? 'Eliminando...' : 'Eliminar cuenta'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
   );
 }

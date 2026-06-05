@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { Outlet, useLocation, useNavigationType } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import CookieConsent from "../components/CookieConsent";
 
 function ScrollToTopOnNav() {
   const { pathname } = useLocation();
@@ -25,6 +26,7 @@ export default function MainLayout() {
         <Outlet />
       </main>
       <Footer />
+      <CookieConsent />
     </div>
   );
 }

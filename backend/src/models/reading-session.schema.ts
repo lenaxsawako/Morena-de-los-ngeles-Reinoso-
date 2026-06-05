@@ -23,16 +23,10 @@ export class ReadingSession {
   })
   bookRef!: Types.ObjectId;
 
-  @Prop({
-    type: Types.ObjectId,
-    ref: 'Book',
-  })
+  @Prop()
   bookTitle?: string;
 
-  @Prop({
-    type: Types.ObjectId,
-    ref: 'Book',
-  })
+  @Prop()
   bookCoverUrl?: string;
 
   @Prop({

@@ -5,6 +5,7 @@ import { Purchase, PurchaseSchema } from '../models/purchase.schema';
 import { User, UserSchema } from '../models/user.schema';
 import { SiteConfig, SiteConfigSchema } from '../models/site-config.schema';
 import { FailedWebhook, FailedWebhookSchema } from '../models/failed-webhook.schema';
+import { Coupon, CouponSchema } from '../models/coupon.schema';
 import { SharedModule } from '../shared/shared.module';
 import { CheckoutController } from './checkout.controller';
 import { CheckoutService } from './checkout.service';
@@ -19,6 +20,7 @@ import { WebhookController } from './webhook.controller';
       { name: User.name, schema: UserSchema },
       { name: SiteConfig.name, schema: SiteConfigSchema },
       { name: FailedWebhook.name, schema: FailedWebhookSchema },
+      { name: Coupon.name, schema: CouponSchema },
     ]),
   ],
   controllers: [CheckoutController, WebhookController],

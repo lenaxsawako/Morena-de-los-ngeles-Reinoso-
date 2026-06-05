@@ -1,16 +1,23 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, Logger } from '@nestjs/common';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Subscription, SubscriptionDocument } from '../models/subscription.schema';
 import { NewsletterCampaign, NewsletterCampaignDocument, CampaignStatus, CampaignSegment } from '../models/newsletter-campaign.schema';
+import { Purchase, PurchaseStatus } from '../models/purchase.schema';
+import { User } from '../models/user.schema';
 import { EmailService } from '../emails/email.service';
 import { TemplateService } from './template.service';
 
 @Injectable()
 export class NewsletterService {
+  private readonly logger = new Logger(NewsletterService.name);
+
   constructor(
     @InjectModel(Subscription.name) private subscriptionModel: Model<SubscriptionDocument>,
     @InjectModel(NewsletterCampaign.name) private campaignModel: Model<NewsletterCampaignDocument>,
+    @InjectModel(Purchase.name) private purchaseModel: Model<Purchase>,
+    @InjectModel(User.name) private userModel: Model<User>,
     private emailService: EmailService,
     private templateService: TemplateService,
   ) {}
@@ -33,14 +40,26 @@ export class NewsletterService {
       const subs = await this.subscriptionModel.find({ isActive: true }).select('email').lean();
       return subs.map(s => s.email);
     }
+
+    const buyerEmails = await this.userModel.distinct('email', {
+      _id: {
+        $in: (
+          await this.purchaseModel.distinct('userRef', { status: PurchaseStatus.PAID })
+        ),
+      },
+    });
+
     if (segment === CampaignSegment.BUYERS) {
-      const subs = await this.subscriptionModel.find({ isActive: true }).select('email').lean();
+      const subs = await this.subscriptionModel.find({ isActive: true, email: { $in: buyerEmails } }).select('email').lean();
       return subs.map(s => s.email);
     }
+
     if (segment === CampaignSegment.REGISTERED) {
-      const subs = await this.subscriptionModel.find({ isActive: true }).select('email').lean();
+      const userEmails = await this.userModel.find().distinct('email');
+      const subs = await this.subscriptionModel.find({ isActive: true, email: { $in: userEmails } }).select('email').lean();
       return subs.map(s => s.email);
     }
+
     return [];
   }
 
@@ -156,5 +175,22 @@ export class NewsletterService {
     });
 
     return { sent, failed };
+  }
+
+  @Cron(CronExpression.EVERY_MINUTE)
+  async processScheduledCampaigns() {
+    const campaigns = await this.campaignModel.find({
+      status: CampaignStatus.SCHEDULED,
+      scheduledAt: { $lte: new Date() },
+    }).exec();
+
+    for (const campaign of campaigns) {
+      try {
+        const result = await this.sendCampaign(String(campaign._id));
+        this.logger.log(`Scheduled campaign ${campaign._id} sent: ${result.sent} ok, ${result.failed} failed`);
+      } catch (err) {
+        this.logger.error(`Failed to send scheduled campaign ${campaign._id}: ${(err as Error).message}`);
+      }
+    }
   }
 }

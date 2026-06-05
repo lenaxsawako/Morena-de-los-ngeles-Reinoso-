@@ -57,7 +57,7 @@ export class PurchaseAccessGuard implements CanActivate {
     const purchase = await this.purchaseModel.findOne({
       userRef: new Types.ObjectId(userId),
       bookRef: new Types.ObjectId(bookId),
-      status: { $in: [PurchaseStatus.PAID, PurchaseStatus.PENDING] },
+      status: PurchaseStatus.PAID,
     }).lean();
 
     if (purchase) {

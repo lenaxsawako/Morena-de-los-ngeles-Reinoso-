@@ -9,6 +9,7 @@ export interface ReviewItem {
   rating: number;
   comment?: string;
   createdAt: string;
+  verified?: boolean;
 }
 
 export interface BookReviewsResponse {

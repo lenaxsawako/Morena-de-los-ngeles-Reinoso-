@@ -9,6 +9,7 @@ import { Review, ReviewSchema } from '../models/review.schema';
 import { Category, CategorySchema } from '../models/category.schema';
 import { SiteConfig, SiteConfigSchema } from '../models/site-config.schema';
 import { Subscription, SubscriptionSchema } from '../models/subscription.schema';
+import { Coupon, CouponSchema } from '../models/coupon.schema';
 import { AdminBooksService } from './admin-books.service';
 import { AdminAnalyticsService } from './admin-analytics.service';
 import { AdminReportingService } from './admin-reporting.service';
@@ -19,6 +20,7 @@ import { AdminAnalyticsController } from './admin-analytics.controller';
 import { AdminCommunityController, AdminReviewsController, AdminReadersController } from './admin-community.controller';
 import { AdminSettingsController } from './admin-settings.controller';
 import { AdminCategoriesController } from './admin-categories.controller';
+import { AdminCouponsController } from './admin-coupons.controller';
 import { DriveService } from '../utils/drive.service';
 import { CloudinaryService } from '../utils/cloudinary.service';
 import { SharedModule } from '../shared/shared.module';
@@ -36,6 +38,7 @@ import { SharedModule } from '../shared/shared.module';
       { name: Category.name, schema: CategorySchema },
       { name: SiteConfig.name, schema: SiteConfigSchema },
       { name: Subscription.name, schema: SubscriptionSchema },
+      { name: Coupon.name, schema: CouponSchema },
     ]),
   ],
   controllers: [
@@ -47,6 +50,7 @@ import { SharedModule } from '../shared/shared.module';
     AdminReadersController,
     AdminSettingsController,
     AdminCategoriesController,
+    AdminCouponsController,
   ],
   providers: [
     AdminBooksService,

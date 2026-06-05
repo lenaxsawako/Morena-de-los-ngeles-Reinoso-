@@ -8,6 +8,11 @@ export * from './bookmark.schema';
 export * from './reading-session.schema';
 export * from './subscription.schema';
 export * from './failed-webhook.schema';
+export * from './coupon.schema';
+export * from './review.schema';
+export * from './favorite.schema';
+export * from './category.schema';
+export * from './newsletter-campaign.schema';
 
 export const USER_MODEL = 'User';
 export const BOOK_MODEL = 'Book';
@@ -19,3 +24,4 @@ export const BOOKMARK_MODEL = 'Bookmark';
 export const READING_SESSION_MODEL = 'ReadingSession';
 export const SUBSCRIPTION_MODEL = 'Subscription';
 export const FAILED_WEBHOOK_MODEL = 'FailedWebhook';
+export const COUPON_MODEL = 'Coupon';

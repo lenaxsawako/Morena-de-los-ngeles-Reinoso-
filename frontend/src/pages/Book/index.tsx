@@ -386,6 +386,12 @@ export default function Book() {
               <div className="p-4 rounded-xl border border-white/10 bg-surface-container space-y-2">
                 <div className="flex items-center gap-2">
                   <span className="text-body-sm font-medium text-primary">{reviews[0].userName}</span>
+                  {reviews[0].verified && (
+                    <span className="flex items-center gap-0.5 text-label-xs text-green-400">
+                      <span className="material-symbols-outlined text-sm">check_circle</span>
+                      Compra verificada
+                    </span>
+                  )}
                   <span className="text-label-sm text-on-surface-variant">
                     {new Date(reviews[0].createdAt).toLocaleDateString('es-ES', { dateStyle: 'long' })}
                   </span>
@@ -517,6 +523,12 @@ export default function Book() {
                       <span className="text-body-sm font-medium text-primary">
                         {isOwn ? 'Tu opinión' : review.userName}
                       </span>
+                      {review.verified && (
+                        <span className="flex items-center gap-0.5 text-label-xs text-green-400">
+                          <span className="material-symbols-outlined text-sm">check_circle</span>
+                          Compra verificada
+                        </span>
+                      )}
                       <span className="text-label-sm text-on-surface-variant">
                         {new Date(review.createdAt).toLocaleDateString('es-ES', { dateStyle: 'long' })}
                       </span>

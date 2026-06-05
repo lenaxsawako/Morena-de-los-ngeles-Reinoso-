@@ -3,6 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Book, BookDocument } from '../models/book.schema';
 import { Purchase, PurchaseDocument } from '../models/purchase.schema';
+import { Coupon, CouponDocument } from '../models/coupon.schema';
 import { PolarService } from '../utils/polar.service';
 
 @Injectable()
@@ -12,10 +13,11 @@ export class CheckoutService {
   constructor(
     @InjectModel(Book.name) private bookModel: Model<BookDocument>,
     @InjectModel(Purchase.name) private purchaseModel: Model<PurchaseDocument>,
+    @InjectModel(Coupon.name) private couponModel: Model<CouponDocument>,
     private polarService: PolarService,
   ) {}
 
-  async createCheckout(bookId: string, userId: string, origin?: string): Promise<{ url: string }> {
+  async createCheckout(bookId: string, userId: string, origin?: string, couponCode?: string): Promise<{ url: string }> {
     const book = await this.bookModel.findById(bookId).lean().exec();
     if (!book) {
       throw new BadRequestException('Book not found');
@@ -33,6 +35,17 @@ export class CheckoutService {
       throw new BadRequestException('Ya has comprado este libro');
     }
 
+    let discountId: string | undefined;
+    const metadata: Record<string, string> = { userId, bookId };
+
+    if (couponCode) {
+      const coupon = await this.couponModel.findOne({ code: couponCode.toUpperCase() }).lean();
+      if (coupon) {
+        discountId = coupon.polarDiscountId;
+        metadata.couponCode = couponCode.toUpperCase();
+      }
+    }
+
     const isLocalOrigin = origin?.startsWith('http://localhost') || origin?.startsWith('http://127.0.0.1');
     const baseUrl = origin && !isLocalOrigin
       ? `${origin}/book`
@@ -40,10 +53,8 @@ export class CheckoutService {
     const checkout = await this.polarService.createCheckout({
       products: [book.polarProductId],
       successUrl: `${baseUrl}/checkout/${bookId}/confirm?checkout_id={CHECKOUT_ID}`,
-      metadata: {
-        userId,
-        bookId,
-      },
+      metadata,
+      discountId,
     });
 
     return { url: checkout.url };

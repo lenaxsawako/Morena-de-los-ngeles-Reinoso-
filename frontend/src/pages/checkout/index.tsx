@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { authService } from '../../services/auth';
+import CouponInput from '../../components/CouponInput';
 
 export default function Checkout() {
   const navigate = useNavigate();
   const { bookId } = useParams();
   const [error, setError] = useState('');
+  const [couponCode, setCouponCode] = useState<string | undefined>();
 
   useEffect(() => {
     if (!bookId) return;
@@ -24,6 +26,7 @@ export default function Checkout() {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`,
       },
+      body: JSON.stringify({ couponCode }),
     })
       .then(async (res) => {
         if (res.status === 401) {
@@ -69,9 +72,14 @@ export default function Checkout() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen gap-4">
-      <div className="profile-spinner" />
-      <p className="text-on-surface-variant">Redirigiendo a Polar para completar el pago...</p>
+    <div className="flex flex-col items-center justify-center min-h-screen gap-6 p-8">
+      <div className="w-full max-w-md space-y-6">
+        <div className="text-center space-y-2">
+          <div className="profile-spinner mx-auto" />
+          <p className="text-on-surface-variant">Redirigiendo a Polar para completar el pago...</p>
+        </div>
+        <CouponInput onApply={setCouponCode} onRemove={() => setCouponCode(undefined)} />
+      </div>
     </div>
   );
 }

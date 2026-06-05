@@ -5,6 +5,7 @@ import { guestReadingService, type ReadingProgress } from '../../services/guestR
 import { readingService, type ContinueReading, type LibraryBook } from '../../services/reading';
 import { booksService } from '../../services/books';
 import { landingService } from '../../services/landing';
+import ShareButton from '../../components/ShareButton';
 import './library.css';
 
 const FILTER_TABS = [
@@ -334,21 +335,28 @@ export default function Library() {
                 </p>
                 <h3 className="font-headline-sm text-headline-sm">{bookTitle}</h3>
 
-                {/* Progress Bar */}
-                <div className="flex items-center gap-2 pt-2">
-                  <div className="h-1 w-12 bg-white/10 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-[#F3EAD3]"
-                      style={{ width: `${progress}%` }}
-                    />
+                {/* Progress Bar + Share */}
+                <div className="flex items-center justify-between pt-2">
+                  <div className="flex items-center gap-2">
+                    <div className="h-1 w-12 bg-white/10 rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-[#F3EAD3]"
+                        style={{ width: `${progress}%` }}
+                      />
+                    </div>
+                    <span className={`font-label-md text-[10px] uppercase ${
+                      progress === 100 
+                        ? 'text-primary-container' 
+                        : 'text-on-surface-variant'
+                    }`}>
+                      {getStatusLabel(progress)}
+                    </span>
                   </div>
-                  <span className={`font-label-md text-[10px] uppercase ${
-                    progress === 100 
-                      ? 'text-primary-container' 
-                      : 'text-on-surface-variant'
-                  }`}>
-                    {getStatusLabel(progress)}
-                  </span>
+                  <ShareButton
+                    title={bookTitle}
+                    progressPercentage={progress}
+                    bookUrl={bookId}
+                  />
                 </div>
               </div>
             </div>

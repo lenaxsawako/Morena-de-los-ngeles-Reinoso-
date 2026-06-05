@@ -69,6 +69,7 @@ export class PolarService implements OnModuleInit {
     products: string[];
     successUrl: string;
     metadata: Record<string, string>;
+    discountId?: string;
   }): Promise<{ id: string; url: string }> {
     if (!this.client) {
       throw new Error('Polar not configured');
@@ -78,6 +79,7 @@ export class PolarService implements OnModuleInit {
       products: params.products,
       successUrl: params.successUrl,
       metadata: params.metadata as any,
+      discountId: params.discountId,
     });
 
     return { id: result.id, url: result.url };
@@ -146,6 +148,48 @@ export class PolarService implements OnModuleInit {
 
   getStatus(): { enabled: boolean; configured: boolean } {
     return { enabled: this.isEnabled, configured: !!this.client };
+  }
+
+  async createDiscount(dto: {
+    name: string;
+    code: string;
+    type: 'percentage' | 'fixed';
+    amount: number;
+    duration?: 'once' | 'forever' | 'repeating';
+    endsAt?: string;
+    maxRedemptions?: number;
+  }): Promise<{ id: string; code: string }> {
+    if (!this.client) throw new Error('Polar not configured');
+
+    const payload: any = {
+      name: dto.name,
+      code: dto.code,
+      duration: dto.duration || 'once',
+      ...(dto.endsAt ? { endsAt: new Date(dto.endsAt) } : {}),
+      ...(dto.maxRedemptions != null ? { maxRedemptions: dto.maxRedemptions } : {}),
+    };
+
+    if (dto.type === 'percentage') {
+      payload.type = 'percentage';
+      payload.basisPoints = dto.amount * 100;
+    } else {
+      payload.type = 'fixed';
+      payload.amount = dto.amount;
+    }
+
+    const result = await this.client.discounts.create(payload);
+    return { id: result.id, code: result.code! };
+  }
+
+  async listDiscounts(): Promise<any[]> {
+    if (!this.client) throw new Error('Polar not configured');
+    const page = await this.client.discounts.list({ limit: 100 });
+    return page.result?.items || [];
+  }
+
+  async deleteDiscount(id: string): Promise<void> {
+    if (!this.client) throw new Error('Polar not configured');
+    await this.client.discounts.delete({ id });
   }
 
   @OnEvent('settings.polar.updated')

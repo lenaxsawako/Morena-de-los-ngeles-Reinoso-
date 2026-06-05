@@ -8,6 +8,7 @@ import { Purchase, PurchaseDocument, PurchaseStatus, PaymentProvider } from '../
 import { Book, BookDocument } from '../models/book.schema';
 import { User, UserDocument } from '../models/user.schema';
 import { SiteConfig, SiteConfigDocument } from '../models/site-config.schema';
+import { Coupon, CouponDocument } from '../models/coupon.schema';
 import { FailedWebhook, FailedWebhookDocument } from '../models/failed-webhook.schema';
 import { RedisStoreService } from '../services/redis-store.service';
 
@@ -25,6 +26,7 @@ export class WebhookController {
     @InjectModel(Purchase.name) private purchaseModel: Model<PurchaseDocument>,
     @InjectModel(Book.name) private bookModel: Model<BookDocument>,
     @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @InjectModel(Coupon.name) private couponModel: Model<CouponDocument>,
     @InjectModel(FailedWebhook.name) private failedWebhookModel: Model<FailedWebhookDocument>,
     private eventEmitter: EventEmitter2,
     private redisStore: RedisStoreService,
@@ -181,6 +183,13 @@ export class WebhookController {
       await session.commitTransaction();
       this.logger.log(`Purchase recorded atomically via ${source}: user=${userId}, book=${bookId}`);
 
+      // Track coupon usage
+      if (metadata?.couponCode) {
+        this.trackCouponUsage(metadata.couponCode, userId).catch(err =>
+          this.logger.error(`Error tracking coupon usage: ${err.message}`),
+        );
+      }
+
       // Emit event outside transaction (non-critical)
       this.emitPurchaseEvent(userId, bookId).catch(err =>
         this.logger.error(`Error emitting purchase event: ${err.message}`),
@@ -192,6 +201,13 @@ export class WebhookController {
     } finally {
       session.endSession();
     }
+  }
+
+  private async trackCouponUsage(couponCode: string, userId: string) {
+    await this.couponModel.updateOne(
+      { code: couponCode.toUpperCase() },
+      { $push: { usedBy: { userId: new Types.ObjectId(userId), usedAt: new Date() } } },
+    );
   }
 
   private async emitPurchaseEvent(userId: string, bookId: string) {

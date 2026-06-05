@@ -1,7 +1,8 @@
 import { Injectable, UnauthorizedException, NotFoundException, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { UsersService } from '../users/users.service';
-import { EmailService } from '../emails/email.service';
+import { RedisStoreService } from '../services/redis-store.service';
 import { UserRole } from '../models/user.schema';
 
 @Injectable()
@@ -9,7 +10,8 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
-    private emailService: EmailService,
+    private eventEmitter: EventEmitter2,
+    private redisStore: RedisStoreService,
   ) {}
 
   async register(email: string, password: string) {
@@ -19,6 +21,9 @@ export class AuthService {
       sub: user._id.toString(),
       isAdmin: user.roles?.includes(UserRole.ADMIN) || false,
     };
+
+    this.eventEmitter.emit('user.registered', { email, userId: user._id.toString() });
+
     return { access_token: this.jwtService.sign(payload) };
   }
 
@@ -50,21 +55,36 @@ export class AuthService {
     const user = await this.usersService.findByEmail(email);
     if (!user) return;
 
-    const token = await this.usersService.generatePasswordResetToken(email);
-    const resetUrl = `${process.env.FRONTEND_URL || 'https://greendg.craftassist.cloud/book'}/reset-password/${token}`;
-
-    await this.emailService.sendEmail(
-      email,
-      'Restablece tu contraseña',
-      `Usa este enlace para restablecer tu contraseña: ${resetUrl}`,
-      `<p>Hacé click para restablecer tu contraseña:</p><p><a href="${resetUrl}">${resetUrl}</a></p>`,
+    const userId = user._id.toString();
+    const token = this.jwtService.sign(
+      { sub: userId, purpose: 'reset' },
+      { expiresIn: '1h' },
     );
+
+    await this.redisStore.set(`reset:${userId}`, token, 60 * 60 * 1000);
+
+    this.eventEmitter.emit('auth.password-reset', { email, token });
   }
 
   async resetPassword(token: string, newPassword: string): Promise<void> {
-    if (!newPassword || newPassword.length < 6) {
-      throw new BadRequestException('Password must be at least 6 characters');
+    let payload: { sub: string; purpose: string };
+    try {
+      payload = this.jwtService.verify(token);
+    } catch {
+      throw new BadRequestException('El enlace de recuperación ha expirado o no es válido');
     }
-    await this.usersService.resetPassword(token, newPassword);
+
+    if (payload.purpose !== 'reset') {
+      throw new BadRequestException('El enlace de recuperación no es válido');
+    }
+
+    const stored = await this.redisStore.get(`reset:${payload.sub}`);
+    if (!stored) {
+      throw new BadRequestException('El enlace de recuperación ya fue usado o ha expirado');
+    }
+
+    await this.usersService.updatePassword(payload.sub, newPassword);
+
+    await this.redisStore.del(`reset:${payload.sub}`);
   }
 }

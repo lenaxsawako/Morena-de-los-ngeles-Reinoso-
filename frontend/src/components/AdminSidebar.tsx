@@ -14,6 +14,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Manuscripts', icon: 'menu_book', href: '/admin/manuscripts' },
   { label: 'Sales Data', icon: 'payments', href: '/admin/sales' },
   { label: 'Reader Insights', icon: 'group', href: '/admin/readers' },
+  { label: 'Cupones', icon: 'redeem', href: '/admin/coupons' },
   { label: 'Newsletter', icon: 'mail', href: '/admin/newsletter' },
   { label: 'Settings', icon: 'settings', href: '/admin/settings' },
 ];

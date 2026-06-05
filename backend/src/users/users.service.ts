@@ -1,15 +1,18 @@
-import { Injectable, BadRequestException, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException, InternalServerErrorException, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
-import * as crypto from 'crypto';
 import { User, UserDocument } from '../models/user.schema';
 import { USER_MODEL } from '../models';
+import { RedisStoreService } from '../services/redis-store.service';
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name);
+
   constructor(
     @InjectModel(USER_MODEL) private userModel: Model<UserDocument>,
+    private redisStore: RedisStoreService,
   ) {}
 
   async create(email: string, password: string) {
@@ -54,34 +57,46 @@ export class UsersService {
     }
   }
 
-  async generatePasswordResetToken(email: string): Promise<string> {
-    const user = await this.findByEmail(email);
-    if (!user) throw new NotFoundException('User not found');
-
-    const token = crypto.randomBytes(32).toString('hex');
-    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
-
-    await this.userModel.findByIdAndUpdate(user._id, {
-      passwordResetToken: token,
-      passwordResetExpiresAt: expiresAt,
-    });
-
-    return token;
+  async updatePassword(userId: string, newPassword: string): Promise<void> {
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+    await this.userModel.findByIdAndUpdate(userId, { passwordHash });
   }
 
-  async resetPassword(token: string, newPassword: string): Promise<void> {
-    const user = await this.userModel.findOne({
-      passwordResetToken: token,
-      passwordResetExpiresAt: { $gt: new Date() },
+  async deleteAccount(userId: string): Promise<void> {
+    const user = await this.userModel.findById(userId);
+    if (!user) throw new InternalServerErrorException('User not found');
+
+    const userObjId = new Types.ObjectId(userId);
+    const originalEmail = user.email;
+
+    const db = this.userModel.db;
+
+    await Promise.all([
+      db.collection('readingprogresses').deleteMany({ userRef: userObjId }),
+      db.collection('readingsessions').deleteMany({ userRef: userObjId }),
+      db.collection('bookmarks').deleteMany({ userRef: userObjId }),
+      db.collection('favorites').deleteMany({ userRef: userObjId }),
+      db.collection('subscriptions').deleteOne({ email: originalEmail }),
+    ]);
+
+    const randomHash = await bcrypt.hash('deleted_' + Math.random().toString(36), 10);
+    await this.userModel.findByIdAndUpdate(userId, {
+      $set: {
+        email: `deleted_${userId}@deleted.com`,
+        passwordHash: randomHash,
+        'profile.username': 'Usuario eliminado',
+        'profile.bio': '',
+        'profile.avatar': '',
+      },
+      $unset: {
+        emailVerificationToken: '',
+        passwordResetToken: '',
+        passwordResetExpiresAt: '',
+      },
     });
 
-    if (!user) throw new BadRequestException('Invalid or expired reset token');
+    await this.redisStore.set(`revoked:${userId}`, '1', 30 * 24 * 60 * 60 * 1000);
 
-    const passwordHash = await bcrypt.hash(newPassword, 10);
-    await this.userModel.findByIdAndUpdate(user._id, {
-      passwordHash,
-      passwordResetToken: null,
-      passwordResetExpiresAt: null,
-    });
+    this.logger.log(`Account deleted: ${userId}`);
   }
 }

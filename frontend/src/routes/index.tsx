@@ -33,6 +33,7 @@ import ReaderInsights from "../pages/Admin/ReaderInsights";
 import Settings from "../pages/Admin/Settings";
 import NewsletterAdmin from "../pages/Admin/Newsletter";
 import AdminReviews from "../pages/Admin/Reviews";
+import AdminCoupons from "../pages/Admin/Coupons";
 
 import NotFound from "../pages/NotFound";
 
@@ -164,6 +165,10 @@ export const router = createBrowserRouter([
       {
         path: "reviews",
         element: <AdminReviews />,
+      },
+      {
+        path: "coupons",
+        element: <AdminCoupons />,
       },
     ],
   },

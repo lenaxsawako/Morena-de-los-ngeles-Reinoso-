@@ -1,10 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { OnEvent } from '@nestjs/event-emitter';
 import { NewsletterService } from './newsletter.service';
+import { TransactionalService } from './transactional.service';
 
 @Injectable()
 export class NewsletterListener {
-  constructor(private newsletterService: NewsletterService) {}
+  constructor(
+    private newsletterService: NewsletterService,
+    private transactionalService: TransactionalService,
+  ) {}
 
   @OnEvent('book.published')
   async handleBookPublished(payload: { bookId: string; title: string; coverUrl?: string }) {
@@ -36,27 +40,28 @@ export class NewsletterListener {
   }
 
   @OnEvent('purchase.completed')
-  async handlePurchaseCompleted(payload: { email: string; bookTitle: string; bookId: string; coverUrl?: string }) {
-    const content = `
-      <p>¡Gracias por tu compra, <strong>${payload.bookTitle}</strong> ya es tuyo!</p>
-      ${payload.coverUrl ? `<p><img src="${payload.coverUrl}" alt="${payload.bookTitle}" style="max-width:200px;border-radius:8px;" /></p>` : ''}
-      <p>Ya podés empezar a leerlo desde cualquier dispositivo.</p>
-    `;
-    const baseUrl = this.newsletterService['templateService'].getBaseUrl();
-    const htmlContent = `
-      <p>¡Gracias por tu compra! <strong>${payload.bookTitle}</strong> ya es tuyo.</p>
-      ${payload.coverUrl ? `<p><img src="${payload.coverUrl}" alt="${payload.bookTitle}" style="max-width:200px;border-radius:8px;" /></p>` : ''}
-      <p>Ya podés empezar a leerlo desde cualquier dispositivo.</p>
-    `;
-    const unsubscribeUrl = this.newsletterService['templateService'].buildUnsubscribeUrl(payload.email);
-    const emailService = this.newsletterService['emailService'];
-    const templateService = this.newsletterService['templateService'];
-    const html = templateService.render({
-      site_name: process.env.SITE_NAME || 'LBB',
-      subject: `Gracias por tu compra: ${payload.bookTitle}`,
-      content: htmlContent,
-      unsubscribe_url: unsubscribeUrl,
-    }, { url: `${baseUrl}/chapter/${payload.bookId}`, text: 'COMENZAR A LEER' });
-    await emailService.sendEmail(payload.email, `Gracias por tu compra: ${payload.bookTitle}`, htmlContent, html);
+  async handlePurchaseCompleted(payload: { email: string; bookTitle: string; bookId: string; coverUrl?: string; orderNumber?: string; amount?: string }) {
+    try {
+      await this.transactionalService.sendPurchaseConfirmation(
+        payload.email,
+        payload.bookTitle,
+        payload.bookId,
+        payload.orderNumber || payload.bookId,
+        payload.amount || '',
+        payload.coverUrl,
+      );
+    } catch (err: any) {
+      // Fallback: send via newsletter service as before
+      const content = `
+        <p>¡Gracias por tu compra! <strong>${payload.bookTitle}</strong> ya es tuyo.</p>
+        ${payload.coverUrl ? `<p><img src="${payload.coverUrl}" alt="${payload.bookTitle}" style="max-width:200px;border-radius:8px;" /></p>` : ''}
+        <p>Ya podés empezar a leerlo desde cualquier dispositivo.</p>
+      `;
+      await this.newsletterService.sendAutomatedNewsletter(
+        `Gracias por tu compra: ${payload.bookTitle}`,
+        content,
+        { url: `${this.newsletterService['templateService'].getBaseUrl()}/chapter/${payload.bookId}`, text: 'COMENZAR A LEER' },
+      );
+    }
   }
 }

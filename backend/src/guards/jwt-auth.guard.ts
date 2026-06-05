@@ -1,18 +1,20 @@
-import { CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Reflector } from '@nestjs/core';
 import { Request } from 'express';
 import { IS_PUBLIC_KEY } from '../decorators/public.decorator';
+import { RedisStoreService } from '../services/redis-store.service';
 import { TokenNotFoundException, InvalidTokenException } from '../exceptions/auth.exception';
 
-/**
- * JWT Authentication Guard
- */
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
   private readonly logger = new Logger(JwtAuthGuard.name);
 
-  constructor(private jwtService: JwtService, private reflector: Reflector) {}
+  constructor(
+    private jwtService: JwtService,
+    private reflector: Reflector,
+    private redisStore: RedisStoreService,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [context.getHandler(), context.getClass()]);
@@ -31,10 +33,16 @@ export class JwtAuthGuard implements CanActivate {
 
     try {
       const payload = this.jwtService.verify(token);
+      const revoked = await this.redisStore.get(`revoked:${payload.sub}`);
+      if (revoked) {
+        this.logger.warn(`Revoked token used: ${payload.sub}`);
+        throw new UnauthorizedException('Token revoked');
+      }
       (request as any).user = { userId: payload.sub, email: payload.email };
       this.logger.debug(`Authenticated: ${payload.email} (sub: ${payload.sub})`);
       return true;
     } catch (error) {
+      if (error instanceof UnauthorizedException) throw error;
       const msg = error instanceof Error ? error.message : String(error);
       this.logger.error(`Token verification failed: ${msg} — ${request.method} ${request.url}`);
       throw new InvalidTokenException(msg);

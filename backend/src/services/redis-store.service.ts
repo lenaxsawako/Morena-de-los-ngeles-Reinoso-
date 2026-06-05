@@ -1,124 +1,161 @@
-import { Injectable, OnModuleDestroy, Logger } from '@nestjs/common';
+import { Injectable, Global, Logger, OnModuleDestroy } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import Redis from 'ioredis';
 import { IStore } from '../interfaces/store.interface';
 
+@Global()
 @Injectable()
 export class RedisStoreService implements IStore, OnModuleDestroy {
   private readonly logger = new Logger(RedisStoreService.name);
-  private readonly store = new Map<string, { value: any; expiresAt?: number }>();
+  private readonly client: Redis;
+
+  constructor(configService: ConfigService) {
+    const url = configService.get<string>('REDIS_URL', 'redis://localhost:6379');
+    this.client = new Redis(url, {
+      lazyConnect: true,
+      maxRetriesPerRequest: null,
+      retryStrategy(times) {
+        const delay = Math.min(times * 100, 3000);
+        return delay;
+      },
+    });
+
+    this.client.on('error', (err) => {
+      this.logger.error(`Redis connection error: ${err.message}`);
+    });
+
+    this.client.on('connect', () => {
+      this.logger.log('Connected to Redis');
+    });
+  }
 
   async get(key: string) {
-    const entry = this.store.get(key);
-    if (!entry) return null;
-    if (entry.expiresAt && Date.now() > entry.expiresAt) {
-      this.store.delete(key);
+    try {
+      const val = await this.client.get(key);
+      if (val === null) return null;
+      return JSON.parse(val);
+    } catch (err) {
+      this.logger.error(`get failed: ${(err as Error).message}`);
       return null;
     }
-    return entry.value;
   }
 
   async set(key: string, value: any, ttl?: number) {
-    const expiresAt = ttl ? Date.now() + ttl : undefined;
-    this.store.set(key, { value, expiresAt });
+    try {
+      const serialized = JSON.stringify(value);
+      if (ttl !== undefined) {
+        await this.client.set(key, serialized, 'PX', ttl);
+      } else {
+        await this.client.set(key, serialized);
+      }
+    } catch (err) {
+      this.logger.error(`set failed: ${(err as Error).message}`);
+    }
   }
 
   async del(key: string) {
-    this.store.delete(key);
+    try {
+      await this.client.del(key);
+    } catch (err) {
+      this.logger.error(`del failed: ${(err as Error).message}`);
+    }
   }
 
   async incr(key: string) {
-    const val = (await this.get(key)) || 0;
-    const next = Number(val) + 1;
-    await this.set(key, next);
-    return next;
+    try {
+      return await this.client.incr(key);
+    } catch (err) {
+      this.logger.error(`incr failed: ${(err as Error).message}`);
+      return 0;
+    }
   }
 
   async decr(key: string) {
-    const val = (await this.get(key)) || 0;
-    const next = Number(val) - 1;
-    await this.set(key, next);
-    return next;
+    try {
+      return await this.client.decr(key);
+    } catch (err) {
+      this.logger.error(`decr failed: ${(err as Error).message}`);
+      return 0;
+    }
   }
 
   async exists(key: string) {
-    const val = await this.get(key);
-    return val !== null && val !== undefined;
+    try {
+      const result = await this.client.exists(key);
+      return result === 1;
+    } catch (err) {
+      this.logger.error(`exists failed: ${(err as Error).message}`);
+      return false;
+    }
   }
 
   async lrange(key: string, start: number, stop: number): Promise<string[]> {
-    const entry = this.store.get(key);
-    if (!entry) return [];
-    if (entry.expiresAt && Date.now() > entry.expiresAt) {
-      this.store.delete(key);
+    try {
+      return await this.client.lrange(key, start, stop);
+    } catch (err) {
+      this.logger.error(`lrange failed: ${(err as Error).message}`);
       return [];
     }
-    const arr = Array.isArray(entry.value) ? entry.value : [String(entry.value)];
-    // Handle negative indices and inclusive stop
-    const len = arr.length;
-    const normStart = start < 0 ? Math.max(0, len + start) : Math.min(len - 1, start);
-    const normStop = stop < 0 ? len + stop : stop;
-    const sliced = arr.slice(normStart, normStop === -1 ? undefined : normStop + 1);
-    return sliced.map(String);
   }
 
   async lpush(key: string, value: string): Promise<number> {
-    const entry = this.store.get(key);
-    let arr: string[] = [];
-    let expiresAt: number | undefined = undefined;
-    if (entry) {
-      expiresAt = entry.expiresAt;
-      arr = Array.isArray(entry.value) ? entry.value : [String(entry.value)];
+    try {
+      return await this.client.lpush(key, value);
+    } catch (err) {
+      this.logger.error(`lpush failed: ${(err as Error).message}`);
+      return 0;
     }
-    arr.unshift(value);
-    this.store.set(key, { value: arr, expiresAt });
-    return arr.length;
   }
 
   async llen(key: string): Promise<number> {
-    const entry = this.store.get(key);
-    if (!entry) return 0;
-    if (entry.expiresAt && Date.now() > entry.expiresAt) {
-      this.store.delete(key);
+    try {
+      return await this.client.llen(key);
+    } catch (err) {
+      this.logger.error(`llen failed: ${(err as Error).message}`);
       return 0;
     }
-    const arr = Array.isArray(entry.value) ? entry.value : [String(entry.value)];
-    return arr.length;
   }
 
   async ltrim(key: string, start: number, stop: number): Promise<void> {
-    const entry = this.store.get(key);
-    if (!entry) return;
-    if (entry.expiresAt && Date.now() > entry.expiresAt) {
-      this.store.delete(key);
-      return;
+    try {
+      await this.client.ltrim(key, start, stop);
+    } catch (err) {
+      this.logger.error(`ltrim failed: ${(err as Error).message}`);
     }
-    const arr = Array.isArray(entry.value) ? entry.value : [String(entry.value)];
-    const len = arr.length;
-    const normStart = start < 0 ? Math.max(0, len + start) : Math.min(len - 1, Math.max(0, start));
-    const normStop = stop < 0 ? len + stop : stop;
-    const sliced = arr.slice(normStart, normStop === -1 ? undefined : normStop + 1);
-    entry.value = sliced;
-    this.store.set(key, entry);
   }
 
   async setnx(key: string, value: any, ttl?: number): Promise<number> {
-    const exists = await this.exists(key);
-    if (exists) return 0;
-    await this.set(key, value, ttl);
-    return 1;
+    try {
+      const serialized = JSON.stringify(value);
+      if (ttl !== undefined) {
+        const result = await this.client.set(key, serialized, 'PX', ttl, 'NX');
+        return result === 'OK' ? 1 : 0;
+      }
+      const result = await this.client.setnx(key, serialized);
+      return result;
+    } catch (err) {
+      this.logger.error(`setnx failed: ${(err as Error).message}`);
+      return 0;
+    }
   }
 
   async expire(key: string, ttlMs: number): Promise<void> {
-    const entry = this.store.get(key);
-    if (!entry) return;
-    entry.expiresAt = Date.now() + ttlMs;
-    this.store.set(key, entry);
+    try {
+      await this.client.pexpire(key, ttlMs);
+    } catch (err) {
+      this.logger.error(`expire failed: ${(err as Error).message}`);
+    }
   }
 
   async flushAll() {
-    this.store.clear();
+    try {
+      await this.client.flushall();
+    } catch (err) {
+      this.logger.error(`flushAll failed: ${(err as Error).message}`);
+    }
   }
 
   onModuleDestroy() {
-    this.flushAll();
+    this.client.disconnect();
   }
 }

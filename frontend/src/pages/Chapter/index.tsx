@@ -10,6 +10,7 @@ import { readingService } from '../../services/reading';
 import { authService } from '../../services/auth';
 import { paymentsService } from '../../services/payments';
 import Paywall from '../../components/Paywall';
+import ShareButton from '../../components/ShareButton';
 import './chapter.css';
 
 pdfjsLib.GlobalWorkerOptions.workerPort = new pdfjsWorker();
@@ -525,6 +526,17 @@ export default function Chapter() {
         </button>
       )}
 
+      {/* Share Button */}
+      {!isBlocked && bookData && (
+        <ShareButton
+          title={bookData.title}
+          currentPage={currentPage + 1}
+          totalPages={totalPages}
+          authorName={bookData.author?.name}
+          bookUrl={bookId}
+        />
+      )}
+
       {/* Fullscreen Button - Solo mostrar si no está bloqueado */}
       {!isBlocked && (
         <button 
@@ -579,6 +591,12 @@ export default function Chapter() {
                 <div className="p-4 rounded-xl border border-white/10 bg-surface-container space-y-2">
                   <div className="flex items-center gap-2">
                     <span className="text-body-sm font-medium text-primary">{reviews[0].userName}</span>
+                    {reviews[0].verified && (
+                      <span className="flex items-center gap-0.5 text-label-xs text-green-400">
+                        <span className="material-symbols-outlined text-sm">check_circle</span>
+                        Compra verificada
+                      </span>
+                    )}
                     <span className="text-label-sm text-on-surface-variant">
                       {new Date(reviews[0].createdAt).toLocaleDateString('es-ES', { dateStyle: 'long' })}
                     </span>
@@ -664,6 +682,12 @@ export default function Chapter() {
                       <span className="text-body-sm font-medium text-primary">
                         {isOwn ? 'Tu opinión' : review.userName}
                       </span>
+                      {review.verified && (
+                        <span className="flex items-center gap-0.5 text-label-xs text-green-400">
+                          <span className="material-symbols-outlined text-sm">check_circle</span>
+                          Compra verificada
+                        </span>
+                      )}
                       <span className="text-label-sm text-on-surface-variant">
                         {new Date(review.createdAt).toLocaleDateString('es-ES', { dateStyle: 'long' })}
                       </span>

@@ -24,7 +24,7 @@ export class ReviewService {
       bookRef: new Types.ObjectId(bookId),
       status: PurchaseStatus.PAID,
     }).lean();
-    if (!purchase) throw new ForbiddenException('Debes comprar el libro para valorarlo');
+    if (!purchase) throw new ForbiddenException('Solo podés opinar sobre libros que hayas adquirido');
 
     const now = new Date();
     const review = await this.reviewModel.findOneAndUpdate(
@@ -37,6 +37,7 @@ export class ReviewService {
           rating: dto.rating,
           comment: dto.comment || null,
           status: ReviewStatus.APPROVED,
+          verified: true,
           updatedAt: now,
         },
         $setOnInsert: {
@@ -54,6 +55,7 @@ export class ReviewService {
       comment: review.comment || undefined,
       createdAt: review.createdAt,
       status: review.status,
+      verified: review.verified,
     };
   }
 
@@ -71,6 +73,7 @@ export class ReviewService {
       rating: r.rating,
       comment: r.comment || undefined,
       createdAt: r.createdAt,
+      verified: r.verified ?? false,
     }));
   }
 

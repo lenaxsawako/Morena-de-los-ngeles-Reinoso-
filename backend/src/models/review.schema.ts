@@ -51,6 +51,11 @@ export class Review {
   })
   rejectionReason?: string;
 
+  @Prop({
+    default: false,
+  })
+  verified?: boolean;
+
   createdAt?: Date;
   updatedAt?: Date;
 }
