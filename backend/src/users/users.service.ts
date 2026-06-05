@@ -57,6 +57,12 @@ export class UsersService {
     }
   }
 
+  async validatePassword(userId: string, password: string): Promise<boolean> {
+    const user = await this.userModel.findById(userId);
+    if (!user) return false;
+    return bcrypt.compare(password, user.passwordHash);
+  }
+
   async updatePassword(userId: string, newPassword: string): Promise<void> {
     const passwordHash = await bcrypt.hash(newPassword, 10);
     await this.userModel.findByIdAndUpdate(userId, { passwordHash });

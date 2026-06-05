@@ -44,6 +44,12 @@ export default function Profile() {
   const [deleteConfirm, setDeleteConfirm] = useState('');
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState('');
+  const [pwOld, setPwOld] = useState('');
+  const [pwNew, setPwNew] = useState('');
+  const [pwConfirm, setPwConfirm] = useState('');
+  const [pwMsg, setPwMsg] = useState<string | null>(null);
+  const [pwError, setPwError] = useState<string | null>(null);
+  const [pwLoading, setPwLoading] = useState(false);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -255,6 +261,69 @@ export default function Profile() {
                   {new Date(user.createdAt).toLocaleDateString('es-ES')}
                 </p>
               </div>
+            </div>
+          </div>
+
+          {/* Change Password */}
+          <div className="profile-section">
+            <h2 className="profile-section-title">Cambiar Contraseña</h2>
+            <div className="profile-preferences" style={{ flexDirection: 'column', gap: '0.75rem' }}>
+              <input
+                type="password"
+                placeholder="Contraseña actual"
+                value={pwOld}
+                onChange={e => { setPwOld(e.target.value); setPwMsg(null); setPwError(null); }}
+                className="w-full px-4 py-3 rounded-xl bg-surface border border-white/10 text-body-md text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary transition-colors"
+              />
+              <input
+                type="password"
+                placeholder="Nueva contraseña (mín. 8 caracteres)"
+                value={pwNew}
+                onChange={e => { setPwNew(e.target.value); setPwMsg(null); setPwError(null); }}
+                className="w-full px-4 py-3 rounded-xl bg-surface border border-white/10 text-body-md text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary transition-colors"
+              />
+              <input
+                type="password"
+                placeholder="Confirmar nueva contraseña"
+                value={pwConfirm}
+                onChange={e => { setPwConfirm(e.target.value); setPwMsg(null); setPwError(null); }}
+                className="w-full px-4 py-3 rounded-xl bg-surface border border-white/10 text-body-md text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:border-primary transition-colors"
+              />
+              {pwError && <p className="text-body-sm text-red-400">{pwError}</p>}
+              {pwMsg && <p className="text-body-sm" style={{ color: '#4ade80' }}>{pwMsg}</p>}
+              <button
+                onClick={async () => {
+                  setPwMsg(null);
+                  setPwError(null);
+                  if (!pwOld || !pwNew || !pwConfirm) { setPwError('Completá todos los campos'); return; }
+                  if (pwNew.length < 8) { setPwError('La nueva contraseña debe tener al menos 8 caracteres'); return; }
+                  if (pwNew !== pwConfirm) { setPwError('Las contraseñas nuevas no coinciden'); return; }
+                  setPwLoading(true);
+                  try {
+                    const token = authService.getToken();
+                    const response = await fetch(`${import.meta.env.VITE_API_URL}/users/me/password`, {
+                      method: 'PUT',
+                      headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ oldPassword: pwOld, newPassword: pwNew }),
+                    });
+                    const data = await response.json().catch(() => ({}));
+                    if (!response.ok) throw new Error(data.message || 'Error al cambiar contraseña');
+                    setPwMsg('Contraseña actualizada correctamente');
+                    setPwOld('');
+                    setPwNew('');
+                    setPwConfirm('');
+                  } catch (err: any) {
+                    setPwError(err.message);
+                  } finally {
+                    setPwLoading(false);
+                  }
+                }}
+                disabled={pwLoading}
+                className="profile-admin-button mt-2"
+              >
+                <span className="material-symbols-outlined notranslate" translate="no">lock</span>
+                {pwLoading ? 'Cambiando...' : 'Cambiar contraseña'}
+              </button>
             </div>
           </div>
 
