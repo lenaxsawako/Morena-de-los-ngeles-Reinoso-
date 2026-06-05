@@ -4,7 +4,8 @@ import { booksService, type BookDetail, type SeriesInfo, type Recommendation } f
 import { favoritesService } from '../../services/favorites';
 import { authService } from '../../services/auth';
 import { paymentsService } from '../../services/payments';
-import { reviewsService, type ReviewItem } from '../../services/reviews';
+import { type ReviewItem } from '../../services/reviews';
+import ReviewCarousel from '../../components/ReviewCarousel';
 import SEO from '../../components/SEO';
 
 const SITE_URL = import.meta.env.VITE_API_URL?.replace('/api', '') || 'https://lbb.app';
@@ -24,30 +25,8 @@ export default function Book() {
   const [avgRating, setAvgRating] = useState(0);
   const [reviewCount, setReviewCount] = useState(0);
   const [hasPurchased, setHasPurchased] = useState(false);
-  const [reviewsModalOpen, setReviewsModalOpen] = useState(false);
-  const [reviewRating, setReviewRating] = useState(5);
-  const [reviewComment, setReviewComment] = useState('');
-  const [submittingReview, setSubmittingReview] = useState(false);
-  const [reviewError, setReviewError] = useState('');
-  const [reviewFocused, setReviewFocused] = useState(false);
-  const [editingReview, setEditingReview] = useState(false);
-  const [reviewMenuOpen, setReviewMenuOpen] = useState<string | null>(null);
 
   const userId = authService.getUserId();
-  const userReview = reviews.find(r => r.userId === userId);
-
-  // Pre-fill form when modal opens if user already has a review
-  useEffect(() => {
-    if (reviewsModalOpen && userReview) {
-      setReviewRating(userReview.rating);
-      setReviewComment(userReview.comment || '');
-      setEditingReview(true);
-      setReviewFocused(true);
-    } else if (!reviewsModalOpen) {
-      setEditingReview(false);
-      setReviewFocused(false);
-    }
-  }, [reviewsModalOpen]);
 
   useEffect(() => {
     if (!id) {
@@ -378,51 +357,32 @@ export default function Book() {
           </div>
         )}
 
-        {/* Opinions Preview (YouTube-style) */}
-        <div className="max-w-3xl mt-16 space-y-4">
-          <h3 className="text-headline-md font-bold">Opiniones</h3>
-          {reviews.length > 0 ? (
-            <>
-              <div className="p-4 rounded-xl border border-white/10 bg-surface-container space-y-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-body-sm font-medium text-primary">{reviews[0].userName}</span>
-                  {reviews[0].verified && (
-                    <span className="flex items-center gap-0.5 text-label-xs text-green-400">
-                      <span className="material-symbols-outlined text-sm">check_circle</span>
-                      Compra verificada
-                    </span>
-                  )}
-                  <span className="text-label-sm text-on-surface-variant">
-                    {new Date(reviews[0].createdAt).toLocaleDateString('es-ES', { dateStyle: 'long' })}
-                  </span>
-                </div>
-                <div className="flex gap-0.5">
-                  {Array.from({ length: 5 }, (_, i) => (
-                    <span key={i} className={`material-symbols-outlined text-sm ${i < reviews[0].rating ? 'text-accent-gold' : 'text-on-surface-variant/30'}`}>
-                      star
-                    </span>
-                  ))}
-                </div>
-                {reviews[0].comment && (
-                  <p className="text-body-md text-on-surface-variant leading-relaxed">{reviews[0].comment}</p>
-                )}
-              </div>
-              <button
-                onClick={() => setReviewsModalOpen(true)}
-                className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors text-body-md font-medium"
-              >
-                Ver todas las opiniones ({reviewCount})
-                <span className="material-symbols-outlined text-lg">chevron_right</span>
-              </button>
-            </>
-          ) : (
-            <button
-              onClick={() => setReviewsModalOpen(true)}
-              className="text-body-md text-on-surface-variant hover:text-primary transition-colors"
-            >
-              Todavía no hay opiniones. <span className="text-primary underline">Hacé click para dejar una</span>
-            </button>
-          )}
+        {/* Opinions Carousel */}
+        <div className="max-w-4xl mt-16">
+          <ReviewCarousel
+            reviews={reviews}
+            currentUserId={userId}
+            hasPurchase={hasPurchased}
+            bookId={id!}
+            avgRating={avgRating}
+            reviewCount={reviewCount}
+            onReviewSubmit={(review) => {
+              setReviews(prev => [review, ...prev]);
+              setAvgRating(prev => {
+                const total = prev * reviewCount + review.rating;
+                return total / (reviewCount + 1);
+              });
+              setReviewCount(prev => prev + 1);
+            }}
+            onReviewUpdate={(updated) => {
+              setReviews(prev => {
+                const next = prev.map(r => r.id === updated.id ? updated : r);
+                const total = next.reduce((sum, r) => sum + r.rating, 0);
+                setAvgRating(next.length > 0 ? total / next.length : 0);
+                return next;
+              });
+            }}
+          />
         </div>
 
         {/* Recommendations */}
@@ -473,196 +433,7 @@ export default function Book() {
         )}
       </div>
 
-      {/* Reviews Modal (YouTube-style) */}
-      {reviewsModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" onClick={() => setReviewsModalOpen(false)}>
-          <div className="fixed inset-0 bg-black/50" />
-          <div
-            className="relative bg-surface-container rounded-t-2xl sm:rounded-2xl w-full sm:max-w-lg max-h-[75vh] flex flex-col shadow-2xl"
-            style={{ animation: 'slideUp 0.3s ease' }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mt-3 mb-2 sm:hidden" />
 
-            {/* Header */}
-            <div className="px-6 pt-4 pb-2 border-b border-white/10 flex items-center justify-between">
-              <div>
-                <h3 className="text-headline-md font-bold text-primary">Opiniones</h3>
-                <div className="flex items-center gap-2 mt-1">
-                  <span className="text-headline-sm font-bold text-accent-gold">{avgRating.toFixed(1)}</span>
-                  <div className="flex gap-0.5">
-                    {Array.from({ length: 5 }, (_, i) => (
-                      <span key={i} className={`material-symbols-outlined text-sm ${i < Math.round(avgRating) ? 'text-accent-gold' : 'text-on-surface-variant/30'}`}>
-                        star
-                      </span>
-                    ))}
-                  </div>
-                  <span className="text-label-sm text-on-surface-variant">{reviewCount}</span>
-                </div>
-              </div>
-              <button
-                onClick={() => setReviewsModalOpen(false)}
-                className="p-2 rounded-full hover:bg-white/10 transition-colors"
-              >
-                <span className="material-symbols-outlined text-on-surface-variant">close</span>
-              </button>
-            </div>
-
-            {/* Scrollable Reviews List */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-4">
-              {[...reviews].sort((a, b) => {
-                if (a.userId === userId) return -1;
-                if (b.userId === userId) return 1;
-                return 0;
-              }).map(review => {
-                const isOwn = review.userId === userId;
-                return (
-                <div key={review.id} className="p-4 rounded-xl border border-white/10 bg-surface-high space-y-2">
-                  <div className="flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-body-sm font-medium text-primary">
-                        {isOwn ? 'Tu opinión' : review.userName}
-                      </span>
-                      {review.verified && (
-                        <span className="flex items-center gap-0.5 text-label-xs text-green-400">
-                          <span className="material-symbols-outlined text-sm">check_circle</span>
-                          Compra verificada
-                        </span>
-                      )}
-                      <span className="text-label-sm text-on-surface-variant">
-                        {new Date(review.createdAt).toLocaleDateString('es-ES', { dateStyle: 'long' })}
-                      </span>
-                    </div>
-                    {isOwn && (
-                      <div className="relative">
-                        <button
-                          onClick={() => setReviewMenuOpen(reviewMenuOpen === review.id ? null : review.id)}
-                          className="p-1 rounded-full hover:bg-white/10 transition-colors"
-                        >
-                          <span className="material-symbols-outlined text-on-surface-variant text-lg">more_vert</span>
-                        </button>
-                        {reviewMenuOpen === review.id && (
-                          <div className="absolute right-0 top-8 z-10 bg-surface-container border border-white/10 rounded-xl shadow-xl min-w-[120px] overflow-hidden">
-                            <button
-                              onClick={() => {
-                                setReviewRating(review.rating);
-                                setReviewComment(review.comment || '');
-                                setEditingReview(true);
-                                setReviewFocused(true);
-                                setReviewMenuOpen(null);
-                              }}
-                              className="w-full flex items-center gap-2 px-4 py-2.5 text-body-sm text-primary hover:bg-white/5 transition-colors"
-                            >
-                              <span className="material-symbols-outlined text-lg">edit</span>
-                              Editar
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex gap-0.5">
-                    {Array.from({ length: 5 }, (_, i) => (
-                      <span key={i} className={`material-symbols-outlined text-sm ${i < review.rating ? 'text-accent-gold' : 'text-on-surface-variant/30'}`}>
-                        star
-                      </span>
-                    ))}
-                  </div>
-                  {review.comment && (
-                    <p className="text-body-md text-on-surface-variant leading-relaxed">{review.comment}</p>
-                  )}
-                </div>
-              )})}
-            </div>
-
-            {/* Rating Form (YouTube-style) */}
-            <div className="border-t border-white/10 p-4">
-              {authService.isAuthenticated() && hasPurchased ? (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex gap-0.5">
-                      {[1, 2, 3, 4, 5].map(n => (
-                        <button key={n} type="button" onClick={() => { setReviewRating(n); setReviewFocused(true); }}>
-                          <span className={`material-symbols-outlined text-2xl transition-colors ${n <= reviewRating ? 'text-accent-gold' : 'text-on-surface-variant/30'}`}>
-                            star
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                    <div className="flex-1 relative">
-                      <input
-                        value={reviewComment}
-                        onChange={e => setReviewComment(e.target.value)}
-                        onFocus={() => setReviewFocused(true)}
-                        placeholder="Escribí un comentario..."
-                        className="w-full bg-transparent border-b border-white/20 pb-1 text-body-md text-on-background outline-none focus:border-primary transition-colors"
-                      />
-                      {(editingReview || reviewFocused || reviewComment) && (
-                        <div className="flex items-center gap-2 mt-2">
-                          <button
-                            onClick={async () => {
-                              setSubmittingReview(true);
-                              setReviewError('');
-                              try {
-                                await reviewsService.upsert(id!, reviewRating, reviewComment || undefined);
-                                setReviewRating(5);
-                                setReviewComment('');
-                                setReviewFocused(false);
-                                setEditingReview(false);
-                                const data = await reviewsService.getBookReviews(id!);
-                                setReviews(data.reviews);
-                                setAvgRating(data.avgRating);
-                                setReviewCount(data.count);
-                              } catch (err: any) {
-                                setReviewError(err.message);
-                              } finally {
-                                setSubmittingReview(false);
-                              }
-                            }}
-                            disabled={submittingReview}
-                            className="px-4 py-1.5 rounded-full bg-primary text-on-primary text-label-md font-medium disabled:opacity-40 transition-opacity"
-                          >
-                            {submittingReview ? 'Enviando...' : editingReview ? 'Guardar' : 'Enviar'}
-                          </button>
-                          <button
-                            onClick={() => {
-                              if (editingReview && userReview) {
-                                setReviewRating(userReview.rating);
-                                setReviewComment(userReview.comment || '');
-                                setEditingReview(false);
-                                setReviewFocused(false);
-                              } else {
-                                setReviewComment('');
-                                setReviewRating(5);
-                                setReviewFocused(false);
-                              }
-                            }}
-                            className="px-4 py-1.5 rounded-full text-on-surface-variant text-label-md hover:text-on-background transition-colors"
-                          >
-                            Cancelar
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  {reviewError && <p className="text-body-sm text-red-400">{reviewError}</p>}
-                  {!reviewComment && !editingReview && (
-                    <p className="text-label-sm text-on-surface-variant">Tu valoración aparecerá inmediatamente</p>
-                  )}
-                </div>
-              ) : authService.isAuthenticated() && !hasPurchased ? (
-                <p className="text-body-md text-on-surface-variant text-center">
-                  <Link to={`/checkout/${id}`} className="text-primary underline">Comprá el libro</Link> para valorarlo
-                </p>
-              ) : (
-                <p className="text-body-md text-on-surface-variant text-center">
-                  <Link to="/login" className="text-primary underline">Iniciá sesión</Link> para valorar
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Share Popup */}
       {shareOpen && (
