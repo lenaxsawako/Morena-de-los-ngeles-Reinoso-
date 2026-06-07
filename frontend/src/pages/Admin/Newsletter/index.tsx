@@ -308,7 +308,7 @@ export default function NewsletterAdmin() {
               <tbody>
                 {subscribers.map((sub) => (
                   <tr key={sub._id} className="border-b border-white/5 hover:bg-white/5">
-                    <td className="py-3 text-primary">{sub.email}</td>
+                    <td className="py-3 text-primary">{sub.email.split('@')[0]}</td>
                     <td className="py-3 text-on-surface-variant">{sub.source}</td>
                     <td className="py-3">
                       <span className={`text-label-sm ${sub.isActive ? 'text-green-400' : 'text-red-400'}`}>
