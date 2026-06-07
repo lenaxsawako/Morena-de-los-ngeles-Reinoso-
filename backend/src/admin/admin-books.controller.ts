@@ -85,6 +85,18 @@ export class AdminBooksController {
   }
 
   /**
+   * GET /admin/books/activity
+   * Get paginated activity (purchases and registrations)
+   */
+  @Get('activity')
+  async getActivity(
+    @Query('page') page: string = '1',
+    @Query('limit') limit: string = '20',
+  ) {
+    return this.adminAnalyticsService.getAllActivity(Number(page), Number(limit));
+  }
+
+  /**
    * GET /admin/books
    * List books with status filter and pagination
    * Query params: status (published|draft|preorder), page, limit

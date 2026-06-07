@@ -7,6 +7,22 @@ import { User, UserDocument } from '../models/user.schema';
 import { ReadingProgress, ReadingProgressDocument } from '../models/reading-progress.schema';
 import { ReadingSession, ReadingSessionDocument } from '../models/reading-session.schema';
 
+export interface AdminActivityItem {
+  id: string;
+  type: 'purchase' | 'registration';
+  title: string;
+  description: string;
+  createdAt: Date;
+}
+
+export interface AdminActivityListResponse {
+  items: AdminActivityItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 export interface AdminActivityResponse {
   period: string;
   summary: {
@@ -142,6 +158,62 @@ export class AdminAnalyticsService {
 
     // Sort by date and limit to 10
     return activity.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 10);
+  }
+
+  /**
+   * Get paginated activity (purchases and registrations)
+   */
+  async getAllActivity(page: number = 1, limit: number = 20): Promise<AdminActivityListResponse> {
+    const skip = (page - 1) * limit;
+
+    const [purchases, registrations] = await Promise.all([
+      this.purchaseModel
+        .find()
+        .select('bookRef createdAt')
+        .populate('bookRef', 'title')
+        .sort({ createdAt: -1 })
+        .lean(),
+      this.userModel
+        .find()
+        .select('email createdAt')
+        .sort({ createdAt: -1 })
+        .lean(),
+    ]);
+
+    const activity: AdminActivityItem[] = [];
+
+    purchases.forEach((p: any) => {
+      activity.push({
+        id: p._id.toString(),
+        type: 'purchase',
+        title: 'Nueva compra',
+        description: `${p.bookRef?.title || 'Libro'} comprado`,
+        createdAt: p.createdAt,
+      });
+    });
+
+    registrations.forEach((u: any) => {
+      activity.push({
+        id: u._id.toString(),
+        type: 'registration',
+        title: 'Nuevo usuario',
+        description: `${u.email} registrado`,
+        createdAt: u.createdAt,
+      });
+    });
+
+    activity.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    const total = activity.length;
+    const items = activity.slice(skip, skip + limit);
+
+    return {
+      items,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   /**

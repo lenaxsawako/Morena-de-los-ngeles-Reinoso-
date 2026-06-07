@@ -208,6 +208,22 @@ export interface ReaderActivitySummary {
   booksFinished: number;
 }
 
+export interface ActivityItem {
+  id: string;
+  type: 'purchase' | 'registration';
+  title: string;
+  description: string;
+  createdAt: string;
+}
+
+export interface ActivityListResponse {
+  items: ActivityItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}
+
 export interface ReaderActivityMetrics {
   period: string;
   summary: ReaderActivitySummary;
@@ -449,6 +465,42 @@ class AdminBooksService {
     } catch (error) {
       console.error('Error fetching dashboard:', error);
       return defaultDashboard;
+    }
+  }
+
+  /**
+   * Get paginated activity (purchases and registrations)
+   */
+  async getActivity(page: number = 1, limit: number = 20): Promise<ActivityListResponse> {
+    try {
+      const url = new URL(`${API_URL}/admin/books/activity`, window.location.origin);
+      url.searchParams.append('page', page.toString());
+      url.searchParams.append('limit', limit.toString());
+
+      const response = await handleAdminFetch(url.toString(), {
+        headers: authService.getAuthHeader(),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Get activity failed: ${response.statusText}`);
+      }
+
+      return await safeParseJSON(response, {
+        items: [],
+        total: 0,
+        page: 1,
+        limit: 20,
+        totalPages: 0,
+      });
+    } catch (error) {
+      console.error('Error fetching activity:', error);
+      return {
+        items: [],
+        total: 0,
+        page: 1,
+        limit: 20,
+        totalPages: 0,
+      };
     }
   }
 
