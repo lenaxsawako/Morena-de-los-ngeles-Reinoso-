@@ -43,11 +43,13 @@ export default function Favorites() {
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-          {favorites.map((fav) => (
-            <Link key={fav._id} to={`/book/${fav.book._id}`} className="group space-y-3">
+          {favorites.filter(fav => fav.book).map((fav) => {
+            const book = fav.book!;
+            return (
+            <Link key={fav._id} to={`/book/${book._id}`} className="group space-y-3">
               <div className="aspect-[3/4] rounded-xl overflow-hidden bg-surface-high relative">
-                {fav.book.coverUrl ? (
-                  <img src={fav.book.coverUrl} alt={fav.book.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+                {book.coverUrl ? (
+                  <img src={book.coverUrl} alt={book.title} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
                     <span className="material-symbols-outlined text-5xl text-on-surface-variant/30">book</span>
@@ -57,7 +59,7 @@ export default function Favorites() {
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    favoritesService.removeFavorite(fav.book._id).then(() => {
+                    favoritesService.removeFavorite(book._id).then(() => {
                       setFavorites(prev => prev.filter(f => f._id !== fav._id));
                     });
                   }}
@@ -67,16 +69,17 @@ export default function Favorites() {
                 </button>
               </div>
               <div>
-                <p className="text-body-md font-medium text-primary truncate">{fav.book.title}</p>
-                {fav.book.subtitle && (
-                  <p className="text-body-sm text-on-surface-variant truncate">{fav.book.subtitle}</p>
+                <p className="text-body-md font-medium text-primary truncate">{book.title}</p>
+                {book.subtitle && (
+                  <p className="text-body-sm text-on-surface-variant truncate">{book.subtitle}</p>
                 )}
                 <p className="text-body-sm text-primary mt-1">
-                  {fav.book.priceCents > 0 ? `$${(fav.book.priceCents / 100).toFixed(2)}` : 'Gratis'}
+                  {book.priceCents > 0 ? `$${(book.priceCents / 100).toFixed(2)}` : 'Gratis'}
                 </p>
               </div>
             </Link>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

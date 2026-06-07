@@ -12,7 +12,7 @@ export interface FavoriteBook {
 
 export interface FavoriteItem {
   _id: string;
-  book: FavoriteBook;
+  book: FavoriteBook | null;
   createdAt: string;
 }
 
