@@ -6,6 +6,7 @@ import { paymentsService } from '../../services/payments';
 import { authService } from '../../services/auth';
 import { favoritesService } from '../../services/favorites';
 import Modal from '../../components/Modal';
+import SEO from '../../components/SEO';
 import './catalog.css';
 
 const CATEGORIES = ['TODOS', 'FANTASÍA', 'ROMANCE', 'CONTEMPORÁNEO'];
@@ -167,8 +168,16 @@ export default function Catalog() {
     );
   }
 
+  const siteUrl = import.meta.env.VITE_SITE_URL || 'https://morenareinoso.com';
+
   return (
-    <div className="catalog-wrapper">
+    <>
+      <SEO
+        title="Catálogo — Morena Reinoso"
+        description="Explorá todos los libros de Morena Reinoso."
+        url={`${siteUrl}/catalog`}
+      />
+      <div className="catalog-wrapper">
       <div className="reading-progress-top" style={{ width: `${scrollProgress}%` }}></div>
 
       {/* Search & Filter Section */}
@@ -470,5 +479,6 @@ export default function Catalog() {
         </div>
       </Modal>
     </div>
+    </>
   );
 }

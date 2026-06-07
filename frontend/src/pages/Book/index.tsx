@@ -104,7 +104,6 @@ export default function Book() {
   }
 
   const price = book.priceCents > 0 ? `$${(book.priceCents / 100).toFixed(2)} ${book.currency}` : 'Gratis';
-  const authorName = book.author?.name || 'Autor';
   const pageUrl = `${SITE_URL}/book/book/${book._id}`;
 
   const handleCopyLink = async () => {
@@ -130,37 +129,14 @@ export default function Book() {
     }
   };
 
-  const bookSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'Book',
-    name: book.title,
-    description: book.description,
-    url: pageUrl,
-    image: book.coverUrl,
-    author: {
-      '@type': 'Person',
-      name: authorName,
-    },
-    numberOfPages: book.totalPages,
-    ...(book.priceCents > 0 ? {
-      offers: {
-        '@type': 'Offer',
-        price: (book.priceCents / 100).toFixed(2),
-        priceCurrency: book.currency,
-        availability: 'https://schema.org/InStock',
-      },
-    } : {}),
-  };
-
   return (
     <div className="min-h-screen bg-background text-on-background">
       <SEO
         title={book.title}
-        description={book.description.slice(0, 160)}
+        description={`${book.title} de Morena Reinoso. ${book.description?.slice(0, 150)}`}
         image={book.coverUrl}
-        url={pageUrl}
+        url={`${import.meta.env.VITE_SITE_URL || 'https://morenareinoso.com'}/book/${book._id}`}
         type="book"
-        jsonLd={bookSchema}
       />
       <div className="border-b border-outline-variant px-6 py-4 sticky top-0 bg-background z-10">
         <button

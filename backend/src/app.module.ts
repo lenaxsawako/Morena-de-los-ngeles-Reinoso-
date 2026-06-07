@@ -18,6 +18,7 @@ import { CheckoutModule } from './checkout/checkout.module';
 import { FavoritesModule } from './favorites/favorites.module';
 import { ReviewModule } from './reviews/review.module';
 import { SupportModule } from './support/support.module';
+import { SeoModule } from './seo/seo.module';
 import { IpExtractorService } from './services/ip-extractor.service';
 @Module({
   imports: [
@@ -47,6 +48,7 @@ import { IpExtractorService } from './services/ip-extractor.service';
     FavoritesModule,
     ReviewModule,
     SupportModule,
+    SeoModule,
   ],
   controllers: [AppController],
   providers: [AppService, IpExtractorService],
