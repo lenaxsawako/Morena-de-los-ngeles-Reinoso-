@@ -61,11 +61,25 @@ export class LandingService {
   }
 
   /**
-   * Get latest published volumes
+   * Get next preorder book (earliest releaseDate)
+   */
+  async getPreorderBook() {
+    const book = await this.bookModel
+      .findOne({ isPublished: true, isPreorder: true })
+      .select('_id title description coverUrl releaseDate')
+      .sort({ releaseDate: 1 })
+      .lean()
+      .exec();
+
+    return book || null;
+  }
+
+  /**
+   * Get latest published volumes (excludes pre-orders)
    */
   async getLatestVolumes() {
     const books = await this.bookModel
-      .find({ isPublished: true })
+      .find({ isPublished: true, isPreorder: false })
       .select('_id title subtitle publishedAt coverUrl')
       .sort({ publishedAt: -1 })
       .limit(4)
@@ -85,8 +99,9 @@ export class LandingService {
    * Get complete landing page data
    */
   async getLandingPage() {
-    const [latestRelease, featuredBooks, latestVolumes, philosophy, siteConfig] = await Promise.all([
+    const [latestRelease, preorderBook, featuredBooks, latestVolumes, philosophy, siteConfig] = await Promise.all([
       this.getLatestRelease(),
+      this.getPreorderBook(),
       this.getFeaturedBooks(),
       this.getLatestVolumes(),
       this.getPhilosophy(),
@@ -95,6 +110,7 @@ export class LandingService {
 
     return {
       latestRelease,
+      preorderBook,
       philosophy,
       featuredBooks,
       latestVolumes,

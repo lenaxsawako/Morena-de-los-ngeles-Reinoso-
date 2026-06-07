@@ -106,7 +106,7 @@ export default function HomePage() {
     );
   }
 
-  const { latestRelease, featuredBooks, latestVolumes, philosophy } = landingData;
+  const { latestRelease, preorderBook, featuredBooks, latestVolumes, philosophy } = landingData;
 
   return (
     <main className="pt-32">
@@ -117,7 +117,7 @@ export default function HomePage() {
       />
 
       {/* Hero Section: Latest Release */}
-      {latestRelease && (
+      {latestRelease ? (
       <section className="px-5 md:px-16 mb-32 max-w-[1200px] mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
           {/* Mobile label above image */}
@@ -208,6 +208,70 @@ export default function HomePage() {
                     COMPRAR: ${(latestRelease.priceCents / 100).toFixed(2)}
                   </button>
                 )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      ) : preorderBook ? (
+      <section className="px-5 md:px-16 mb-32 max-w-[1200px] mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+          <div className="lg:hidden order-1">
+            <span className="font-label-md text-label-md uppercase tracking-widest text-accent-gold opacity-80">
+              PRÓXIMAMENTE
+            </span>
+          </div>
+          <div className="lg:col-span-5 order-2 lg:order-2">
+            <div className="relative aspect-[3/4] w-full max-w-[450px] mx-auto overflow-hidden group">
+              <img
+                alt={preorderBook.title}
+                src={preorderBook.coverUrl}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none"></div>
+              <h1 className="lg:hidden absolute top-6 left-6 right-6 font-display-lg text-display-sm text-primary">
+                {preorderBook.title}
+              </h1>
+              <div className="lg:hidden absolute bottom-6 left-6 right-6 flex flex-col gap-3">
+                <button 
+                  onClick={() => navigate(`/book/${preorderBook._id}`)}
+                  className="w-full bg-accent-gold text-surface font-label-md py-3 transition-all duration-300 hover:opacity-90 tracking-widest uppercase"
+                >
+                  PRE-COMPRAR
+                </button>
+                {preorderBook.releaseDate && (
+                  <p className="text-center text-on-surface-variant text-body-xs">
+                    Lanzamiento: {new Date(preorderBook.releaseDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="lg:col-span-7 order-3 lg:order-1">
+            <div className="space-y-6">
+              <div className="hidden lg:block space-y-6">
+                <span className="font-label-md text-label-md uppercase tracking-widest text-accent-gold opacity-80">
+                  PRÓXIMAMENTE
+                </span>
+                <h1 className="font-display-lg text-display-lg text-primary max-w-xl">
+                  {preorderBook.title}
+                </h1>
+              </div>
+              <p className="font-body-lg text-body-lg text-on-surface-variant max-w-lg">
+                {preorderBook.description}
+              </p>
+              {preorderBook.releaseDate && (
+                <p className="font-body-sm text-body-sm text-on-surface-variant">
+                  Fecha de lanzamiento: {new Date(preorderBook.releaseDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}
+                </p>
+              )}
+              <div className="hidden lg:flex pt-8 flex-wrap gap-6">
+                <button 
+                  onClick={() => navigate(`/book/${preorderBook._id}`)}
+                  className="bg-accent-gold text-surface font-label-md px-8 py-4 transition-all duration-300 hover:opacity-90 tracking-widest uppercase"
+                >
+                  PRE-COMPRAR AHORA
+                </button>
               </div>
             </div>
           </div>

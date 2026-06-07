@@ -31,6 +31,14 @@ export interface Philosophy {
   authorImageUrl?: string | null;
 }
 
+export interface PreorderBook {
+  _id: string;
+  title: string;
+  description: string;
+  coverUrl: string;
+  releaseDate: string;
+}
+
 export interface SocialLinks {
   instagram: string;
   twitter: string;
@@ -40,6 +48,7 @@ export interface SocialLinks {
 
 export interface LandingData {
   latestRelease: LatestRelease | null;
+  preorderBook: PreorderBook | null;
   featuredBooks: FeaturedBook[];
   latestVolumes: LatestVolume[];
   philosophy: Philosophy;
