@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { subscriptionService } from '../../services/subscription';
+import './coming-soon.css';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -104,7 +105,7 @@ export default function ComingSoon({ forceShow }: { forceShow?: boolean }) {
   const pad = (n: number) => n.toString().padStart(2, '0');
 
   return (
-    <div style={{
+    <div className="coming-soon-container" style={{
       minHeight: '100vh',
       display: 'flex',
       flexDirection: 'column',
@@ -149,18 +150,18 @@ export default function ComingSoon({ forceShow }: { forceShow?: boolean }) {
         )}
 
         {timeLeft && (
-          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginBottom: '3rem' }}>
+          <div className="coming-soon-countdown" style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginBottom: '3rem' }}>
             {[
               { label: 'Días', value: timeLeft.days },
               { label: 'Horas', value: timeLeft.hours },
               { label: 'Min', value: timeLeft.minutes },
               { label: 'Seg', value: timeLeft.seconds },
             ].map(unit => (
-              <div key={unit.label} style={{
+              <div key={unit.label} className="coming-soon-countdown-item" style={{
                 display: 'flex', flexDirection: 'column', alignItems: 'center',
                 minWidth: '72px',
               }}>
-                <span style={{
+                <span className="coming-soon-countdown-number" style={{
                   fontSize: '2.5rem', fontWeight: 300, lineHeight: 1,
                   background: 'rgba(255,255,255,0.08)',
                   padding: '0.75rem 0.5rem', borderRadius: '8px',
@@ -177,7 +178,7 @@ export default function ComingSoon({ forceShow }: { forceShow?: boolean }) {
           </div>
         )}
 
-        <form onSubmit={handleSubscribe} style={{ display: 'flex', gap: '0.5rem', maxWidth: '420px', margin: '0 auto', marginBottom: '2.5rem' }}>
+        <form onSubmit={handleSubscribe} className="coming-soon-form" style={{ display: 'flex', gap: '0.5rem', maxWidth: '420px', margin: '0 auto', marginBottom: '2.5rem' }}>
           <input
             type="email"
             value={email}

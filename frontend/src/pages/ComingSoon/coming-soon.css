@@ -1,0 +1,32 @@
+@media (max-width: 480px) {
+  .coming-soon-container {
+    padding: 1.5rem 1rem !important;
+  }
+
+  .coming-soon-countdown {
+    gap: 0.5rem !important;
+  }
+
+  .coming-soon-countdown-item {
+    min-width: 56px !important;
+  }
+
+  .coming-soon-countdown-number {
+    font-size: 1.75rem !important;
+    padding: 0.5rem 0.375rem !important;
+    min-width: 48px !important;
+  }
+
+  .coming-soon-form {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+  }
+
+  .coming-soon-form input {
+    width: 100% !important;
+  }
+
+  .coming-soon-form button {
+    width: 100% !important;
+  }
+}
