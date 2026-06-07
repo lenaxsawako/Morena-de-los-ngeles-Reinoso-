@@ -230,8 +230,8 @@ export default function NewsletterAdmin() {
       )}
 
       {/* Campaign History */}
-      <div className="glass-card p-8">
-        <h2 className="text-xl font-headline-md mb-6">Historial de Campañas</h2>
+      <div className="glass-card p-4 md:p-8">
+        <h2 className="text-lg md:text-xl font-headline-md mb-4 md:mb-6">Historial de Campañas</h2>
         {loading ? (
           <p className="text-on-surface-variant">Cargando...</p>
         ) : campaigns.length === 0 ? (
@@ -288,8 +288,8 @@ export default function NewsletterAdmin() {
       </div>
 
       {/* Subscribers List */}
-      <div className="glass-card p-8">
-        <h2 className="text-xl font-headline-md mb-6">Suscriptores ({totalSubs})</h2>
+      <div className="glass-card p-4 md:p-8">
+        <h2 className="text-xl font-headline-md mb-4 md:mb-6">Suscriptores ({totalSubs})</h2>
         {loading ? (
           <p className="text-on-surface-variant">Cargando...</p>
         ) : subscribers.length === 0 ? (
