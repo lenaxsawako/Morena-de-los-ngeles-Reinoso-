@@ -37,10 +37,10 @@ export default function PrivacyPolicy() {
             </div>
             <div className="pp-section-content">
               <p>
-                Para usar la plataforma necesitás crear una cuenta. Recopilamos tu <strong>correo electrónico</strong> y un <strong>nombre</strong> (el que elijas). La <strong>contraseña</strong> se almacena cifrada (hash + salt) — nunca la vemos ni la guardamos en texto plano.
+                Para usar la plataforma necesitás crear una cuenta. Recopilamos tu <strong>correo electrónico</strong> y un <strong>nombre</strong> (el que elijas). La <strong>contraseña</strong> se almacena de forma cifrada — nunca la vemos ni la guardamos en texto plano.
               </p>
               <p>
-                Podés agregar un <strong>avatar</strong> de forma opcional. Estos datos son necesarios para identificar tu biblioteca, sincronizar tu progreso de lectura entre dispositivos y procesar tus compras.
+                Estos datos son necesarios para identificar tu biblioteca, sincronizar tu progreso de lectura entre dispositivos y procesar tus compras.
               </p>
             </div>
           </section>
@@ -58,7 +58,7 @@ export default function PrivacyPolicy() {
                 Guardamos automáticamente la <strong>página actual</strong> donde vas leyendo, el <strong>porcentaje de avance</strong> y la <strong>fecha de última lectura</strong> de cada libro. Esto permite que retomés la lectura exactamente donde la dejaste, incluso si cambiás de dispositivo.
               </p>
               <p>
-                Si no iniciás sesión, este progreso se almacena únicamente en tu navegador (localStorage). Al iniciar sesión, se sincroniza con nuestros servidores para que no pierdas tu lugar.
+                Si no iniciás sesión, este progreso se guarda temporalmente en tu navegador y se perderá si borrás los datos del sitio o cambiás de dispositivo. Al iniciar sesión, se sincroniza con nuestros servidores para que no pierdas tu lugar en ningún dispositivo.
               </p>
             </div>
           </section>
@@ -124,7 +124,7 @@ export default function PrivacyPolicy() {
                 Cuando usás la plataforma, registramos tu <strong>dirección IP</strong> de forma temporal para prevenir abusos y garantizar la seguridad. También registramos el <strong>navegador</strong> y <strong>sistema operativo</strong> de forma anónima para mejorar la compatibilidad.
               </p>
               <p>
-                Usamos <strong>tokens de sesión almacenados localmente en tu navegador (localStorage)</strong> para mantener tu sesión activa. No usamos cookies de rastreo publicitario ni compartimos datos con redes de anuncios.
+                Para mantener tu sesión activa guardamos una <strong>clave de acceso</strong> en tu navegador — esto es lo que hace que no tengas que iniciar sesión cada vez que entrás. No usamos cookies de rastreo publicitario ni compartimos datos con redes de anuncios.
               </p>
             </div>
           </section>
@@ -180,15 +180,7 @@ export default function PrivacyPolicy() {
               <ul className="pp-rights-list">
                 <li>
                   <span className="material-symbols-outlined">check_circle</span>
-                  <span><strong>Acceder</strong> a todos los datos que tenemos asociados a tu cuenta.</span>
-                </li>
-                <li>
-                  <span className="material-symbols-outlined">check_circle</span>
-                  <span><strong>Corregir</strong> tu nombre, email o avatar desde la configuración del perfil.</span>
-                </li>
-                <li>
-                  <span className="material-symbols-outlined">check_circle</span>
-                  <span><strong>Eliminar</strong> tu cuenta y todos tus datos asociados de forma permanente.</span>
+                  <span><strong>Eliminar</strong> tu cuenta y todos tus datos personales de forma permanente desde la configuración del perfil.</span>
                 </li>
               </ul>
             </div>

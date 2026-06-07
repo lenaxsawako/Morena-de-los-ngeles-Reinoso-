@@ -41,7 +41,7 @@ export default function TermsOfService() {
                 Al crear una cuenta, acceder o usar esta plataforma ("el Servicio"), aceptás estos Términos de Servicio. Si no estás de acuerdo, no uses el Servicio.
               </p>
               <p>
-                Este es un servicio de venta de libros digitales (PDF) operado por el administrador del sitio. No está afiliado a ninguna editorial externa.
+                Este es un servicio de venta y lectura de libros digitales operado por Morena Reinoso. Los libros se leen exclusivamente dentro de la plataforma — no son archivos descargables. No está afiliado a ninguna editorial externa.
               </p>
             </div>
           </section>
@@ -56,7 +56,7 @@ export default function TermsOfService() {
             </h2>
             <div className="tos-section-content">
               <p>
-                Para comprar libros y usar el lector digital necesitás una cuenta. Seleccionarás un nombre y una contraseña. La contraseña se almacena cifrada; sos responsable de mantenerla segura.
+                Para comprar libros y usar el lector digital necesitás una cuenta. Seleccionarás un correo electrónico y una contraseña. La contraseña se almacena cifrada; sos responsable de mantenerla segura.
               </p>
               <p>
                 No compartas tu cuenta con otras personas. No crees cuentas múltiples para evadir compras o restricciones. Si detectamos actividad fraudulenta, podemos suspender tu cuenta sin previo aviso.
@@ -77,7 +77,7 @@ export default function TermsOfService() {
                 Los libros se compran de forma individual. El precio se muestra antes de la compra. Los pagos son procesados por <strong>Polar</strong>, un procesador de pagos externo. No almacenamos números de tarjeta ni datos bancarios.
               </p>
               <p>
-                Una vez realizada la compra, el libro se agrega a tu biblioteca de forma permanente. Por tratarse de contenido digital de acceso inmediato dentro de la plataforma, <strong>no se realizan reembolsos</strong> una vez procesada la compra, salvo que el contenido esté defectuoso o no coincida con la descripción publicada. Al completar la compra, el usuario acepta expresamente estas condiciones y reconoce que el acceso inmediato al contenido digital excluye el derecho de arrepentimiento.
+                Una vez realizada la compra, el libro se agrega a tu biblioteca de forma permanente. Por tratarse de contenido digital, <strong>no se realizan reembolsos</strong> una vez procesada la compra, salvo que el contenido no pueda visualizarse correctamente en la plataforma o no coincida con la descripción publicada. Al completar la compra, el usuario acepta expresamente estas condiciones y reconoce que el acceso inmediato al contenido digital excluye el derecho de arrepentimiento. Adicionalmente, no se realizan reembolsos si el libro registra un progreso de lectura superior al 20% — esto indica que el contenido fue accedido y consumido de forma significativa. Tampoco se realizan reembolsos si se registra actividad de lectura más allá de las páginas de vista previa gratuita — esto indica que el contenido pago fue accedido.
               </p>
               <p>
                 Si tu compra no aparece en tu biblioteca o encontrás algún problema con el contenido adquirido, podés contactarnos a través del <Link to="/support" className="tos-link">formulario de soporte</Link> para que lo resolvamos.
