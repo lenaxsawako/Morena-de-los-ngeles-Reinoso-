@@ -582,9 +582,9 @@ export default function EditManuscript() {
                     onChange={(e) => setFormData(prev => ({ ...prev, prequelRef: e.target.value || null }))}
                     className="w-full bg-white/5 border border-white/10 rounded px-3 py-2 text-sm text-primary focus:outline-none focus:border-primary"
                   >
-                    <option value="">— Sin precuela —</option>
+                    <option value="" style={{ backgroundColor: '#1a1a2e', color: '#fff' }}>— Sin precuela —</option>
                     {allBooks.map(b => (
-                      <option key={b._id} value={b._id}>{b.title}</option>
+                      <option key={b._id} value={b._id} style={{ backgroundColor: '#1a1a2e', color: '#fff' }}>{b.title}</option>
                     ))}
                   </select>
                 </div>
