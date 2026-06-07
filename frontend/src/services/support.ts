@@ -2,6 +2,12 @@ import { authService } from './auth';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
+export interface TicketMessage {
+  role: 'user' | 'admin';
+  content: string;
+  createdAt: string;
+}
+
 export interface Ticket {
   _id: string;
   userId?: string | null;
@@ -11,6 +17,7 @@ export interface Ticket {
   message: string;
   orderId?: string | null;
   status: 'open' | 'in_progress' | 'resolved';
+  messages: TicketMessage[];
   adminReply?: string | null;
   repliedAt?: string | null;
   createdAt: string;
@@ -58,6 +65,12 @@ export const supportService = {
     const response = await fetch(`${API_URL}/admin/support/tickets/${id}`, {
       headers: { ...authHeaders() },
     });
+    if (!response.ok) throw new Error('Error al obtener ticket');
+    return response.json();
+  },
+
+  async getPublicTicket(id: string): Promise<Ticket> {
+    const response = await fetch(`${API_URL}/support/tickets/${id}`);
     if (!response.ok) throw new Error('Error al obtener ticket');
     return response.json();
   },

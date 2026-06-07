@@ -19,6 +19,7 @@ export class SupportService {
       subject: dto.subject,
       message: dto.message,
       orderId: dto.orderId || null,
+      messages: [{ role: 'user', content: dto.message, createdAt: new Date() }],
     });
   }
 
@@ -47,14 +48,22 @@ export class SupportService {
   }
 
   async update(id: string, dto: UpdateTicketDto) {
-    const update: Record<string, unknown> = {};
-    if (dto.status) update.status = dto.status;
+    const setFields: Record<string, unknown> = {};
+    const pushFields: Record<string, unknown> = {};
+
+    if (dto.status) setFields.status = dto.status;
     if (dto.adminReply !== undefined) {
-      update.adminReply = dto.adminReply;
-      update.repliedAt = new Date();
+      setFields.adminReply = dto.adminReply;
+      setFields.repliedAt = new Date();
+      pushFields.messages = { role: 'admin', content: dto.adminReply, createdAt: new Date() };
     }
 
-    const ticket = await this.ticketModel.findByIdAndUpdate(id, { $set: update }, { new: true }).lean();
+    const updateDoc: Record<string, unknown> = { $set: setFields };
+    if (Object.keys(pushFields).length > 0) {
+      updateDoc.$push = pushFields;
+    }
+
+    const ticket = await this.ticketModel.findByIdAndUpdate(id, updateDoc, { new: true }).lean();
     if (!ticket) throw new NotFoundException('Ticket not found');
     return ticket;
   }

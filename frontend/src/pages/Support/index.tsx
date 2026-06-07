@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { authService } from '../../services/auth';
-import { supportService } from '../../services/support';
+import { supportService, type Ticket } from '../../services/support';
 import './support.css';
 
 const SUBJECTS = [
@@ -19,6 +19,9 @@ export default function Support() {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<{ ticketId: string } | null>(null);
+  const [viewTicketId, setViewTicketId] = useState('');
+  const [viewedTicket, setViewedTicket] = useState<Ticket | null>(null);
+  const [viewing, setViewing] = useState(false);
 
   useEffect(() => {
     if (authService.isAuthenticated()) {
@@ -61,6 +64,61 @@ export default function Support() {
     }
   };
 
+  const handleViewTicket = async () => {
+    if (!viewTicketId.trim()) return;
+    setViewing(true);
+    setError(null);
+    try {
+      const ticket = await supportService.getPublicTicket(viewTicketId.trim());
+      setViewedTicket(ticket);
+    } catch {
+      setError('No encontramos un ticket con ese ID');
+    }
+    setViewing(false);
+  };
+
+  if (viewedTicket) {
+    return (
+      <main className="support-wrapper">
+        <div className="support-container">
+          <div className="support-header">
+            <button
+              onClick={() => setViewedTicket(null)}
+              style={{ background: 'none', border: 'none', color: '#F3EAD3', cursor: 'pointer', fontSize: '0.85rem', marginBottom: '1rem', fontFamily: 'inherit' }}
+            >
+              ← Volver
+            </button>
+            <h1 className="support-title">{viewedTicket.subject}</h1>
+            <p className="support-subtitle" style={{ fontSize: '0.8rem', color: '#999888' }}>
+              #{viewedTicket._id} — Estado: {viewedTicket.status === 'open' ? 'Abierto' : viewedTicket.status === 'in_progress' ? 'En progreso' : 'Resuelto'}
+            </p>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1.5rem' }}>
+            {(viewedTicket.messages && viewedTicket.messages.length > 0 ? viewedTicket.messages : [{ role: 'user', content: viewedTicket.message, createdAt: viewedTicket.createdAt }]).map((msg, idx) => (
+              <div
+                key={idx}
+                style={{
+                  alignSelf: msg.role === 'user' ? 'flex-start' : 'flex-end',
+                  maxWidth: '85%',
+                  background: msg.role === 'user' ? 'rgba(255,255,255,0.03)' : 'rgba(74,222,128,0.05)',
+                  border: `1px solid ${msg.role === 'user' ? 'rgba(255,255,255,0.06)' : 'rgba(74,222,128,0.15)'}`,
+                  borderRadius: '8px', padding: '0.75rem 1rem',
+                  fontSize: '0.9rem', lineHeight: 1.6, whiteSpace: 'pre-wrap',
+                }}
+              >
+                <p style={{ margin: '0 0 0.35rem', fontSize: '0.75rem', color: msg.role === 'user' ? '#999888' : '#4ade80', fontWeight: 600 }}>
+                  {msg.role === 'user' ? 'Tú' : 'Soporte'}
+                  <span style={{ fontWeight: 400, marginLeft: '0.5rem' }}>{new Date(msg.createdAt).toLocaleString('es-ES')}</span>
+                </p>
+                {msg.content}
+              </div>
+            ))}
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   if (result) {
     return (
       <main className="support-wrapper">
@@ -74,6 +132,16 @@ export default function Support() {
             <p className="support-success-ref">
               Número de referencia: <strong>#{result.ticketId}</strong>
             </p>
+            <button
+              onClick={() => {
+                setResult(null);
+                setViewTicketId(result.ticketId);
+              }}
+              className="support-submit"
+              style={{ marginTop: '1rem' }}
+            >
+              VER CONVERSACIÓN
+            </button>
           </div>
         </div>
       </main>
@@ -89,6 +157,34 @@ export default function Support() {
             Tenés un problema o consulta? Escribinos y te respondemos a la brevedad.
           </p>
         </div>
+
+        <div style={{
+          marginBottom: '2rem', padding: '1rem', border: '1px solid rgba(255,255,255,0.1)',
+          borderRadius: '8px', background: 'rgba(255,255,255,0.02)',
+        }}>
+          <p style={{ fontSize: '0.85rem', color: '#999888', marginBottom: '0.5rem' }}>
+            Ya enviaste una consulta? Ingresá tu número de referencia para ver las respuestas.
+          </p>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <input
+              className="support-input"
+              type="text"
+              value={viewTicketId}
+              onChange={e => setViewTicketId(e.target.value)}
+              placeholder="ID del ticket (ej: 6655abc...)"
+              style={{ flex: 1, marginBottom: 0 }}
+            />
+            <button
+              onClick={handleViewTicket}
+              disabled={viewing || !viewTicketId.trim()}
+              className="support-submit"
+              style={{ flex: '0 0 auto', padding: '0.75rem 1.25rem', margin: 0 }}
+            >
+              {viewing ? '...' : 'VER'}
+            </button>
+          </div>
+        </div>
+
         <form className="support-form" onSubmit={handleSubmit}>
           <div className="support-field">
             <label className="support-label">Nombre</label>

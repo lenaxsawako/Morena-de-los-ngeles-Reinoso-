@@ -41,9 +41,11 @@ const DEFAULT_LAYOUT = `<!DOCTYPE html>
       <a href="{{cta_url}}">{{cta_text}}</a>
     </div>
     {{/cta}}
+    {{#show_unsubscribe}}
     <div class="footer">
       <p>Si no deseas recibir más correos, puedes <a href="{{unsubscribe_url}}">cancelar tu suscripción</a>.</p>
     </div>
+    {{/show_unsubscribe}}
   </div>
 </body>
 </html>`;
@@ -84,11 +86,21 @@ export class TemplateService implements OnModuleInit {
       html = html.replace(/{{#cta}}[\s\S]*?{{\/cta}}/g, '');
     }
 
+    const showUnsubscribe = !!vars.unsubscribe_url;
+
+    if (showUnsubscribe) {
+      html = html
+        .replace('{{#show_unsubscribe}}', '')
+        .replace('{{/show_unsubscribe}}', '')
+        .replace(/\{\{unsubscribe_url\}\}/g, vars.unsubscribe_url);
+    } else {
+      html = html.replace(/{{#show_unsubscribe}}[\s\S]*?{{\/show_unsubscribe}}/g, '');
+    }
+
     html = html
       .replace(/\{\{site_name\}\}/g, vars.site_name || this.siteName)
       .replace(/\{\{subject\}\}/g, vars.subject)
-      .replace(/\{\{content\}\}/g, vars.content)
-      .replace(/\{\{unsubscribe_url\}\}/g, vars.unsubscribe_url);
+      .replace(/\{\{content\}\}/g, vars.content);
 
     return html;
   }

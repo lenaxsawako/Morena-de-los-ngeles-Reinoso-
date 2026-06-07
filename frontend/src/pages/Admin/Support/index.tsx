@@ -163,27 +163,38 @@ export default function AdminSupport() {
               <p style={{ margin: 0, color: '#999888' }}>{new Date(selected.createdAt).toLocaleString('es-ES')}</p>
             </div>
 
-            <div style={{
-              background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)',
-              borderRadius: '8px', padding: '1rem', marginBottom: '1.5rem',
-              fontSize: '0.9rem', lineHeight: 1.6, whiteSpace: 'pre-wrap',
-            }}>
-              {selected.message}
-            </div>
-
-            {selected.adminReply && (
-              <div style={{ marginBottom: '1.5rem' }}>
-                <p style={{ fontSize: '0.8rem', color: '#4ade80', marginBottom: '0.5rem' }}>
-                  Respuesta enviada el {selected.repliedAt ? new Date(selected.repliedAt).toLocaleString('es-ES') : ''}
-                </p>
-                <div style={{
-                  background: 'rgba(74,222,128,0.05)', border: '1px solid rgba(74,222,128,0.15)',
-                  borderRadius: '8px', padding: '1rem', fontSize: '0.9rem', lineHeight: 1.6, whiteSpace: 'pre-wrap',
-                }}>
-                  {selected.adminReply}
-                </div>
+            <div style={{ marginBottom: '1.5rem' }}>
+              <p style={{ fontSize: '0.8rem', color: '#999888', marginBottom: '0.75rem', fontWeight: 600 }}>CONVERSACIÓN</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {selected.messages && selected.messages.length > 0 ? selected.messages.map((msg, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      alignSelf: msg.role === 'user' ? 'flex-start' : 'flex-end',
+                      maxWidth: '85%',
+                      background: msg.role === 'user' ? 'rgba(255,255,255,0.03)' : 'rgba(74,222,128,0.05)',
+                      border: `1px solid ${msg.role === 'user' ? 'rgba(255,255,255,0.06)' : 'rgba(74,222,128,0.15)'}`,
+                      borderRadius: '8px', padding: '0.75rem 1rem',
+                      fontSize: '0.9rem', lineHeight: 1.6, whiteSpace: 'pre-wrap',
+                    }}
+                  >
+                    <p style={{ margin: '0 0 0.35rem', fontSize: '0.75rem', color: msg.role === 'user' ? '#999888' : '#4ade80', fontWeight: 600 }}>
+                      {msg.role === 'user' ? selected.name : 'Tú (admin)'}
+                      <span style={{ fontWeight: 400, marginLeft: '0.5rem' }}>{new Date(msg.createdAt).toLocaleString('es-ES')}</span>
+                    </p>
+                    {msg.content}
+                  </div>
+                )) : (
+                  <div style={{
+                    background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)',
+                    borderRadius: '8px', padding: '1rem',
+                    fontSize: '0.9rem', lineHeight: 1.6, whiteSpace: 'pre-wrap',
+                  }}>
+                    {selected.message}
+                  </div>
+                )}
               </div>
-            )}
+            </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               <div>

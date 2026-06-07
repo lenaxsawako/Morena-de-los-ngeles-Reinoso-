@@ -32,6 +32,9 @@ export class SupportTicket {
   @Prop({ enum: TicketStatus, default: TicketStatus.OPEN })
   status!: TicketStatus;
 
+  @Prop({ type: [{ role: { type: String, enum: ['user', 'admin'] }, content: String, createdAt: { type: Date, default: Date.now } }], default: [] })
+  messages!: { role: string; content: string; createdAt: Date }[];
+
   @Prop({ type: String, default: null })
   adminReply?: string | null;
 

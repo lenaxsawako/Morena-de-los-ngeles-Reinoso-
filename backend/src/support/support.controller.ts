@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Req } from '@nestjs/common';
 import { SupportService } from './support.service';
 import { CreateTicketDto } from './dto/create-ticket.dto';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -24,5 +24,10 @@ export class SupportController {
     });
 
     return { ticketId: String(ticket._id), message: 'Tu consulta fue enviada correctamente' };
+  }
+
+  @Get('tickets/:id')
+  async findOne(@Param('id') id: string) {
+    return this.supportService.findById(id);
   }
 }
