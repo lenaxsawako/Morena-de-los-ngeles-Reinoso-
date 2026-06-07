@@ -2370,18 +2370,17 @@ export default function Settings() {
                 />
               </div>
 
-              <a
-                href="/coming-soon-preview"
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                onClick={() => window.open(import.meta.env.BASE_URL + 'coming-soon-preview', '_blank')}
                 style={{
+                  background: 'none', border: 'none', cursor: 'pointer',
                   display: 'inline-flex', alignItems: 'center', gap: '0.375rem',
                   color: '#60a5fa', fontSize: '0.875rem', textDecoration: 'none',
-                  marginTop: '0.25rem',
+                  marginTop: '0.25rem', padding: 0,
                 }}
               >
                 Previsualizar página de espera →
-              </a>
+              </button>
             </div>
 
             <div className="settings-info-box">
