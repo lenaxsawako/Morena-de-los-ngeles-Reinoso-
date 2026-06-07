@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { authService } from '../../../services/auth';
+import ConfirmModal from '../../../components/ConfirmModal';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -22,6 +23,7 @@ export default function AdminCoupons() {
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({ name: '', code: '', type: 'percentage' as const, amount: 10, endsAt: '', maxRedemptions: 100, maxUsesPerUser: 1 });
   const [loading, setLoading] = useState(true);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   const authHeaders = () => ({ 'Authorization': `Bearer ${authService.getToken()}`, 'Content-Type': 'application/json' });
 
@@ -53,9 +55,15 @@ export default function AdminCoupons() {
   };
 
   const handleDelete = async (polarDiscountId: string) => {
-    if (!confirm('¿Eliminar este cupón?')) return;
+    setConfirmDeleteId(polarDiscountId);
+  };
+
+  const executeDelete = async () => {
+    if (!confirmDeleteId) return;
+    const id = confirmDeleteId;
+    setConfirmDeleteId(null);
     try {
-      await fetch(`${API_URL}/admin/coupons/${polarDiscountId}`, { method: 'DELETE', headers: authHeaders() });
+      await fetch(`${API_URL}/admin/coupons/${id}`, { method: 'DELETE', headers: authHeaders() });
       await load();
     } catch { /* ignore */ }
   };
@@ -134,6 +142,13 @@ export default function AdminCoupons() {
           </div>
         ))}
       </div>
+      {confirmDeleteId && (
+        <ConfirmModal
+          message="¿Eliminar este cupón?"
+          onConfirm={executeDelete}
+          onCancel={() => setConfirmDeleteId(null)}
+        />
+      )}
     </div>
   );
 }

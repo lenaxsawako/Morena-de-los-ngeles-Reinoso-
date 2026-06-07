@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { reviewsService, type AdminReviewItem } from '../../../services/reviews';
+import ConfirmModal from '../../../components/ConfirmModal';
 
 export default function AdminReviews() {
   const [reviews, setReviews] = useState<AdminReviewItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   const loadReviews = async () => {
     setLoading(true);
@@ -16,7 +18,13 @@ export default function AdminReviews() {
   useEffect(() => { loadReviews(); }, []);
 
   const handleDelete = async (id: string) => {
-    if (!confirm('¿Eliminar esta reseña?')) return;
+    setConfirmDeleteId(id);
+  };
+
+  const executeDelete = async () => {
+    if (!confirmDeleteId) return;
+    const id = confirmDeleteId;
+    setConfirmDeleteId(null);
     await reviewsService.deleteReview(id);
     setReviews(prev => prev.filter(r => r.id !== id));
   };
@@ -78,6 +86,13 @@ export default function AdminReviews() {
             </div>
           ))}
         </div>
+      )}
+      {confirmDeleteId && (
+        <ConfirmModal
+          message="¿Eliminar esta reseña?"
+          onConfirm={executeDelete}
+          onCancel={() => setConfirmDeleteId(null)}
+        />
       )}
     </div>
   );

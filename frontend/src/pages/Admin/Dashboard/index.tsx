@@ -1,16 +1,24 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { adminBooksService, type DashboardStats } from '../../../services/adminBooks';
+import ConfirmModal from '../../../components/ConfirmModal';
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const [dashboard, setDashboard] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [openMenuBookId, setOpenMenuBookId] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<{ bookId: string; bookTitle: string } | null>(null);
 
   const handleDeleteBook = async (bookId: string, bookTitle: string) => {
     setOpenMenuBookId(null);
-    if (!confirm(`¿Eliminar "${bookTitle}"? Esta acción no se puede deshacer.`)) return;
+    setConfirmDelete({ bookId, bookTitle });
+  };
+
+  const executeDelete = async () => {
+    if (!confirmDelete) return;
+    const { bookId } = confirmDelete;
+    setConfirmDelete(null);
     const result = await adminBooksService.deleteBook(bookId);
     if (result) {
       const dashboardData = await adminBooksService.getDashboard();
@@ -353,6 +361,13 @@ export default function Dashboard() {
       </section>
         </>
       )}
+    {confirmDelete && (
+      <ConfirmModal
+        message={`¿Eliminar "${confirmDelete.bookTitle}"? Esta acción no se puede deshacer.`}
+        onConfirm={executeDelete}
+        onCancel={() => setConfirmDelete(null)}
+      />
+    )}
     </>
   );
 }

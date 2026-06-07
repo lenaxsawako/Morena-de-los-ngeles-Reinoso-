@@ -2,6 +2,7 @@
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { adminBooksService, type AdminBook, type DashboardStats, type DriveStatus, type DriveFile } from '../../../services/adminBooks';
 import BookCreationModal from './BookCreationModal';
+import ConfirmModal from '../../../components/ConfirmModal';
 
 const TAB_FILTERS = ['Todos los Libros', 'Publicados', 'Borradores', 'Pre-Órdenes'];
 
@@ -51,6 +52,7 @@ export default function Manuscripts() {
   const [publishError, setPublishError] = useState<string | null>(null);
   const [publishMode, setPublishMode] = useState<'normal' | 'preorder'>('normal');
   const [releaseDate, setReleaseDate] = useState('');
+  const [confirmDelete, setConfirmDelete] = useState<{ bookId: string; bookTitle: string } | null>(null);
 
   // Load dashboard and books on mount
   const loadData = async () => {
@@ -462,13 +464,7 @@ export default function Manuscripts() {
                     </button>
                     <button
                       type="button"
-                      onClick={async () => {
-                        if (!confirm(`¿Eliminar "${book.title}"? Esta acción no se puede deshacer.`)) return;
-                        const result = await adminBooksService.deleteBook(book._id);
-                        if (result) {
-                          setBooks(prev => prev.filter(b => b._id !== book._id));
-                        }
-                      }}
+                      onClick={() => setConfirmDelete({ bookId: book._id, bookTitle: book.title })}
                       className="p-2 border border-white/20 hover:border-on-error-container hover:text-on-error-container transition-all"
                       title="Eliminar libro"
                     >
@@ -719,6 +715,22 @@ export default function Manuscripts() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Confirm Delete Modal */}
+      {confirmDelete && (
+        <ConfirmModal
+          message={`¿Eliminar "${confirmDelete.bookTitle}"? Esta acción no se puede deshacer.`}
+          onConfirm={async () => {
+            const { bookId } = confirmDelete;
+            setConfirmDelete(null);
+            const result = await adminBooksService.deleteBook(bookId);
+            if (result) {
+              setBooks(prev => prev.filter(b => b._id !== bookId));
+            }
+          }}
+          onCancel={() => setConfirmDelete(null)}
+        />
       )}
 
       {/* Drive Configuration Modal */}
