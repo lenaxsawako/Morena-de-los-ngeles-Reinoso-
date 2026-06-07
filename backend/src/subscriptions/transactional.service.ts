@@ -17,7 +17,7 @@ export class TransactionalService {
       <p>Explorá el catálogo y encuentra tu próxima historia.</p>
     `;
     const html = this.templateService.render({
-      site_name: process.env.SITE_NAME || 'LBB',
+      
       subject: `Bienvenida, ${name} 👋`,
       content,
       unsubscribe_url: this.templateService.buildUnsubscribeUrl(email),
@@ -37,7 +37,7 @@ export class TransactionalService {
       </p>
     `;
     const html = this.templateService.render({
-      site_name: process.env.SITE_NAME || 'LBB',
+      
       subject: `Tu compra de ${bookTitle} fue confirmada`,
       content,
       unsubscribe_url: this.templateService.buildUnsubscribeUrl(email),
@@ -54,7 +54,7 @@ export class TransactionalService {
       </p>
     `;
     const html = this.templateService.render({
-      site_name: process.env.SITE_NAME || 'LBB',
+      
       subject: 'Recuperá tu contraseña',
       content,
       unsubscribe_url: '',
@@ -73,7 +73,7 @@ export class TransactionalService {
       <p>Llevás el <strong>${progressPercentage}%</strong> del libro. ¡Continuá donde lo dejaste!</p>
     `;
     const html = this.templateService.render({
-      site_name: process.env.SITE_NAME || 'LBB',
+      
       subject: `¿Seguís leyendo ${bookTitle}?`,
       content,
       unsubscribe_url: this.templateService.buildUnsubscribeUrl(email),
@@ -90,7 +90,7 @@ export class TransactionalService {
       </p>
     `;
     const html = this.templateService.render({
-      site_name: process.env.SITE_NAME || 'LBB',
+      
       subject: `Recibimos tu consulta (#${ticketId})`,
       content,
       unsubscribe_url: '',
@@ -108,7 +108,7 @@ export class TransactionalService {
       <p>Si necesitás más ayuda, no dudes en responder a este correo.</p>
     `;
     const html = this.templateService.render({
-      site_name: process.env.SITE_NAME || 'LBB',
+      
       subject: `Respuesta a tu consulta (#${ticketId})`,
       content,
       unsubscribe_url: '',

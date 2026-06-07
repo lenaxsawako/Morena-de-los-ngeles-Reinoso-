@@ -1,11 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { SiteConfig, SiteConfigDocument } from '../models/site-config.schema';
 
 export interface TemplateVars {
-  site_name: string;
+  site_name?: string;
   subject: string;
   content: string;
   unsubscribe_url: string;
-  [key: string]: string;
 }
 
 const DEFAULT_LAYOUT = `<!DOCTYPE html>
@@ -47,13 +49,26 @@ const DEFAULT_LAYOUT = `<!DOCTYPE html>
 </html>`;
 
 @Injectable()
-export class TemplateService {
-  private readonly siteName: string;
+export class TemplateService implements OnModuleInit {
+  private readonly logger = new Logger(TemplateService.name);
+  private siteName = 'LBB';
   private readonly baseUrl: string;
 
-  constructor() {
-    this.siteName = process.env.SITE_NAME || 'LBB';
-    this.baseUrl = process.env.VITE_API_URL?.replace('/api', '') || 'https://lbb.app';
+  constructor(
+    @InjectModel(SiteConfig.name) private siteConfigModel: Model<SiteConfigDocument>,
+  ) {
+    this.baseUrl = process.env.FRONTEND_URL || process.env.VITE_API_URL?.replace('/api', '') || 'https://lbb.app';
+  }
+
+  async onModuleInit() {
+    try {
+      const config = await this.siteConfigModel.findOne().lean().exec();
+      if (config?.siteName) {
+        this.siteName = config.siteName;
+      }
+    } catch (err) {
+      this.logger.warn('Could not load site name from DB, using fallback');
+    }
   }
 
   render(vars: TemplateVars, cta?: { url: string; text: string }): string {

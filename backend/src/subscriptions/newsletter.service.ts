@@ -77,7 +77,6 @@ export class NewsletterService {
     for (const email of emails) {
       const unsubscribeUrl = this.templateService.buildUnsubscribeUrl(email);
       const htmlContent = this.templateService.render({
-        site_name: process.env.SITE_NAME || 'LBB',
         subject: campaign.subject,
         content: campaign.htmlContent,
         unsubscribe_url: unsubscribeUrl,
@@ -149,7 +148,6 @@ export class NewsletterService {
     for (const email of emails) {
       const unsubscribeUrl = this.templateService.buildUnsubscribeUrl(email);
       const htmlContent = this.templateService.render({
-        site_name: process.env.SITE_NAME || 'LBB',
         subject,
         content,
         unsubscribe_url: unsubscribeUrl,
@@ -162,17 +160,6 @@ export class NewsletterService {
         failed++;
       }
     }
-
-    await this.campaignModel.create({
-      subject,
-      htmlContent: content,
-      segment: CampaignSegment.ALL,
-      status: CampaignStatus.SENT,
-      sentAt: new Date(),
-      recipientsCount: emails.length,
-      sentCount: sent,
-      failedCount: failed,
-    });
 
     return { sent, failed };
   }

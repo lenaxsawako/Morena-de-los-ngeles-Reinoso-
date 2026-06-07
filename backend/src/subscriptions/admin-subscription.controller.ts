@@ -52,7 +52,6 @@ export class AdminSubscriptionController {
     const email = body.email || 'test@example.com';
     const unsubscribeUrl = this.templateService.buildUnsubscribeUrl(email);
     const html = this.templateService.render({
-      site_name: process.env.SITE_NAME || 'LBB',
       subject: body.subject,
       content: body.content,
       unsubscribe_url: unsubscribeUrl,
