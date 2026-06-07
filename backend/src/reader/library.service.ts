@@ -30,6 +30,7 @@ export class LibraryService {
 
     const seen = new Set<string>();
     const unique = purchases.filter((p) => {
+      if (!p.bookRef) return false;
       const id = p.bookRef._id.toString();
       if (seen.has(id)) return false;
       seen.add(id);
@@ -37,6 +38,7 @@ export class LibraryService {
     });
 
     const bookIds = [...seen];
+    if (bookIds.length === 0) return [];
 
     // Get reading progress for all books
     const progressMap = new Map();
@@ -143,7 +145,7 @@ export class LibraryService {
       .sort({ lastReadAt: -1 })
       .lean();
 
-    if (!progress) {
+    if (!progress || !progress.bookRef) {
       return null;
     }
 
@@ -174,6 +176,7 @@ export class LibraryService {
 
     const seen = new Set<string>();
     const unique = purchases.filter((p) => {
+      if (!p.bookRef) return false;
       const id = p.bookRef._id.toString();
       if (seen.has(id)) return false;
       seen.add(id);
@@ -181,13 +184,14 @@ export class LibraryService {
     });
 
     const bookIds = [...seen];
+    if (bookIds.length === 0) return [];
 
     const progressMap = new Map();
     const progressList = await this.readingProgressModel.find({
       userRef: new Types.ObjectId(userId),
       bookRef: { $in: bookIds },
     });
-
+        
     progressList.forEach((p) => {
       progressMap.set(p.bookRef.toString(), p);
     });
@@ -226,7 +230,7 @@ export class LibraryService {
       .sort({ lastReadAt: -1 })
       .limit(limit);
 
-    return progressList.map((p) => {
+    return progressList.filter(p => p.bookRef).map((p) => {
       const book = p.bookRef as any;
       return {
         bookId: book._id,
