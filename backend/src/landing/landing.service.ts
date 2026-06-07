@@ -115,6 +115,8 @@ export class LandingService {
       comingSoonTitle: siteConfig?.comingSoonTitle || 'Próximamente',
       comingSoonSubtitle: siteConfig?.comingSoonSubtitle || '',
       comingSoonBg: siteConfig?.comingSoonBg || '',
+      instagramUrl: siteConfig?.instagramUrl || '',
+      tiktokUrl: siteConfig?.tiktokUrl || '',
     };
   }
 
