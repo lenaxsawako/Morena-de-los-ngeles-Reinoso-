@@ -19,6 +19,7 @@ export default function AdminSupport() {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
   const [selected, setSelected] = useState<Ticket | null>(null);
+  const [opening, setOpening] = useState(false);
   const [editStatus, setEditStatus] = useState('');
   const [editReply, setEditReply] = useState('');
   const [saving, setSaving] = useState(false);
@@ -35,10 +36,15 @@ export default function AdminSupport() {
   useEffect(() => { load(); }, [statusFilter]);
 
   const openTicket = async (id: string) => {
-    const t = await supportService.getTicket(id);
-    setSelected(t);
-    setEditStatus(t.status);
-    setEditReply(t.adminReply || '');
+    if (opening) return;
+    setOpening(true);
+    try {
+      const t = await supportService.getTicket(id);
+      setSelected(t);
+      setEditStatus(t.status);
+      setEditReply(t.adminReply || '');
+    } catch { /* ignore */ }
+    setOpening(false);
   };
 
   const handleSave = async () => {
@@ -129,6 +135,19 @@ export default function AdminSupport() {
         </div>
       )}
 
+      {opening && (
+        <div
+          style={{
+            position: 'fixed', inset: 0, zIndex: 9999,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)',
+            padding: '1rem',
+          }}
+        >
+          <div style={{ color: '#999888', fontSize: '0.9rem' }}>Cargando ticket...</div>
+        </div>
+      )}
+
       {selected && (
         <div
           style={{
@@ -137,7 +156,7 @@ export default function AdminSupport() {
             background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)',
             padding: '1rem',
           }}
-          onClick={() => setSelected(null)}
+          onClick={() => { if (!opening) setSelected(null); }}
         >
           <div
             style={{
