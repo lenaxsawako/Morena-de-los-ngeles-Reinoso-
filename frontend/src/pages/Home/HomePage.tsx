@@ -255,7 +255,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {featuredBooks.length > 0 && (
+        {featuredBooks.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 h-auto md:h-[800px]">
           {/* Large Featured Card (First Book) */}
           {featuredBooks[0] && (
@@ -311,6 +311,11 @@ export default function HomePage() {
             )}
           </div>
         </div>
+        ) : (
+        <div className="text-center py-24">
+          <span className="material-symbols-outlined text-5xl text-on-surface-variant opacity-30 mb-4">auto_stories</span>
+          <p className="text-on-surface-variant font-body-md">No hay obras destacadas todavía.</p>
+        </div>
         )}
       </section>
 
@@ -320,7 +325,7 @@ export default function HomePage() {
           <div className="mb-24 text-center">
             <h2 className="font-headline-lg text-headline-lg text-primary">Últimos Volúmenes</h2>
           </div>
-          {latestVolumes.length > 0 && (
+          {latestVolumes.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-4 gap-12">
             {latestVolumes.map((book) => (
               <Link key={book._id} to={`/book/${book._id}`} className="space-y-6 group cursor-pointer block">
@@ -342,6 +347,11 @@ export default function HomePage() {
                 </div>
               </Link>
             ))}
+          </div>
+          ) : (
+          <div className="text-center py-24">
+            <span className="material-symbols-outlined text-5xl text-on-surface-variant opacity-30 mb-4">library_books</span>
+            <p className="text-on-surface-variant font-body-md">No hay volúmenes publicados todavía.</p>
           </div>
           )}
         </div>
