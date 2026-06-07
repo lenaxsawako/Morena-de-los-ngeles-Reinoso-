@@ -9,17 +9,16 @@ import Modal from '../../components/Modal';
 import SEO from '../../components/SEO';
 import './catalog.css';
 
-const CATEGORIES = ['TODOS', 'FANTASÍA', 'ROMANCE', 'CONTEMPORÁNEO'];
-
 export default function Catalog() {
   const navigate = useNavigate();
   const [scrollProgress, setScrollProgress] = useState(0);
-  const [activeCategory, setActiveCategory] = useState('TODOS');
+  const [activeCategory, setActiveCategory] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
   // Data from API
   const [catalogLanding, setCatalogLanding] = useState<CatalogLanding | null>(null);
+  const [categories, setCategories] = useState<{ _id: string; name: string; slug: string }[]>([]);
   const [books, setBooks] = useState<BookItem[]>([]);
   const [pages, setPages] = useState(0);
   const [recommendations, setRecommendations] = useState<RecommendedBook[]>([]);
@@ -59,6 +58,7 @@ export default function Catalog() {
 
         const landingData = await catalogService.getCatalogLanding();
         setCatalogLanding(landingData);
+        setCategories(landingData.categories || []);
 
         const recs = await catalogService.getRecommendations();
         setRecommendations(recs);
@@ -100,9 +100,7 @@ export default function Catalog() {
         setLoading(true);
         setError(null);
 
-        const categorySlug = activeCategory === 'ALL' 
-          ? undefined 
-          : catalogService.getCategorySlug(activeCategory);
+        const categorySlug = activeCategory || undefined;
 
         const data = await catalogService.getBooks(
           searchQuery || undefined,
@@ -126,8 +124,8 @@ export default function Catalog() {
 
   const isInLibrary = useCallback((bookId: string) => purchasedIds.has(bookId) || guestLibraryIds.has(bookId), [purchasedIds, guestLibraryIds]);
 
-  const handleCategoryChange = (category: string) => {
-    setActiveCategory(category);
+  const handleCategoryChange = (slug: string) => {
+    setActiveCategory(slug);
     setCurrentPage(1);
   };
 
@@ -198,13 +196,20 @@ export default function Catalog() {
           </div>
 
           <div className="catalog-category-filters">
-            {CATEGORIES.map((category) => (
+            <button
+              key="all"
+              onClick={() => handleCategoryChange('')}
+              className={`catalog-filter-button ${activeCategory === '' ? 'active' : ''}`}
+            >
+              TODOS
+            </button>
+            {categories.map((cat) => (
               <button
-                key={category}
-                onClick={() => handleCategoryChange(category)}
-                className={`catalog-filter-button ${activeCategory === category ? 'active' : ''}`}
+                key={cat._id}
+                onClick={() => handleCategoryChange(cat.slug)}
+                className={`catalog-filter-button ${activeCategory === cat.slug ? 'active' : ''}`}
               >
-                {category}
+                {cat.name}
               </button>
             ))}
           </div>
