@@ -125,13 +125,18 @@ export default function ComingSoon({ forceShow }: { forceShow?: boolean }) {
       }} />
 
       <div style={{ position: 'relative', zIndex: 1, maxWidth: '640px', width: '100%', textAlign: 'center' }}>
-        {logoUrl ? (
-          <img src={logoUrl} alt={siteName} style={{ height: '48px', marginBottom: '2rem', objectFit: 'contain' }} />
-        ) : siteName ? (
-          <p style={{ fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.3em', marginBottom: '2rem', opacity: 0.6 }}>
-            {siteName}
-          </p>
-        ) : null}
+        {(logoUrl || siteName) && (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', marginBottom: '2rem' }}>
+            {logoUrl && (
+              <img src={logoUrl} alt={siteName} style={{ height: '48px', objectFit: 'contain' }} />
+            )}
+            {siteName && (
+              <span style={{ fontSize: '0.875rem', textTransform: 'uppercase', letterSpacing: '0.3em', opacity: 0.6 }}>
+                {siteName}
+              </span>
+            )}
+          </div>
+        )}
 
         <h1 style={{ fontSize: 'clamp(2.5rem, 8vw, 4.5rem)', fontWeight: 300, letterSpacing: '-0.02em', marginBottom: '1rem', lineHeight: 1.1 }}>
           {status?.comingSoonTitle || 'Próximamente'}
