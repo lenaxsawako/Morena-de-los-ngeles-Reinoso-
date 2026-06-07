@@ -79,6 +79,25 @@ export class UpdateSettingsDto {
     maintenanceMode?: boolean;
     maintenanceMessage?: string;
   };
+
+  @IsOptional()
+  @IsBoolean()
+  launchMode?: boolean;
+
+  @IsOptional()
+  launchDate?: Date | string | null;
+
+  @IsOptional()
+  @IsString()
+  comingSoonTitle?: string;
+
+  @IsOptional()
+  @IsString()
+  comingSoonSubtitle?: string;
+
+  @IsOptional()
+  @IsString()
+  comingSoonBg?: string;
 }
 
 export class CreateCategoryDto {

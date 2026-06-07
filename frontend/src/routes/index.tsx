@@ -5,6 +5,7 @@ import CheckoutLayout from "../layouts/CheckoutLayout";
 import ReaderLayout from "../layouts/ReaderLayout";
 import AdminLayout from "../pages/Admin";
 import ProtectedRoute from "../components/ProtectedRoute";
+import LaunchGate from "../components/LaunchGate";
 
 import Home from "../pages/Home";
 import Library from "../pages/Library";
@@ -24,6 +25,7 @@ import Profile from "../pages/Profile";
 import Favorites from "../pages/Favorites";
 import Support from "../pages/Support";
 import Unsubscribe from "../pages/Unsubscribe";
+import ComingSoon from "../pages/ComingSoon";
 import AdminSupport from "../pages/Admin/Support";
 
 import Dashboard from "../pages/Admin/Dashboard";
@@ -46,6 +48,19 @@ export const router = createBrowserRouter([
     errorElement: <NotFound />,
     children: [
       {
+        path: "/login",
+        element: <Login />,
+      },
+      {
+        path: "/profile",
+        element: <Profile />,
+      },
+    ],
+  },
+  {
+    element: <LaunchGate><MainLayout /></LaunchGate>,
+    children: [
+      {
         path: "/",
         element: <Home />,
       },
@@ -60,10 +75,6 @@ export const router = createBrowserRouter([
       {
         path: "/book/:id",
         element: <Book />,
-      },
-      {
-        path: "/login",
-        element: <Login />,
       },
       {
         path: "/register",
@@ -86,10 +97,6 @@ export const router = createBrowserRouter([
         element: <PrivacyPolicy />,
       },
       {
-        path: "/profile",
-        element: <Profile />,
-      },
-      {
         path: "/favorites",
         element: <Favorites />,
       },
@@ -104,7 +111,7 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    element: <CheckoutLayout />,
+    element: <LaunchGate><CheckoutLayout /></LaunchGate>,
     children: [
       {
         path: "/checkout/:bookId",
@@ -117,7 +124,7 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    element: <ReaderLayout />,
+    element: <LaunchGate><ReaderLayout /></LaunchGate>,
     children: [
       {
         path: "/chapter/:bookId",
@@ -186,6 +193,10 @@ export const router = createBrowserRouter([
         element: <AdminSupport />,
       },
     ],
+  },
+  {
+    path: "/coming-soon-preview",
+    element: <ComingSoon forceShow />,
   },
   {
     path: "*",

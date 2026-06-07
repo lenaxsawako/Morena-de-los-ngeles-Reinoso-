@@ -157,6 +157,22 @@ export class SiteConfig {
     maintenanceMessage: string;
   };
 
+  // Coming Soon / Launch Mode
+  @Prop({ default: true })
+  launchMode!: boolean;
+
+  @Prop({ default: null })
+  launchDate?: Date | null;
+
+  @Prop({ default: 'Próximamente' })
+  comingSoonTitle!: string;
+
+  @Prop({ default: '' })
+  comingSoonSubtitle!: string;
+
+  @Prop({ default: '' })
+  comingSoonBg!: string;
+
   // Landing page content
   @Prop({
     type: {

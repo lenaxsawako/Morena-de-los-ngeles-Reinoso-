@@ -343,6 +343,13 @@ export interface SiteSettings {
   storage: StorageSettings;
   email: EmailSettings;
   system: SystemSettings;
+  launch?: {
+    launchMode: boolean;
+    launchDate: string | null;
+    comingSoonTitle: string;
+    comingSoonSubtitle: string;
+    comingSoonBg: string;
+  };
 }
 
 export interface Category {
@@ -1482,6 +1489,28 @@ class AdminBooksService {
       return await safeParseJSON(response, null);
     } catch (error) {
       console.error('Error uploading logo:', error);
+      return null;
+    }
+  }
+
+  async uploadComingSoonBg(file: File): Promise<{ url: string } | null> {
+    try {
+      const formData = new FormData();
+      formData.append('bg', file);
+
+      const response = await handleAdminFetch(`${API_URL}/admin/settings/coming-soon-bg`, {
+        method: 'POST',
+        headers: authService.getAuthHeader(),
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Upload coming soon bg failed: ${response.statusText}`);
+      }
+
+      return await safeParseJSON(response, null);
+    } catch (error) {
+      console.error('Error uploading coming soon bg:', error);
       return null;
     }
   }

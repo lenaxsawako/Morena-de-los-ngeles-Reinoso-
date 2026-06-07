@@ -77,6 +77,13 @@ export class AdminSettingsService {
         },
       },
       system: config.system,
+      launch: {
+        launchMode: config.launchMode ?? true,
+        launchDate: config.launchDate ?? null,
+        comingSoonTitle: config.comingSoonTitle || 'Próximamente',
+        comingSoonSubtitle: config.comingSoonSubtitle || '',
+        comingSoonBg: config.comingSoonBg || '',
+      },
     };
   }
 
@@ -172,6 +179,13 @@ export class AdminSettingsService {
     if (dto.system) {
       config.system = { ...config.system, ...dto.system };
     }
+
+    // Update launch mode settings
+    if (dto.launchMode !== undefined) config.launchMode = dto.launchMode;
+    if (dto.launchDate !== undefined) config.launchDate = dto.launchDate ? new Date(dto.launchDate) : null;
+    if (dto.comingSoonTitle !== undefined) config.comingSoonTitle = dto.comingSoonTitle;
+    if (dto.comingSoonSubtitle !== undefined) config.comingSoonSubtitle = dto.comingSoonSubtitle;
+    if (dto.comingSoonBg !== undefined) config.comingSoonBg = dto.comingSoonBg;
 
     await config.save();
 
@@ -485,6 +499,11 @@ export class AdminSettingsService {
           maintenanceMode: false,
           maintenanceMessage: 'Site under maintenance',
         },
+        launchMode: true,
+        launchDate: null,
+        comingSoonTitle: 'Próximamente',
+        comingSoonSubtitle: '',
+        comingSoonBg: '',
       });
     }
 

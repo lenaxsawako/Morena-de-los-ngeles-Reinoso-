@@ -27,4 +27,15 @@ export class LandingController {
   async getPhilosophy() {
     return this.landingService.getPhilosophy();
   }
+
+  /**
+   * GET /landing/launch-status
+   * Returns the coming soon / launch mode configuration
+   * Public endpoint — no auth required
+   */
+  @Get('launch-status')
+  @Public()
+  async getLaunchStatus() {
+    return this.landingService.getLaunchStatus();
+  }
 }

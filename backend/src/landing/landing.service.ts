@@ -105,6 +105,20 @@ export class LandingService {
   }
 
   /**
+   * Get launch mode status (public)
+   */
+  async getLaunchStatus() {
+    const siteConfig = await this.siteConfigModel.findOne().lean().exec();
+    return {
+      launchMode: siteConfig?.launchMode ?? true,
+      launchDate: siteConfig?.launchDate ?? null,
+      comingSoonTitle: siteConfig?.comingSoonTitle || 'Próximamente',
+      comingSoonSubtitle: siteConfig?.comingSoonSubtitle || '',
+      comingSoonBg: siteConfig?.comingSoonBg || '',
+    };
+  }
+
+  /**
    * Get philosophy section
    */
   async getPhilosophy() {

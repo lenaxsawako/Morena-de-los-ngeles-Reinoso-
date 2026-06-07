@@ -142,4 +142,42 @@ export class AdminSettingsController {
 
     return { url };
   }
+
+  /**
+   * POST /admin/settings/coming-soon-bg
+   * Upload coming soon background image to Cloudinary
+   */
+  @Post('coming-soon-bg')
+  @UseInterceptors(
+    FileInterceptor('bg', {
+      storage: memoryStorage(),
+      limits: { fileSize: 5 * 1024 * 1024 },
+    }),
+  )
+  async uploadComingSoonBg(@UploadedFile() bg: any) {
+    if (!bg) {
+      throw new BadRequestException('No se proporcionó archivo de imagen');
+    }
+
+    if (!this.cloudinaryService.isConfigured()) {
+      throw new BadRequestException(
+        'Cloudinary no está configurado. Actívalo en Ajustes → Almacenamiento.',
+      );
+    }
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(bg.mimetype)) {
+      throw new BadRequestException('La imagen debe ser JPEG, PNG o WebP');
+    }
+
+    const url = await this.cloudinaryService.uploadImage(
+      bg.buffer,
+      bg.originalname,
+      bg.mimetype,
+    );
+
+    await this.adminSettingsService.updateSettings({ comingSoonBg: url });
+
+    return { url };
+  }
 }
