@@ -349,6 +349,8 @@ export interface SiteSettings {
     comingSoonTitle: string;
     comingSoonSubtitle: string;
     comingSoonBg: string;
+    instagramUrl: string;
+    tiktokUrl: string;
   };
 }
 

@@ -10,6 +10,8 @@ interface LaunchStatus {
   comingSoonTitle: string;
   comingSoonSubtitle: string;
   comingSoonBg: string;
+  instagramUrl?: string;
+  tiktokUrl?: string;
   socialLinks?: { instagram?: string; tiktok?: string };
   siteName?: string;
   logoUrl?: string;
@@ -207,18 +209,18 @@ export default function ComingSoon({ forceShow }: { forceShow?: boolean }) {
           <p style={{ color: '#f87171', fontSize: '0.875rem', marginBottom: '2rem' }}>{subscribeMsg}</p>
         )}
 
-        {(socialLinks?.instagram || socialLinks?.tiktok) && (
+        {(status?.instagramUrl || status?.tiktokUrl || socialLinks?.instagram || socialLinks?.tiktok) && (
           <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', marginBottom: '2rem' }}>
-            {socialLinks.instagram && (
-              <a href={`https://instagram.com/${socialLinks.instagram}`} target="_blank" rel="noopener noreferrer"
+            {(status?.instagramUrl || socialLinks?.instagram) && (
+              <a href={status?.instagramUrl || `https://instagram.com/${socialLinks.instagram}`} target="_blank" rel="noopener noreferrer"
                 style={{ opacity: 0.6, textDecoration: 'none' }}
                 onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
                 onMouseLeave={e => (e.currentTarget.style.opacity = '0.6')}>
                 Instagram
               </a>
             )}
-            {socialLinks.tiktok && (
-              <a href={`https://tiktok.com/@${socialLinks.tiktok}`} target="_blank" rel="noopener noreferrer"
+            {(status?.tiktokUrl || socialLinks?.tiktok) && (
+              <a href={status?.tiktokUrl || `https://tiktok.com/@${socialLinks.tiktok}`} target="_blank" rel="noopener noreferrer"
                 style={{ opacity: 0.6, textDecoration: 'none' }}
                 onMouseEnter={e => (e.currentTarget.style.opacity = '1')}
                 onMouseLeave={e => (e.currentTarget.style.opacity = '0.6')}>

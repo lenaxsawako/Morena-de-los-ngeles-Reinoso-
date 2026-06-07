@@ -98,6 +98,14 @@ export class UpdateSettingsDto {
   @IsOptional()
   @IsString()
   comingSoonBg?: string;
+
+  @IsOptional()
+  @IsString()
+  instagramUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  tiktokUrl?: string;
 }
 
 export class CreateCategoryDto {

@@ -83,6 +83,8 @@ export class AdminSettingsService {
         comingSoonTitle: config.comingSoonTitle || 'Próximamente',
         comingSoonSubtitle: config.comingSoonSubtitle || '',
         comingSoonBg: config.comingSoonBg || '',
+        instagramUrl: config.instagramUrl || '',
+        tiktokUrl: config.tiktokUrl || '',
       },
     };
   }
@@ -186,6 +188,8 @@ export class AdminSettingsService {
     if (dto.comingSoonTitle !== undefined) config.comingSoonTitle = dto.comingSoonTitle;
     if (dto.comingSoonSubtitle !== undefined) config.comingSoonSubtitle = dto.comingSoonSubtitle;
     if (dto.comingSoonBg !== undefined) config.comingSoonBg = dto.comingSoonBg;
+    if (dto.instagramUrl !== undefined) config.instagramUrl = dto.instagramUrl;
+    if (dto.tiktokUrl !== undefined) config.tiktokUrl = dto.tiktokUrl;
 
     await config.save();
 
@@ -504,6 +508,8 @@ export class AdminSettingsService {
         comingSoonTitle: 'Próximamente',
         comingSoonSubtitle: '',
         comingSoonBg: '',
+        instagramUrl: '',
+        tiktokUrl: '',
       });
     }
 

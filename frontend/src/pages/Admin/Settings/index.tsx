@@ -76,9 +76,11 @@ interface LaunchSettings {
   comingSoonTitle: string;
   comingSoonSubtitle: string;
   comingSoonBg: string;
+  instagramUrl: string;
+  tiktokUrl: string;
 }
 
-type SettingsTab = 'website' | 'categories' | 'notifications' | 'security' | 'payments' | 'storage' | 'email' | 'system' | 'launch';
+type SettingsTab = 'website' | 'categories' | 'notifications' | 'security' | 'payments' | 'storage' | 'email' | 'system';
 
 export default function Settings() {
   const [activeTab, setActiveTab] = useState<SettingsTab>('website');
@@ -223,6 +225,8 @@ export default function Settings() {
               comingSoonTitle: settings.launch.comingSoonTitle || 'Próximamente',
               comingSoonSubtitle: settings.launch.comingSoonSubtitle || '',
               comingSoonBg: settings.launch.comingSoonBg || '',
+              instagramUrl: settings.launch.instagramUrl || '',
+              tiktokUrl: settings.launch.tiktokUrl || '',
             });
           }
         }
@@ -326,11 +330,11 @@ export default function Settings() {
     comingSoonTitle: 'Próximamente',
     comingSoonSubtitle: '',
     comingSoonBg: '',
+    instagramUrl: '',
+    tiktokUrl: '',
   });
   const [launchBgUploading, setLaunchBgUploading] = useState(false);
   const launchBgInputRef = useRef<HTMLInputElement>(null);
-  const [launchSaving, setLaunchSaving] = useState(false);
-  const [launchSaveResult, setLaunchSaveResult] = useState<{ success: boolean; message: string } | null>(null);
 
   // Ref to prevent multiple auto-load calls
   const autoLoadRef = useRef(false);
@@ -702,6 +706,13 @@ export default function Settings() {
           maintenanceMode: system.maintenanceMode,
           maintenanceMessage: system.lastDeployment,
         },
+        launchMode: launch.launchMode,
+        launchDate: launch.launchDate || null,
+        comingSoonTitle: launch.comingSoonTitle,
+        comingSoonSubtitle: launch.comingSoonSubtitle,
+        comingSoonBg: launch.comingSoonBg,
+        instagramUrl: launch.instagramUrl,
+        tiktokUrl: launch.tiktokUrl,
       });
       alert('System settings saved');
     } catch (error) {
@@ -928,13 +939,6 @@ export default function Settings() {
         >
           <span className="material-symbols-outlined">settings_suggest</span>
           System
-        </button>
-        <button
-          className={`settings-nav-item ${activeTab === 'launch' ? 'active' : ''}`}
-          onClick={() => setActiveTab('launch')}
-        >
-          <span className="material-symbols-outlined">rocket_launch</span>
-          Lanzamiento
         </button>
       </div>
 
@@ -2249,6 +2253,137 @@ export default function Settings() {
               </label>
             </div>
 
+            {/* Launch Configuration */}
+            <div className="settings-field-group" style={{ marginTop: '1.5rem' }}>
+              <div className="settings-section-title" style={{ marginBottom: '1rem' }}>
+                <h3 style={{ fontSize: '1.125rem', fontWeight: 600, margin: 0 }}>Launch Configuration</h3>
+              </div>
+
+              <div className="settings-field-group">
+                <label htmlFor="launchDate" className="settings-label">Fecha de lanzamiento</label>
+                <input
+                  id="launchDate"
+                  type="datetime-local"
+                  value={launch.launchDate}
+                  onChange={(e) => setLaunch({ ...launch, launchDate: e.target.value })}
+                  className="settings-input"
+                />
+                <p className="toggle-description" style={{ marginTop: '0.25rem' }}>El sitio se abrirá automáticamente en esta fecha</p>
+              </div>
+
+              <div className="settings-field-group">
+                <label htmlFor="comingSoonTitle" className="settings-label">Título de la página de espera</label>
+                <input
+                  id="comingSoonTitle"
+                  type="text"
+                  value={launch.comingSoonTitle}
+                  onChange={(e) => setLaunch({ ...launch, comingSoonTitle: e.target.value })}
+                  className="settings-input"
+                  placeholder="Próximamente"
+                />
+              </div>
+
+              <div className="settings-field-group">
+                <label htmlFor="comingSoonSubtitle" className="settings-label">Subtítulo / descripción</label>
+                <textarea
+                  id="comingSoonSubtitle"
+                  value={launch.comingSoonSubtitle}
+                  onChange={(e) => setLaunch({ ...launch, comingSoonSubtitle: e.target.value })}
+                  className="settings-textarea"
+                  rows={3}
+                  placeholder="Algo increíble está en camino..."
+                />
+              </div>
+
+              <div className="settings-field-group">
+                <label className="settings-label">Imagen de fondo</label>
+                <div className="profile-image-upload">
+                  {launch.comingSoonBg ? (
+                    <img src={launch.comingSoonBg} alt="Fondo" className="profile-image" style={{ objectFit: 'cover' }} />
+                  ) : (
+                    <div className="profile-image profile-image-placeholder">
+                      <span className="material-symbols-outlined text-4xl text-on-surface-variant opacity-50">image</span>
+                    </div>
+                  )}
+                  <input
+                    ref={launchBgInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      setLaunchBgUploading(true);
+                      try {
+                        const result = await adminBooksService.uploadComingSoonBg(file);
+                        if (result?.url) {
+                          setLaunch(prev => ({ ...prev, comingSoonBg: result.url }));
+                        }
+                      } finally {
+                        setLaunchBgUploading(false);
+                        e.target.value = '';
+                      }
+                    }}
+                  />
+                  <button
+                    className="upload-btn"
+                    onClick={() => launchBgInputRef.current?.click()}
+                    disabled={launchBgUploading}
+                  >
+                    <span className="material-symbols-outlined">photo_camera</span>
+                    {launchBgUploading ? 'Subiendo...' : launch.comingSoonBg ? 'Cambiar fondo' : 'Subir fondo'}
+                  </button>
+                  {launch.comingSoonBg && (
+                    <button
+                      onClick={() => setLaunch(prev => ({ ...prev, comingSoonBg: '' }))}
+                      className="upload-btn"
+                      style={{ color: '#fca5a5' }}
+                    >
+                      <span className="material-symbols-outlined">delete</span>
+                      Eliminar
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div className="settings-field-group">
+                <label htmlFor="instagramUrl" className="settings-label">URL Instagram</label>
+                <input
+                  id="instagramUrl"
+                  type="url"
+                  value={launch.instagramUrl}
+                  onChange={(e) => setLaunch({ ...launch, instagramUrl: e.target.value })}
+                  className="settings-input"
+                  placeholder="https://instagram.com/tu-cuenta"
+                />
+              </div>
+
+              <div className="settings-field-group">
+                <label htmlFor="tiktokUrl" className="settings-label">URL TikTok</label>
+                <input
+                  id="tiktokUrl"
+                  type="url"
+                  value={launch.tiktokUrl}
+                  onChange={(e) => setLaunch({ ...launch, tiktokUrl: e.target.value })}
+                  className="settings-input"
+                  placeholder="https://tiktok.com/@tu-cuenta"
+                />
+              </div>
+
+              <a
+                href="/coming-soon-preview"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '0.375rem',
+                  color: '#60a5fa', fontSize: '0.875rem', textDecoration: 'none',
+                  marginTop: '0.25rem',
+                }}
+              >
+                Previsualizar página de espera →
+              </a>
+            </div>
+
             <div className="settings-info-box">
               <div className="info-box-header">
                 <span className="material-symbols-outlined">info</span>
@@ -2274,172 +2409,6 @@ export default function Settings() {
             <button onClick={handleSaveSystem} disabled={isSaving} className="settings-btn-primary">
               {isSaving ? 'Saving...' : 'Save Configuration'}
             </button>
-          </div>
-        )}
-
-        {/* LAUNCH TAB */}
-        {activeTab === 'launch' && (
-          <div className="settings-section">
-            <div className="settings-section-title">
-              <h2>Modo Lanzamiento</h2>
-              <p>Configura la página de "Próximamente" mientras preparas tu lanzamiento</p>
-            </div>
-
-            {launchSaveResult && (
-              <div style={{
-                padding: '0.75rem 1rem', marginBottom: '1rem', borderRadius: '0.5rem',
-                backgroundColor: launchSaveResult.success ? '#10b98120' : '#ef444420',
-                border: `1px solid ${launchSaveResult.success ? '#10b981' : '#ef4444'}`,
-                color: launchSaveResult.success ? '#10b981' : '#ef4444', fontSize: '0.875rem',
-              }}>
-                {launchSaveResult.message}
-              </div>
-            )}
-
-            <div className="settings-field-group">
-              <label className="settings-label">Modo espera activo</label>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '0.5rem' }}>
-                <button
-                  onClick={() => setLaunch({ ...launch, launchMode: !launch.launchMode })}
-                  style={{
-                    width: '3rem', height: '1.5rem', borderRadius: '999px',
-                    background: launch.launchMode ? '#10b981' : '#4b5563',
-                    border: 'none', cursor: 'pointer', position: 'relative',
-                    transition: 'background 0.2s',
-                  }}
-                >
-                  <div style={{
-                    width: '1.25rem', height: '1.25rem', borderRadius: '50%',
-                    background: '#fff', position: 'absolute', top: '0.125rem',
-                    left: launch.launchMode ? '1.625rem' : '0.125rem',
-                    transition: 'left 0.2s',
-                  }} />
-                </button>
-                <span style={{ color: launch.launchMode ? '#10b981' : '#9ca3af', fontSize: '0.875rem' }}>
-                  {launch.launchMode ? 'Activo' : 'Inactivo'}
-                </span>
-              </div>
-            </div>
-
-            <div className="settings-field-group">
-              <label htmlFor="launchDate" className="settings-label">Fecha de lanzamiento</label>
-              <input
-                id="launchDate"
-                type="datetime-local"
-                value={launch.launchDate}
-                onChange={(e) => setLaunch({ ...launch, launchDate: e.target.value })}
-                className="settings-input"
-              />
-            </div>
-
-            <div className="settings-field-group">
-              <label htmlFor="comingSoonTitle" className="settings-label">Título</label>
-              <input
-                id="comingSoonTitle"
-                type="text"
-                value={launch.comingSoonTitle}
-                onChange={(e) => setLaunch({ ...launch, comingSoonTitle: e.target.value })}
-                className="settings-input"
-              />
-            </div>
-
-            <div className="settings-field-group">
-              <label htmlFor="comingSoonSubtitle" className="settings-label">Subtítulo</label>
-              <textarea
-                id="comingSoonSubtitle"
-                value={launch.comingSoonSubtitle}
-                onChange={(e) => setLaunch({ ...launch, comingSoonSubtitle: e.target.value })}
-                className="settings-textarea"
-                rows={3}
-              />
-            </div>
-
-            <div className="settings-field-group">
-              <label className="settings-label">Imagen de fondo</label>
-              <div className="profile-image-upload">
-                {launch.comingSoonBg ? (
-                  <img src={launch.comingSoonBg} alt="Fondo" className="profile-image" style={{ objectFit: 'cover' }} />
-                ) : (
-                  <div className="profile-image profile-image-placeholder">
-                    <span className="material-symbols-outlined text-4xl text-on-surface-variant opacity-50">image</span>
-                  </div>
-                )}
-                <input
-                  ref={launchBgInputRef}
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp"
-                  className="hidden"
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-                    setLaunchBgUploading(true);
-                    try {
-                      const result = await adminBooksService.uploadComingSoonBg(file);
-                      if (result?.url) {
-                        setLaunch(prev => ({ ...prev, comingSoonBg: result.url }));
-                      }
-                    } finally {
-                      setLaunchBgUploading(false);
-                      e.target.value = '';
-                    }
-                  }}
-                />
-                <button
-                  className="upload-btn"
-                  onClick={() => launchBgInputRef.current?.click()}
-                  disabled={launchBgUploading}
-                >
-                  <span className="material-symbols-outlined">photo_camera</span>
-                  {launchBgUploading ? 'Subiendo...' : launch.comingSoonBg ? 'Cambiar fondo' : 'Subir fondo'}
-                </button>
-                {launch.comingSoonBg && (
-                  <button
-                    onClick={() => setLaunch(prev => ({ ...prev, comingSoonBg: '' }))}
-                    className="upload-btn"
-                    style={{ color: '#fca5a5' }}
-                  >
-                    <span className="material-symbols-outlined">delete</span>
-                    Eliminar
-                  </button>
-                )}
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-              <button
-                onClick={async () => {
-                  setLaunchSaving(true);
-                  setLaunchSaveResult(null);
-                  try {
-                    await adminBooksService.updateSettings({
-                      launchMode: launch.launchMode,
-                      launchDate: launch.launchDate || null,
-                      comingSoonTitle: launch.comingSoonTitle,
-                      comingSoonSubtitle: launch.comingSoonSubtitle,
-                      comingSoonBg: launch.comingSoonBg,
-                    });
-                    setLaunchSaveResult({ success: true, message: '¡Guardado!' });
-                    setTimeout(() => setLaunchSaveResult(null), 2000);
-                  } catch {
-                    setLaunchSaveResult({ success: false, message: 'Error al guardar' });
-                    setTimeout(() => setLaunchSaveResult(null), 2000);
-                  } finally {
-                    setLaunchSaving(false);
-                  }
-                }}
-                disabled={launchSaving}
-                className="settings-btn-primary"
-              >
-                {launchSaving ? 'Guardando...' : 'Guardar configuración'}
-              </button>
-              <button
-                onClick={() => window.open('/coming-soon-preview', '_blank')}
-                className="settings-btn-secondary"
-              >
-                <span className="material-symbols-outlined">visibility</span>
-                Ver como visitante
-              </button>
-            </div>
           </div>
         )}
       </div>

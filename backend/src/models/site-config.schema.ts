@@ -173,6 +173,12 @@ export class SiteConfig {
   @Prop({ default: '' })
   comingSoonBg!: string;
 
+  @Prop({ default: '' })
+  instagramUrl!: string;
+
+  @Prop({ default: '' })
+  tiktokUrl!: string;
+
   // Landing page content
   @Prop({
     type: {
