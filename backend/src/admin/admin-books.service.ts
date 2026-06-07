@@ -414,6 +414,17 @@ export class AdminBooksService {
   }
 
   /**
+   * Delete a book by ID
+   */
+  async deleteBook(id: string) {
+    const book = await this.bookModel.findByIdAndDelete(id);
+    if (!book) {
+      throw new NotFoundException(`Book not found`);
+    }
+    return { message: `Libro "${book.title}" eliminado correctamente` };
+  }
+
+  /**
    * Generate URL-safe slug from title
    */
   private generateSlug(title: string): string {

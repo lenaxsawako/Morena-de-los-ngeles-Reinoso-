@@ -6,6 +6,17 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [dashboard, setDashboard] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [openMenuBookId, setOpenMenuBookId] = useState<string | null>(null);
+
+  const handleDeleteBook = async (bookId: string, bookTitle: string) => {
+    setOpenMenuBookId(null);
+    if (!confirm(`¿Eliminar "${bookTitle}"? Esta acción no se puede deshacer.`)) return;
+    const result = await adminBooksService.deleteBook(bookId);
+    if (result) {
+      const dashboardData = await adminBooksService.getDashboard();
+      setDashboard(dashboardData);
+    }
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -210,13 +221,29 @@ export default function Dashboard() {
                             >
                               analytics
                             </button>
-                            <button 
-                              onClick={() => alert(`Más opciones para: ${book.title}`)}
-                              className="admin-table-action-btn material-symbols-outlined hover:text-primary transition-colors"
-                              title="Más opciones"
-                            >
-                              more_vert
-                            </button>
+                            <div className="relative">
+                              <button 
+                                onClick={() => setOpenMenuBookId(openMenuBookId === book._id ? null : book._id)}
+                                className="admin-table-action-btn material-symbols-outlined hover:text-primary transition-colors"
+                                title="Más opciones"
+                              >
+                                more_vert
+                              </button>
+                              {openMenuBookId === book._id && (
+                                <>
+                                  <div className="fixed inset-0 z-10" onClick={() => setOpenMenuBookId(null)} />
+                                  <div className="absolute right-0 top-full mt-1 z-20 bg-surface-container border border-white/10 rounded-lg shadow-xl py-1 min-w-[140px]">
+                                    <button
+                                      onClick={() => handleDeleteBook(book._id, book.title)}
+                                      className="w-full flex items-center gap-2 px-3 py-2 text-body-sm text-on-error-container hover:bg-on-error-container/10 transition-colors"
+                                    >
+                                      <span className="material-symbols-outlined text-lg">delete</span>
+                                      Eliminar
+                                    </button>
+                                  </div>
+                                </>
+                              )}
+                            </div>
                           </div>
                         </td>
                       </tr>
@@ -281,13 +308,29 @@ export default function Dashboard() {
                           <span className="material-symbols-outlined">analytics</span>
                           Analítica
                         </button>
-                        <button 
-                          onClick={() => alert(`Más opciones para: ${book.title}`)}
-                          className="admin-card-action-btn"
-                        >
-                          <span className="material-symbols-outlined">more_vert</span>
-                          Más
-                        </button>
+                        <div className="relative">
+                          <button 
+                            onClick={() => setOpenMenuBookId(openMenuBookId === book._id ? null : book._id)}
+                            className="admin-card-action-btn"
+                          >
+                            <span className="material-symbols-outlined">more_vert</span>
+                            Más
+                          </button>
+                          {openMenuBookId === book._id && (
+                            <>
+                              <div className="fixed inset-0 z-10" onClick={() => setOpenMenuBookId(null)} />
+                              <div className="absolute right-0 top-full mt-1 z-20 bg-surface-container border border-white/10 rounded-lg shadow-xl py-1 min-w-[140px]">
+                                <button
+                                  onClick={() => handleDeleteBook(book._id, book.title)}
+                                  className="w-full flex items-center gap-2 px-3 py-2 text-body-sm text-on-error-container hover:bg-on-error-container/10 transition-colors"
+                                >
+                                  <span className="material-symbols-outlined text-lg">delete</span>
+                                  Eliminar
+                                </button>
+                              </div>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
                   );

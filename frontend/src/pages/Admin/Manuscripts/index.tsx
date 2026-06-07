@@ -460,6 +460,20 @@ export default function Manuscripts() {
                             : 'publish'}
                       </span>
                     </button>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        if (!confirm(`¿Eliminar "${book.title}"? Esta acción no se puede deshacer.`)) return;
+                        const result = await adminBooksService.deleteBook(book._id);
+                        if (result) {
+                          setBooks(prev => prev.filter(b => b._id !== book._id));
+                        }
+                      }}
+                      className="p-2 border border-white/20 hover:border-on-error-container hover:text-on-error-container transition-all"
+                      title="Eliminar libro"
+                    >
+                      <span className="material-symbols-outlined">delete</span>
+                    </button>
                   </div>
                 </div>
               </div>

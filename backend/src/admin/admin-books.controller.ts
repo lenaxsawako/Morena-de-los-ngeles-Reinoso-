@@ -4,6 +4,7 @@ import {
   Post,
   Put,
   Patch,
+  Delete,
   Body,
   Param,
   Query,
@@ -222,6 +223,15 @@ export class AdminBooksController {
   @Get(':id/analytics')
   async getBookAnalytics(@Param('id') id: string) {
     return this.adminAnalyticsService.getBookAnalytics(id);
+  }
+
+  /**
+   * DELETE /admin/books/:id
+   * Delete a book
+   */
+  @Delete(':id')
+  async deleteBook(@Param('id') id: string) {
+    return this.adminBooksService.deleteBook(id);
   }
 }
 

@@ -599,6 +599,27 @@ class AdminBooksService {
   }
 
   /**
+   * Delete a book by ID
+   */
+  async deleteBook(bookId: string): Promise<{ message: string } | null> {
+    try {
+      const response = await handleAdminFetch(`${API_URL}/admin/books/${bookId}`, {
+        method: 'DELETE',
+        headers: authService.getAuthHeader(),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Delete book failed: ${response.statusText}`);
+      }
+
+      return await safeParseJSON(response, null);
+    } catch (error) {
+      console.error('Error deleting book:', error);
+      return null;
+    }
+  }
+
+  /**
    * Attach an existing Google Drive PDF to a book.
    */
   async attachDriveFile(
