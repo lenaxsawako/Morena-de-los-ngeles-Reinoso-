@@ -153,9 +153,9 @@ export default function NewsletterAdmin() {
                 className="w-full bg-white/5 border border-white/10 rounded px-4 py-3 text-primary focus:outline-none focus:border-primary"
                 disabled={sending}
               >
-                <option value="all">Todos los suscriptores</option>
-                <option value="buyers">Solo compradores</option>
-                <option value="registered">Solo usuarios registrados</option>
+                <option value="all" style={{ backgroundColor: '#1a1a2e', color: '#fff' }}>Todos los suscriptores</option>
+                <option value="buyers" style={{ backgroundColor: '#1a1a2e', color: '#fff' }}>Solo compradores</option>
+                <option value="registered" style={{ backgroundColor: '#1a1a2e', color: '#fff' }}>Solo usuarios registrados</option>
               </select>
             </div>
 
