@@ -161,7 +161,7 @@ export class SiteConfig {
   @Prop({ default: true })
   launchMode!: boolean;
 
-  @Prop({ default: null })
+  @Prop({ type: Date, default: null })
   launchDate?: Date | null;
 
   @Prop({ default: 'Próximamente' })
