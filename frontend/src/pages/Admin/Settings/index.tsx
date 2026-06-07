@@ -474,9 +474,9 @@ export default function Settings() {
       setCategories(prev => prev.filter(cat => !categoriesToDelete.has(cat._id)));
       setCategoriesToDelete(new Set());
       setIsEditingCategories(false);
-      alert(`${idsToDelete.length} categor${idsToDelete.length > 1 ? 'ías' : 'ía'} eliminada${idsToDelete.length > 1 ? 's' : ''}`);
+      setNotificationModal({ type: 'success', message: `${idsToDelete.length} categor${idsToDelete.length > 1 ? 'ías' : 'ía'} eliminada${idsToDelete.length > 1 ? 's' : ''}` });
     } catch (error) {
-      alert('Failed to delete categories');
+      setNotificationModal({ type: 'error', message: 'Failed to delete categories' });
       console.error('Error deleting categories:', error);
     } finally {
       setIsSaving(false);
@@ -535,9 +535,9 @@ export default function Settings() {
           monthlySummary: notifications.emailMonthlySummary,
         },
       });
-      alert('Notification settings saved');
+      setNotificationModal({ type: 'success', message: 'Notification settings saved' });
     } catch (error) {
-      alert('Failed to save notification settings');
+      setNotificationModal({ type: 'error', message: 'Failed to save notification settings' });
       console.error('Error saving notifications:', error);
     } finally {
       setIsSaving(false);
@@ -580,9 +580,9 @@ export default function Settings() {
       setCategories(prev => [...prev, ...createdCategories]);
       setNewCategoriesToAdd([]);
       setShowCategoryForm(false);
-      alert(`${createdCategories.length} categor${createdCategories.length > 1 ? 'ías' : 'ía'} creada${createdCategories.length > 1 ? 's' : ''}`);
+      setNotificationModal({ type: 'success', message: `${createdCategories.length} categor${createdCategories.length > 1 ? 'ías' : 'ía'} creada${createdCategories.length > 1 ? 's' : ''}` });
     } catch (error) {
-      alert('Failed to create categories');
+      setNotificationModal({ type: 'error', message: 'Failed to create categories' });
       console.error('Error creating categories:', error);
     } finally {
       setIsSaving(false);
@@ -617,7 +617,7 @@ export default function Settings() {
   };
 
   const handleChangePassword = () => {
-    alert('Redirecting to password change...');
+    setNotificationModal({ type: 'success', message: 'Redirecting to password change...' });
   };
 
   const handleEnable2FA = () => {
@@ -628,12 +628,12 @@ export default function Settings() {
     try {
       const result = await adminBooksService.testEmailConfiguration();
       if (result.success) {
-        alert('Email configuration is valid');
+        setNotificationModal({ type: 'success', message: 'Email configuration is valid' });
       } else {
-        alert(`Email test failed: ${result.message}`);
+        setNotificationModal({ type: 'error', message: `Email test failed: ${result.message}` });
       }
     } catch (error) {
-      alert('Failed to test email configuration');
+      setNotificationModal({ type: 'error', message: 'Failed to test email configuration' });
       console.error('Error testing email:', error);
     }
   };
@@ -714,9 +714,9 @@ export default function Settings() {
         instagramUrl: launch.instagramUrl,
         tiktokUrl: launch.tiktokUrl,
       });
-      alert('System settings saved');
+      setNotificationModal({ type: 'success', message: 'System settings saved' });
     } catch (error) {
-      alert('Failed to save system settings');
+      setNotificationModal({ type: 'error', message: 'Failed to save system settings' });
       console.error('Error saving system settings:', error);
     } finally {
       setIsSaving(false);
@@ -1554,7 +1554,7 @@ export default function Settings() {
                   <p className="security-description">Manage your login sessions</p>
                 </div>
               </div>
-              <button onClick={() => alert('Active sessions')} className="settings-btn-secondary">
+              <button onClick={() => setNotificationModal({ type: 'success', message: 'Active sessions - feature coming soon' })} className="settings-btn-secondary">
                 View Sessions
               </button>
             </div>
@@ -1567,7 +1567,7 @@ export default function Settings() {
                   <p className="security-description">View your recent login activity</p>
                 </div>
               </div>
-              <button onClick={() => alert('Login history')} className="settings-btn-secondary">
+              <button onClick={() => setNotificationModal({ type: 'success', message: 'Login history - feature coming soon' })} className="settings-btn-secondary">
                 View History
               </button>
             </div>
