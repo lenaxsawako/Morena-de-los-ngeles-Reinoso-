@@ -7,6 +7,7 @@ export default function SalesData() {
   const [analytics, setAnalytics] = useState<AnalyticsMetrics | null>(null);
   const [transactions, setTransactions] = useState<TransactionsResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [notificationModal, setNotificationModal] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -45,7 +46,7 @@ export default function SalesData() {
       }
     } catch (error) {
       console.error('Error exporting report:', error);
-      alert('Error exporting report');
+      setNotificationModal({ type: 'error', message: 'Error exporting report' });
     }
   };
 
@@ -440,6 +441,28 @@ export default function SalesData() {
         </div>
       </section>
         </>
+      )}
+
+      {notificationModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center" onClick={() => setNotificationModal(null)}>
+          <div className="bg-surface p-6 rounded-lg shadow-lg max-w-sm w-full mx-4" onClick={e => e.stopPropagation()}>
+            <div className="flex flex-col items-center text-center">
+              <span className={`material-symbols-outlined text-4xl mb-2 ${notificationModal.type === 'success' ? 'text-accent-gold' : 'text-error'}`}>
+                {notificationModal.type === 'success' ? 'check_circle' : 'error'}
+              </span>
+              <h3 className="text-lg font-semibold text-on-surface mb-1">
+                {notificationModal.type === 'success' ? 'Success' : 'Error'}
+              </h3>
+              <p className="text-on-surface-variant text-body-sm mt-1">{notificationModal.message}</p>
+              <button
+                onClick={() => setNotificationModal(null)}
+                className="mt-4 px-6 py-2 bg-accent-gold text-surface font-semibold rounded hover:bg-accent-gold/90 transition-all"
+              >
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );
