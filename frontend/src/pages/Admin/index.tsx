@@ -66,13 +66,6 @@ export default function AdminLayout() {
             >
               settings
             </button>
-
-            <div className="admin-profile-avatar cursor-pointer hover:opacity-80 transition-all">
-              <img
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbHBg0lgXeeqEaZWWqpJQ5234Z3XxhxWEqtPySfy5hyZ9LHVB69n_8qYdC8kvgHSB4VEUOJ9KGW_7fdjFivJMoFKYf1RS7EEBfDXf02hp9yEesFs1ZzUNa0w153XUZUltwzW2qjCRxUHPzEayQYIwxU7Oslff3DMpcVkAKW9QAScA2cO1w_gvjSKhxgpm69AkiSPEm4c0RaU_hLjnHECJ1XwsIdwgUVbWxIYhzlB6sOlIlUpUJCeYlUds_iCQKgazO-0SJqXLQYg"
-                alt="Profile"
-              />
-            </div>
           </div>
         </header>
 

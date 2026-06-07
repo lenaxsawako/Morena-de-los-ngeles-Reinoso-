@@ -197,9 +197,9 @@ export default function AdminSupport() {
                     color: '#e5e2e1', fontSize: '0.85rem', outline: 'none', fontFamily: 'inherit',
                   }}
                 >
-                  <option value="open">Abierto</option>
-                  <option value="in_progress">En progreso</option>
-                  <option value="resolved">Resuelto</option>
+                  <option value="open" style={{ backgroundColor: '#1a1a2e', color: '#fff' }}>Abierto</option>
+                  <option value="in_progress" style={{ backgroundColor: '#1a1a2e', color: '#fff' }}>En progreso</option>
+                  <option value="resolved" style={{ backgroundColor: '#1a1a2e', color: '#fff' }}>Resuelto</option>
                 </select>
               </div>
               <div>
