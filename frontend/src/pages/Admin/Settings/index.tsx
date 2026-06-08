@@ -115,11 +115,7 @@ export default function Settings() {
   });
 
   // Categories
-  const [categories, setCategories] = useState<Category[]>([
-    { _id: '1', name: 'Fantasy', slug: 'fantasy', order: 1, active: true, createdAt: '', updatedAt: '' },
-    { _id: '2', name: 'Romance', slug: 'romance', order: 2, active: true, createdAt: '', updatedAt: '' },
-    { _id: '3', name: 'Contemporary', slug: 'contemporary', order: 3, active: true, createdAt: '', updatedAt: '' },
-  ]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [newCategory, setNewCategory] = useState({ name: '', description: '' });
   const [showCategoryForm, setShowCategoryForm] = useState(false);
   const [isEditingCategories, setIsEditingCategories] = useState(false);
@@ -1199,7 +1195,7 @@ export default function Settings() {
             <div className="settings-field-group">
               <label className="settings-label">Current Categories</label>
               <div className="settings-category-grid">
-                {categories.map((category) => (
+                {categories.length > 0 ? categories.map((category) => (
                   <div key={category._id} className="settings-category-card">
                     <span className="category-name">{category.name}</span>
                     {isEditingCategories && (
@@ -1221,7 +1217,11 @@ export default function Settings() {
                       </div>
                     )}
                   </div>
-                ))}
+                )) : (
+                  <p className="text-on-surface-variant text-body-sm col-span-full py-8 text-center">
+                    No hay categorías todavía. Crea una usando el formulario de abajo.
+                  </p>
+                )}
               </div>
 
               {isEditingCategories && (
