@@ -15,13 +15,6 @@ interface WebsiteSettings {
   seoDescription: string;
 }
 
-interface NotificationSettings {
-  emailOnNewPurchase: boolean;
-  emailOnNewReview: boolean;
-  emailDailySummary: boolean;
-  emailWeeklySummary: boolean;
-  emailMonthlySummary: boolean;
-}
 
 interface SecuritySettings {
   twoFactorEnabled: boolean;
@@ -146,17 +139,6 @@ export default function Settings() {
             });
           }
 
-          // Map notification settings
-          if (settings.notifications) {
-            setNotifications({
-              emailOnNewPurchase: settings.notifications.newPurchase,
-              emailOnNewReview: settings.notifications.newReview,
-              emailDailySummary: settings.notifications.dailySummary,
-              emailWeeklySummary: settings.notifications.weeklySummary,
-              emailMonthlySummary: settings.notifications.monthlySummary,
-            });
-          }
-
           // Map payment settings
           if (settings.payments?.polar) {
             setPayments({
@@ -251,15 +233,6 @@ export default function Settings() {
 
     loadData();
   }, []);
-
-  // Notifications
-  const [notifications, setNotifications] = useState<NotificationSettings>({
-    emailOnNewPurchase: true,
-    emailOnNewReview: true,
-    emailDailySummary: false,
-    emailWeeklySummary: true,
-    emailMonthlySummary: true,
-  });
 
   // Security
   const [security, setSecurity] = useState<SecuritySettings>({
@@ -437,10 +410,6 @@ export default function Settings() {
     }
   };
 
-  const handleNotificationChange = (field: keyof NotificationSettings) => {
-    setNotifications(prev => ({ ...prev, [field]: !prev[field] }));
-  };
-
   const handleDeleteCategory = () => {
     setIsEditingCategories(true);
   };
@@ -514,27 +483,6 @@ export default function Settings() {
     } catch (error) {
       setNotificationModal({ type: 'error', message: 'Failed to save website settings' });
       console.error('Error saving website:', error);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleSaveNotifications = async () => {
-    setIsSaving(true);
-    try {
-      await adminBooksService.updateSettings({
-        notifications: {
-          newPurchase: notifications.emailOnNewPurchase,
-          newReview: notifications.emailOnNewReview,
-          dailySummary: notifications.emailDailySummary,
-          weeklySummary: notifications.emailWeeklySummary,
-          monthlySummary: notifications.emailMonthlySummary,
-        },
-      });
-      setNotificationModal({ type: 'success', message: 'Notification settings saved' });
-    } catch (error) {
-      setNotificationModal({ type: 'error', message: 'Failed to save notification settings' });
-      console.error('Error saving notifications:', error);
     } finally {
       setIsSaving(false);
     }
@@ -893,13 +841,6 @@ export default function Settings() {
         >
           <span className="material-symbols-outlined">category</span>
           Categories
-        </button>
-        <button
-          className={`settings-nav-item ${activeTab === 'notifications' ? 'active' : ''}`}
-          onClick={() => setActiveTab('notifications')}
-        >
-          <span className="material-symbols-outlined">notifications</span>
-          Notifications
         </button>
         <button
           className={`settings-nav-item ${activeTab === 'security' ? 'active' : ''}`}
@@ -1407,103 +1348,6 @@ export default function Settings() {
                 )}
               </div>
             )}
-          </div>
-        )}
-
-        {/* NOTIFICATIONS TAB */}
-        {activeTab === 'notifications' && (
-          <div className="settings-section">
-            <div className="settings-section-title">
-              <h2>Email Notifications</h2>
-              <p>Control your notification preferences</p>
-            </div>
-
-            <div className="settings-notification-group">
-              <h3>Notification Events</h3>
-
-              <div className="settings-toggle-item">
-                <div className="toggle-info">
-                  <label className="toggle-label">New Purchase</label>
-                  <p className="toggle-description">Get notified when someone purchases your book</p>
-                </div>
-                <label className="toggle-switch">
-                  <input
-                    type="checkbox"
-                    checked={notifications.emailOnNewPurchase}
-                    onChange={() => handleNotificationChange('emailOnNewPurchase')}
-                  />
-                  <span className="toggle-slider"></span>
-                </label>
-              </div>
-
-              <div className="settings-toggle-item">
-                <div className="toggle-info">
-                  <label className="toggle-label">New Review</label>
-                  <p className="toggle-description">Get notified when someone leaves a review</p>
-                </div>
-                <label className="toggle-switch">
-                  <input
-                    type="checkbox"
-                    checked={notifications.emailOnNewReview}
-                    onChange={() => handleNotificationChange('emailOnNewReview')}
-                  />
-                  <span className="toggle-slider"></span>
-                </label>
-              </div>
-            </div>
-
-            <div className="settings-notification-group">
-              <h3>Periodic Summaries</h3>
-
-              <div className="settings-toggle-item">
-                <div className="toggle-info">
-                  <label className="toggle-label">Daily Summary</label>
-                  <p className="toggle-description">Daily activity summary</p>
-                </div>
-                <label className="toggle-switch">
-                  <input
-                    type="checkbox"
-                    checked={notifications.emailDailySummary}
-                    onChange={() => handleNotificationChange('emailDailySummary')}
-                  />
-                  <span className="toggle-slider"></span>
-                </label>
-              </div>
-
-              <div className="settings-toggle-item">
-                <div className="toggle-info">
-                  <label className="toggle-label">Weekly Summary</label>
-                  <p className="toggle-description">Weekly activity summary</p>
-                </div>
-                <label className="toggle-switch">
-                  <input
-                    type="checkbox"
-                    checked={notifications.emailWeeklySummary}
-                    onChange={() => handleNotificationChange('emailWeeklySummary')}
-                  />
-                  <span className="toggle-slider"></span>
-                </label>
-              </div>
-
-              <div className="settings-toggle-item">
-                <div className="toggle-info">
-                  <label className="toggle-label">Monthly Summary</label>
-                  <p className="toggle-description">Monthly performance report</p>
-                </div>
-                <label className="toggle-switch">
-                  <input
-                    type="checkbox"
-                    checked={notifications.emailMonthlySummary}
-                    onChange={() => handleNotificationChange('emailMonthlySummary')}
-                  />
-                  <span className="toggle-slider"></span>
-                </label>
-              </div>
-            </div>
-
-            <button onClick={handleSaveNotifications} className="settings-btn-primary">
-              Save Preferences
-            </button>
           </div>
         )}
 
