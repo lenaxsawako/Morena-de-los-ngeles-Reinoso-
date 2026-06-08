@@ -16,10 +16,6 @@ interface WebsiteSettings {
 }
 
 
-interface SecuritySettings {
-  twoFactorEnabled: boolean;
-  lastPasswordChange: string;
-}
 
 interface PaymentsSettings {
   enabled: boolean;
@@ -235,11 +231,6 @@ export default function Settings() {
   }, []);
 
   // Security
-  const [security, setSecurity] = useState<SecuritySettings>({
-    twoFactorEnabled: false,
-    lastPasswordChange: 'Oct 15, 2024',
-  });
-
   // Payments
   const [payments, setPayments] = useState<PaymentsSettings>({
     enabled: false,
@@ -560,14 +551,6 @@ export default function Settings() {
     setNewCategory({ name: '', description: '' });
   };
 
-  const handleChangePassword = () => {
-    setNotificationModal({ type: 'success', message: 'Redirecting to password change...' });
-  };
-
-  const handleEnable2FA = () => {
-    setSecurity(prev => ({ ...prev, twoFactorEnabled: !prev.twoFactorEnabled }));
-  };
-
   const handleTestEmail = async () => {
     try {
       const result = await adminBooksService.testEmailConfiguration();
@@ -841,13 +824,6 @@ export default function Settings() {
         >
           <span className="material-symbols-outlined">category</span>
           Categories
-        </button>
-        <button
-          className={`settings-nav-item ${activeTab === 'security' ? 'active' : ''}`}
-          onClick={() => setActiveTab('security')}
-        >
-          <span className="material-symbols-outlined">security</span>
-          Security
         </button>
         <button
           className={`settings-nav-item ${activeTab === 'payments' ? 'active' : ''}`}
@@ -1348,73 +1324,6 @@ export default function Settings() {
                 )}
               </div>
             )}
-          </div>
-        )}
-
-        {/* SECURITY TAB */}
-        {activeTab === 'security' && (
-          <div className="settings-section">
-            <div className="settings-section-title">
-              <h2>Security Settings</h2>
-              <p>Protect your account</p>
-            </div>
-
-            <div className="settings-security-box">
-              <div className="security-box-header">
-                <span className="material-symbols-outlined">lock</span>
-                <div>
-                  <h3>Password</h3>
-                  <p className="security-description">Last changed: {security.lastPasswordChange}</p>
-                </div>
-              </div>
-              <button onClick={handleChangePassword} className="settings-btn-secondary">
-                Change Password
-              </button>
-            </div>
-
-            <div className="settings-security-box">
-              <div className="security-box-header">
-                <span className="material-symbols-outlined">verified</span>
-                <div>
-                  <h3>Two-Factor Authentication</h3>
-                  <p className="security-description">
-                    {security.twoFactorEnabled ? '✓ Enabled' : 'Add an extra layer of security'}
-                  </p>
-                </div>
-              </div>
-              <button 
-                onClick={handleEnable2FA} 
-                className={security.twoFactorEnabled ? 'settings-btn-danger' : 'settings-btn-secondary'}
-              >
-                {security.twoFactorEnabled ? 'Disable 2FA' : 'Enable 2FA'}
-              </button>
-            </div>
-
-            <div className="settings-security-box">
-              <div className="security-box-header">
-                <span className="material-symbols-outlined">devices</span>
-                <div>
-                  <h3>Active Sessions</h3>
-                  <p className="security-description">Manage your login sessions</p>
-                </div>
-              </div>
-              <button onClick={() => setNotificationModal({ type: 'success', message: 'Active sessions - feature coming soon' })} className="settings-btn-secondary">
-                View Sessions
-              </button>
-            </div>
-
-            <div className="settings-security-box">
-              <div className="security-box-header">
-                <span className="material-symbols-outlined">history</span>
-                <div>
-                  <h3>Login History</h3>
-                  <p className="security-description">View your recent login activity</p>
-                </div>
-              </div>
-              <button onClick={() => setNotificationModal({ type: 'success', message: 'Login history - feature coming soon' })} className="settings-btn-secondary">
-                View History
-              </button>
-            </div>
           </div>
         )}
 
