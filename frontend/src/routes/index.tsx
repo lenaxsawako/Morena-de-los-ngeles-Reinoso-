@@ -6,6 +6,7 @@ import ReaderLayout from "../layouts/ReaderLayout";
 import AdminLayout from "../pages/Admin";
 import ProtectedRoute from "../components/ProtectedRoute";
 import LaunchGate from "../components/LaunchGate";
+import MaintenanceGate from "../components/MaintenanceGate";
 
 import Home from "../pages/Home";
 import Library from "../pages/Library";
@@ -58,7 +59,7 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    element: <LaunchGate><MainLayout /></LaunchGate>,
+    element: <MaintenanceGate><LaunchGate><MainLayout /></LaunchGate></MaintenanceGate>,
     children: [
       {
         path: "/",
@@ -111,7 +112,7 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    element: <LaunchGate><CheckoutLayout /></LaunchGate>,
+    element: <MaintenanceGate><LaunchGate><CheckoutLayout /></LaunchGate></MaintenanceGate>,
     children: [
       {
         path: "/checkout/:bookId",
@@ -124,7 +125,7 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    element: <LaunchGate><ReaderLayout /></LaunchGate>,
+    element: <MaintenanceGate><LaunchGate><ReaderLayout /></LaunchGate></MaintenanceGate>,
     children: [
       {
         path: "/chapter/:bookId",

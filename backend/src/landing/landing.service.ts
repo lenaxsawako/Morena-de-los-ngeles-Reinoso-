@@ -137,6 +137,17 @@ export class LandingService {
   }
 
   /**
+   * Get maintenance mode status (public)
+   */
+  async getMaintenanceStatus() {
+    const siteConfig = await this.siteConfigModel.findOne().select('system').lean().exec();
+    return {
+      maintenanceMode: siteConfig?.system?.maintenanceMode ?? false,
+      maintenanceMessage: siteConfig?.system?.maintenanceMessage || 'Site under maintenance',
+    };
+  }
+
+  /**
    * Get philosophy section
    */
   async getPhilosophy() {

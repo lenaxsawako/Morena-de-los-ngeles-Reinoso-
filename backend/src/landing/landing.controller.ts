@@ -38,4 +38,15 @@ export class LandingController {
   async getLaunchStatus() {
     return this.landingService.getLaunchStatus();
   }
+
+  /**
+   * GET /landing/maintenance-status
+   * Returns maintenance mode status
+   * Public endpoint — no auth required
+   */
+  @Get('maintenance-status')
+  @Public()
+  async getMaintenanceStatus() {
+    return this.landingService.getMaintenanceStatus();
+  }
 }
