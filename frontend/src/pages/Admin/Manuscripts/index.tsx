@@ -352,7 +352,7 @@ export default function Manuscripts() {
               auto_stories
             </span>
             <p className="text-on-surface-variant font-body-md">
-              No hay libros en esta categorÃ­a
+              No hay libros en esta categoría.
             </p>
           </div>
         )}

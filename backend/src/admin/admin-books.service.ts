@@ -305,6 +305,24 @@ export class AdminBooksService {
       throw new NotFoundException(`Book not found`);
     }
 
+    // Auto-create Polar product if missing and book has a price
+    if (!book.polarProductId && book.priceCents > 0) {
+      try {
+        const result = await this.polarService.createProduct({
+          name: book.title,
+          description: book.description || '',
+          priceAmount: book.priceCents,
+          currency: (book.currency || 'USD').toLowerCase(),
+        });
+        book.polarProductId = result.id;
+        this.logger.log(`Auto-created Polar product ${result.id} for book "${book.title}" during publish`);
+      } catch (err) {
+        throw new BadRequestException(
+          `No se puede publicar el libro sin un producto de Polar. Intenta guardar el libro primero para generar el enlace: ${err.message}`,
+        );
+      }
+    }
+
     book.isPublished = true;
     book.publishedAt = new Date();
 
