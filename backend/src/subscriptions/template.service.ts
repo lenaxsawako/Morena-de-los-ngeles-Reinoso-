@@ -15,38 +15,40 @@ const DEFAULT_LAYOUT = `<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body { margin: 0; padding: 0; background-color: #0a0a0a; font-family: Georgia, 'Times New Roman', serif; }
-    .container { max-width: 600px; margin: 0 auto; padding: 40px 20px; }
-    .header { text-align: center; padding: 30px 0; border-bottom: 1px solid rgba(255,255,255,0.1); }
-    .header h1 { color: #F3EAD3; font-size: 24px; margin: 0; font-weight: 400; letter-spacing: 2px; }
-    .content { padding: 30px 0; color: #e5e2e1; font-size: 16px; line-height: 1.8; }
-    .content p { margin: 0 0 16px; }
-    .cta { text-align: center; padding: 20px 0; }
-    .cta a { display: inline-block; padding: 14px 36px; background-color: #F3EAD3; color: #0a0a0a; text-decoration: none; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; }
-    .footer { text-align: center; padding: 30px 0; border-top: 1px solid rgba(255,255,255,0.1); font-size: 12px; color: rgba(255,255,255,0.4); }
-    .footer a { color: rgba(255,255,255,0.6); }
-  </style>
 </head>
-<body>
-  <div class="container">
-    <div class="header">
-      <h1>{{site_name}}</h1>
-    </div>
-    <div class="content">
-      {{content}}
-    </div>
-    {{#cta}}
-    <div class="cta">
-      <a href="{{cta_url}}">{{cta_text}}</a>
-    </div>
-    {{/cta}}
-    {{#show_unsubscribe}}
-    <div class="footer">
-      <p>Si no deseas recibir más correos, puedes <a href="{{unsubscribe_url}}">cancelar tu suscripción</a>.</p>
-    </div>
-    {{/show_unsubscribe}}
-  </div>
+<body style="margin:0;padding:0;background-color:#0a0a0a;font-family:Georgia,'Times New Roman',serif;">
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#0a0a0a;">
+    <tr>
+      <td align="center" style="padding:40px 20px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="max-width:600px;background-color:#0a0a0a;">
+          <tr>
+            <td align="center" style="padding:30px 0;border-bottom:1px solid rgba(255,255,255,0.1);">
+              <h1 style="color:#F3EAD3;font-size:24px;margin:0;font-weight:400;letter-spacing:2px;">{{site_name}}</h1>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:30px 0;color:#e5e2e1;font-size:16px;line-height:1.8;">
+              {{content}}
+            </td>
+          </tr>
+          {{#cta}}
+          <tr>
+            <td align="center" style="padding:20px 0;">
+              <a href="{{cta_url}}" style="display:inline-block;padding:14px 36px;background-color:#F3EAD3;color:#0a0a0a;text-decoration:none;font-size:14px;letter-spacing:2px;text-transform:uppercase;">{{cta_text}}</a>
+            </td>
+          </tr>
+          {{/cta}}
+          {{#show_unsubscribe}}
+          <tr>
+            <td align="center" style="padding:30px 0;border-top:1px solid rgba(255,255,255,0.1);font-size:12px;color:rgba(255,255,255,0.4);">
+              <p style="margin:0;">Si no deseas recibir más correos, puedes <a href="{{unsubscribe_url}}" style="color:rgba(255,255,255,0.6);">cancelar tu suscripción</a>.</p>
+            </td>
+          </tr>
+          {{/show_unsubscribe}}
+        </table>
+      </td>
+    </tr>
+  </table>
 </body>
 </html>`;
 
