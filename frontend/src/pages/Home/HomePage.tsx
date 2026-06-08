@@ -277,7 +277,7 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-      )}
+      ) : null}
 
       {/* Poetic Introduction */}
       <section className="py-32 bg-surface-container-lowest">
