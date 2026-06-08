@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Delete, Param, Body, UseGuards, Logger } from '@nestjs/common';
+import { Controller, Post, Get, Delete, Param, Body, UseGuards, UseInterceptors, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
@@ -7,10 +7,12 @@ import { Roles } from '../decorators/roles.decorator';
 import { UserRole } from '../models/user.schema';
 import { Coupon, CouponDocument } from '../models/coupon.schema';
 import { PolarService } from '../utils/polar.service';
+import { AdminDemoInterceptor } from '../interceptors/admin-demo.interceptor';
 
 @Controller('admin/coupons')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.ADMIN)
+@UseInterceptors(AdminDemoInterceptor)
 export class AdminCouponsController {
   private readonly logger = new Logger(AdminCouponsController.name);
 

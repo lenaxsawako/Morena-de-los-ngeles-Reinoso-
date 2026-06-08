@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Body, Put, Delete, Query, UseGuards, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Param, Post, Body, Put, Delete, Query, UseGuards, UseInterceptors, NotFoundException, BadRequestException } from '@nestjs/common';
 import { AdminCommunityService } from './admin-community.service';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { RolesGuard } from '../guards/roles.guard';
@@ -6,10 +6,12 @@ import { Roles } from '../decorators/roles.decorator';
 import { Review, ReviewDocument, ReviewStatus } from '../models/review.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { AdminDemoInterceptor } from '../interceptors/admin-demo.interceptor';
 
 @Controller('admin/community')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('admin')
+@UseInterceptors(AdminDemoInterceptor)
 export class AdminCommunityController {
   constructor(private adminCommunityService: AdminCommunityService) {}
 
@@ -36,6 +38,7 @@ export class AdminCommunityController {
 @Controller('admin/reviews')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('admin')
+@UseInterceptors(AdminDemoInterceptor)
 export class AdminReviewsController {
   constructor(
     private adminCommunityService: AdminCommunityService,
@@ -105,6 +108,7 @@ export class AdminReviewsController {
 @Controller('admin/readers')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('admin')
+@UseInterceptors(AdminDemoInterceptor)
 export class AdminReadersController {
   constructor(private adminCommunityService: AdminCommunityService) {}
 

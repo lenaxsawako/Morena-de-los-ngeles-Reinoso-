@@ -7,16 +7,19 @@ import {
   Body,
   Param,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AdminSettingsService } from './admin-settings.service';
 import { CreateCategoryDto, UpdateCategoryDto } from './dto/settings.dto';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { RolesGuard } from '../guards/roles.guard';
 import { Roles } from '../decorators/roles.decorator';
+import { AdminDemoInterceptor } from '../interceptors/admin-demo.interceptor';
 
 @Controller('admin/categories')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('admin')
+@UseInterceptors(AdminDemoInterceptor)
 export class AdminCategoriesController {
   constructor(private adminSettingsService: AdminSettingsService) {}
 

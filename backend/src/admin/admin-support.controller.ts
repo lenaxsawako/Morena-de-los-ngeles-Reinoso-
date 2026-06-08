@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Patch, Body, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Patch, Body, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import { SupportService } from '../support/support.service';
 import { UpdateTicketDto } from '../support/dto/update-ticket.dto';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
@@ -7,10 +7,12 @@ import { Roles } from '../decorators/roles.decorator';
 import { UserRole } from '../models/user.schema';
 import { EventEmitter2 } from '@nestjs/event-emitter';
 import { TicketStatus } from '../models/support-ticket.schema';
+import { AdminDemoInterceptor } from '../interceptors/admin-demo.interceptor';
 
 @Controller('admin/support')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles(UserRole.ADMIN)
+@UseInterceptors(AdminDemoInterceptor)
 export class AdminSupportController {
   constructor(
     private supportService: SupportService,

@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import AdminSidebar from '../../components/AdminSidebar';
+import { authService } from '../../services/auth';
 import './admin.css';
 
 export default function AdminLayout() {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [notificationModal, setNotificationModal] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const isDemo = authService.isDemoUser();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -47,6 +49,18 @@ export default function AdminLayout() {
 
       {/* Main Wrapper */}
       <div className="admin-main-wrapper">
+        {isDemo && (
+          <div style={{
+            background: '#854d0e',
+            color: '#fef3c7',
+            textAlign: 'center',
+            padding: '0.5rem 1rem',
+            fontSize: '0.875rem',
+            fontWeight: 500,
+          }}>
+            Modo demo — los cambios no se guardan
+          </div>
+        )}
         {/* Top Navigation */}
         <header className="admin-navbar">
           <div className="admin-navbar-right">

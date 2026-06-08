@@ -6,6 +6,7 @@ export type UserDocument = User & Document;
 export enum UserRole {
   USER = 'user',
   ADMIN = 'admin',
+  ADMIN_DEMO = 'admin-demo',
 }
 
 @Schema({

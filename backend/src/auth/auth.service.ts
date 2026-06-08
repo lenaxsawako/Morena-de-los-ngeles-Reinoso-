@@ -20,6 +20,7 @@ export class AuthService {
       email: user.email,
       sub: user._id.toString(),
       isAdmin: user.roles?.includes(UserRole.ADMIN) || false,
+      roles: user.roles || [],
     };
 
     this.eventEmitter.emit('user.registered', { email, userId: user._id.toString() });
@@ -38,6 +39,7 @@ export class AuthService {
       email: valid.email,
       sub: valid._id.toString(),
       isAdmin: valid.roles?.includes(UserRole.ADMIN) || false,
+      roles: valid.roles || [],
     };
     return { access_token: this.jwtService.sign(payload) };
   }

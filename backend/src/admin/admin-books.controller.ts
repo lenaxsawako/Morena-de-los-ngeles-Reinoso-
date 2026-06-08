@@ -27,6 +27,7 @@ import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { RolesGuard } from '../guards/roles.guard';
 import { Roles } from '../decorators/roles.decorator';
 import { CloudinaryService } from '../utils/cloudinary.service';
+import { AdminDemoInterceptor } from '../interceptors/admin-demo.interceptor';
 
 const COVER_UPLOAD_OPTIONS = {
   storage: memoryStorage(),
@@ -36,6 +37,7 @@ const COVER_UPLOAD_OPTIONS = {
 @Controller('admin/books')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('admin')
+@UseInterceptors(AdminDemoInterceptor)
 export class AdminBooksController {
   constructor(
     private adminBooksService: AdminBooksService,
@@ -254,6 +256,7 @@ export class AdminBooksController {
 @Controller('admin/dashboard')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('admin')
+@UseInterceptors(AdminDemoInterceptor)
 export class AdminDashboardController {
   constructor(
     private adminAnalyticsService: AdminAnalyticsService,

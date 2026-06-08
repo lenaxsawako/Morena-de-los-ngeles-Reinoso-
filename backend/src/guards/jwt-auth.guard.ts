@@ -37,7 +37,7 @@ export class JwtAuthGuard implements CanActivate {
         this.logger.warn(`Revoked token used: ${payload.sub}`);
         throw new UnauthorizedException('Token revoked');
       }
-      (request as any).user = { userId: payload.sub, email: payload.email };
+      (request as any).user = { userId: payload.sub, email: payload.email, roles: payload.roles || [] };
       return true;
     } catch (error) {
       if (error instanceof UnauthorizedException) throw error;

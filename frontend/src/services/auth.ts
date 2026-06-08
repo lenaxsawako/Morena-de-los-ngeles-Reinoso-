@@ -188,7 +188,7 @@ export const authService = {
    * Decodifica el JWT para obtener el rol del usuario
    * @returns Rol del usuario ('user' | 'admin') o null si no está autenticado
    */
-  getUserRole(): 'user' | 'admin' | null {
+  getUserRole(): 'user' | 'admin' | 'admin-demo' | null {
     const token = this.getToken();
     if (!token) return null;
 
@@ -197,15 +197,13 @@ export const authService = {
       if (parts.length !== 3) return null;
 
       const payload = JSON.parse(atob(parts[1]));
-      let role: 'user' | 'admin' | null = null;
+      const roles: string[] = payload.roles || [];
 
-      if (payload.isAdmin === true) {
-        role = 'admin';
-      } else if (payload.role) {
-        role = payload.role;
-      }
+      if (roles.includes('admin-demo')) return 'admin-demo';
+      if (payload.isAdmin === true || roles.includes('admin')) return 'admin';
+      if (payload.role) return payload.role;
 
-      return role;
+      return null;
     } catch {
       return null;
     }
@@ -216,7 +214,15 @@ export const authService = {
    * @returns true si el usuario tiene rol 'admin'
    */
   isAdmin(): boolean {
-    return this.getUserRole() === 'admin';
+    const role = this.getUserRole();
+    return role === 'admin' || role === 'admin-demo';
+  },
+
+  /**
+   * Verifica si el usuario es demo (admin-demo)
+   */
+  isDemoUser(): boolean {
+    return this.getUserRole() === 'admin-demo';
   },
 
   /**

@@ -13,15 +13,17 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 import { AdminSettingsService } from './admin-settings.service';
-import { CloudinaryService } from '../utils/cloudinary.service';
 import { UpdateSettingsDto } from './dto/settings.dto';
+import { CloudinaryService } from '../utils/cloudinary.service';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { RolesGuard } from '../guards/roles.guard';
 import { Roles } from '../decorators/roles.decorator';
+import { AdminDemoInterceptor } from '../interceptors/admin-demo.interceptor';
 
 @Controller('admin/settings')
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Roles('admin')
+@UseInterceptors(AdminDemoInterceptor)
 export class AdminSettingsController {
   constructor(
     private adminSettingsService: AdminSettingsService,
