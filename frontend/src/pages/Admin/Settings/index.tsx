@@ -54,6 +54,7 @@ interface EmailSettings {
 
 interface SystemSettings {
   maintenanceMode: boolean;
+  maintenanceMessage: string;
   version: string;
   environment: 'development' | 'production';
   lastDeployment: string;
@@ -185,9 +186,10 @@ export default function Settings() {
           if (settings.system) {
             setSystem({
               maintenanceMode: settings.system.maintenanceMode,
+              maintenanceMessage: settings.system.maintenanceMessage || 'Site under maintenance',
               version: '1.0.0',
               environment: 'production',
-              lastDeployment: settings.system.maintenanceMessage,
+              lastDeployment: '',
             });
           }
 
@@ -278,9 +280,10 @@ export default function Settings() {
   // System
   const [system, setSystem] = useState<SystemSettings>({
     maintenanceMode: false,
+    maintenanceMessage: 'Site under maintenance',
     version: '1.0.0',
     environment: 'production',
-    lastDeployment: 'Jun 2, 2026 at 14:30',
+    lastDeployment: '',
   });
 
   // Launch
@@ -631,7 +634,7 @@ export default function Settings() {
       await adminBooksService.updateSettings({
         system: {
           maintenanceMode: system.maintenanceMode,
-          maintenanceMessage: system.lastDeployment,
+          maintenanceMessage: system.maintenanceMessage,
         },
         launchMode: launch.launchMode,
         launchDate: launch.launchDate || null,
@@ -2005,6 +2008,20 @@ export default function Settings() {
                 <span className="toggle-slider"></span>
               </label>
             </div>
+
+            {system.maintenanceMode && (
+              <div className="settings-field-group" style={{ marginTop: '1rem' }}>
+                <label htmlFor="maintenanceMessage" className="settings-label">Mensaje de mantenimiento</label>
+                <input
+                  id="maintenanceMessage"
+                  type="text"
+                  value={system.maintenanceMessage}
+                  onChange={e => setSystem({ ...system, maintenanceMessage: e.target.value })}
+                  placeholder="Site under maintenance"
+                  className="w-full bg-white/5 border border-white/20 text-primary placeholder-on-surface-variant px-4 py-3 font-body-md focus:outline-none focus:border-accent-gold transition-colors"
+                />
+              </div>
+            )}
 
             {/* Launch Configuration */}
             <div className="settings-field-group" style={{ marginTop: '1.5rem' }}>
